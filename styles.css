@@ -88,3 +88,10 @@
 .guide-pathways>div{border:1px solid #dce7e5;border-radius:10px;padding:13px;background:#f8fbfa}
 .guide-pathways p{font-size:13px;margin:5px 0 0}.brief-step-list{margin:6px 0 18px;padding-left:23px}.brief-step-list li{margin:5px 0}
 @media(max-width:580px){.guide-pathways{grid-template-columns:1fr}.teachsim-dialog{padding:17px}.dialog-top{flex-wrap:wrap}.top-actions{justify-content:center}}
+
+/* V6.3: retain readable controls and content on narrow screens and at zoom. */
+.selector-row select{max-width:100%;min-width:0;width:min(100%,420px)}
+.card,.editor-main,.scene-target{min-width:0;overflow-wrap:anywhere}
+.actions.right{flex-wrap:wrap}
+.file-label:focus-within{outline:3px solid #b1a243;outline-offset:2px}
+@media(max-width:420px){.scenario-list{grid-template-columns:1fr}.quick-step-toolbar{flex-wrap:wrap}.scene-target{max-width:100%}}

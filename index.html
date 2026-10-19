@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>TeachSim V6.2 · Instructional rehearsal</title>
+  <title>TeachSim V6.3 · Instructional rehearsal</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -72,7 +72,7 @@
     <div class="editor-layout">
       <aside class="card library-panel">
         <div class="library-heading"><h2>Your scenarios</h2><span class="small subdued" id="scenario-total"></span></div>
-        <div id="scenario-list" class="scenario-list" role="list"></div>
+        <div id="scenario-list" class="scenario-list" role="group" aria-label="Scenario library"></div>
         <div class="library-buttons">
           <button type="button" class="btn primary full" id="create-scenario">＋ Create from template</button>
           <button type="button" class="btn full" id="duplicate-scenario">Duplicate selected</button>
@@ -104,7 +104,7 @@
               <label class="all">Brief learner context <span class="small subdued">(fictional only)</span><textarea id="quick-profile" data-quick="learnerProfile" maxlength="1200" rows="3" required></textarea></label>
               <label class="all">Teaching procedure <span class="small subdued">(describe the existing fixed rules accurately; editing text does not change them)</span><textarea id="quick-procedure" data-quick="procedure" maxlength="1400" rows="3" required></textarea></label>
             </div>
-            <div class="quick-steps-head"><div><h3>Task steps <span id="quick-count" class="small subdued"></span></h3><p class="small subdued">Use <strong>＋ Add step</strong> or <strong>Remove</strong> on any step. Reorder with ↑ ↓. Each controlled variation updates automatically; within one scenario they share the same task steps.</p></div><button type="button" class="btn small-btn" id="quick-add-step">＋ Add step</button></div>
+            <div class="quick-steps-head"><div><h3>Task steps <span id="quick-count" class="small subdued"></span></h3><p class="small subdued">Custom response wording is preserved when renaming steps or targets; edit it in Advanced settings. Use <strong>＋ Add step</strong> or <strong>Remove</strong> on any step. Reorder with ↑ ↓. Each controlled variation updates automatically; within one scenario they share the same task steps.</p></div><button type="button" class="btn small-btn" id="quick-add-step">＋ Add step</button></div>
             <div id="quick-steps"></div>
             <button type="button" class="btn" id="quick-add-step-bottom">＋ Add another step</button>
             <details class="content-edit-panel" id="model-content-panel"><summary>Trainer modelling & worked example <span>optional</span></summary><div class="content-edit-body">
@@ -139,7 +139,7 @@
           </div>
         </details>
         <details class="advanced-details publish-details" id="publish-panel"><summary>Publish or back up your scenarios <span class="small subdued">· GitHub workflow</span></summary><div class="advanced-content">
-        <div class="card pad publish-panel"><div class="label">4 / Save and publish</div><h3>Export instructional content library</h3><p class="small subdued">Download a JSON backup or export <code>scenarios.js</code> and replace that file in your GitHub repository. Your local browser drafts do not update the public site.</p><div class="actions wrap"><button type="button" class="btn" id="export-json">↓ Download JSON backup</button><button type="button" class="btn primary" id="export-github">↓ Export scenarios.js for GitHub</button><label for="import-json" class="btn file-label">↑ Import JSON backup</label><input id="import-json" type="file" accept=".json,application/json" class="sr-only"></div><hr><div class="actions wrap"><button type="button" class="btn subtle" id="restore-published">Restore published library</button><button type="button" class="btn danger" id="delete-scenario">Delete selected scenario</button></div></div>
+        <div class="card pad publish-panel"><div class="label">4 / Save and publish</div><h3>Export instructional content library</h3><p class="small subdued">Download a JSON backup or export <code>scenarios.js</code> and replace that file in your GitHub repository. Your local browser drafts do not update the public site.</p><div class="actions wrap"><button type="button" class="btn" id="export-json">↓ Download JSON backup</button><button type="button" class="btn primary" id="export-github">↓ Export scenarios.js for GitHub</button><label for="import-json" class="btn file-label">↑ Import JSON backup<input id="import-json" type="file" accept=".json,application/json" class="sr-only"></label></div><hr><div class="actions wrap"><button type="button" class="btn subtle" id="restore-published">Restore published library</button><button type="button" class="btn danger" id="delete-scenario">Delete selected scenario</button></div></div>
         </div></details>
       </div>
     </div>
@@ -165,7 +165,7 @@
   </dialog>
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 </main>
-<footer class="footer">TeachSim V6.2 · Fictional learner profiles only · Local browser drafts · Not an MOE-approved system. Do not enter student identifiers or sensitive information.</footer>
+<footer class="footer">TeachSim V6.3 · Fictional learner profiles only · Local browser drafts · Not an MOE-approved system. Do not enter student identifiers or sensitive information.</footer>
 <script src="scenarios.js"></script>
 <script src="templates.js"></script>
 <script src="app.js"></script>

@@ -1,10 +1,18 @@
-# TeachSim V6.2 — Guided practice + editable instructional content
+# TeachSim V6.3 — Guided practice + editable instructional content
 
 **TeachSim** — *Practise. Reflect. Refine.*
 
 A fictional, rule-based SPED instructional rehearsal prototype. It is **not MOE-approved** and has not been validated for assessing instructional fidelity or teacher competence. Designed for trainer-led exploration, not independent clinical or student instruction.
 
-## What's changed from V6.1
+## V6.3 — educator trial preparation
+
+This release protects custom response wording, improves draft/import error handling,
+prevents legacy drafts returning after restore, and adds navigation, focus and
+narrow-screen fixes. It keeps the existing simulation rules and deferred feedback.
+See [ROADMAP.md](ROADMAP.md) for the architecture audit, priorities and manual trial
+gates, and [tests/README.md](tests/README.md) for development checks. V7 remains planned.
+
+## Existing V6.2 learning flow
 
 - **How TeachSim works** guide available from the top menu and preparation page.
 - **New teacher = guided practice**: click a pre-written task direction; choose whether to wait, point, model, acknowledge and advance. Uses the first, predictable controlled response pattern. **No hints or assessment until the end**.

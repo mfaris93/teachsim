@@ -1,7 +1,8 @@
 'use strict';
-/* TeachSim V6.2: local-only, deterministic educational demonstration.
+/* TeachSim V6.3: local-only, deterministic educational demonstration.
    NO network calls, AI model, PII processing, or assessment of real teaching fidelity. */
 (() => {
+  const LEGACY_STORAGE_KEY='teachlab_v3_drafts';
   const STORAGE_KEY='teachlab_v4_drafts'; // intentionally preserved so users keep prior browser drafts
   const TEMPLATES=Array.isArray(window.TEACHLAB_TEMPLATES)?cloneSafe(window.TEACHLAB_TEMPLATES):[];
   function cloneSafe(obj){return JSON.parse(JSON.stringify(obj));}
@@ -76,24 +77,28 @@
   let library=checkLibrary(SEED),selectedId=library[0]?.id,patternIndex=0,pathway='new',page='prepare',dirty=false;
   let stepIndex=0,records=[],practiceState=null,toastTimer=null,wizardStage='details';
   function toast(message,error=false){const t=$('toast');t.textContent=message;t.classList.remove('hidden');t.classList.toggle('error-toast',error);clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.add('hidden'),5300);}
-  function schemaStep(item,index){return {
+  function schemaStep(item,index){if(!item||typeof item!=='object'||Array.isArray(item))throw Error(`Step ${index+1} must be an object.`);return {
     id:fieldString(item.id||`step-${index+1}`,85),name:fieldString(item.name,100),icon:fieldString(item.icon||'🧩',16),iconMode:item.iconMode==='manual'?'manual':'auto',target:fieldString(item.target,100),context:fieldString(item.context,650),direction:fieldString(item.direction,220),initial:fieldString(item.initial,650),waiting:fieldString(item.waiting,650),gestureNoResponse:fieldString(item.gestureNoResponse,650),independent:fieldString(item.independent,650),gestureDone:fieldString(item.gestureDone,650),modelDone:fieldString(item.modelDone,650)};
   }
-  function normalise(input){
+  function normalise(input,strict=false){
     if(!input||typeof input!=='object'||Array.isArray(input))throw Error('Scenario is not an object.');
     if(!Array.isArray(input.steps)||input.steps.length<1||input.steps.length>16)throw Error('Each scenario needs 1–16 task steps.');
     if(!Array.isArray(input.patterns)||input.patterns.length<1||input.patterns.length>6)throw Error('Each scenario needs 1–6 response patterns.');
     const steps=input.steps.map(schemaStep);
+    if(strict)for(const [i,p] of input.patterns.entries()){
+      if(!p||!Array.isArray(p.needs)||p.needs.length!==steps.length||p.needs.some(n=>!Number.isInteger(n)||n<0||n>2))throw Error(`Variation ${i+1} needs one support value (0, 1 or 2) per task step.`);
+    }
     const patterns=input.patterns.map((p,i)=>({id:fieldString(p?.id||`P${i+1}`,35),name:fieldString(p?.name||`Variation ${i+1}`,80),needs:steps.map((_,j)=>limit(p?.needs?.[j],0,2))}));
     return {id:fieldString(input.id||slug(),90),title:fieldString(input.title,100),domain:fieldString(input.domain,80),learnerName:fieldString(input.learnerName,65),learnerProfile:fieldString(input.learnerProfile,1200),objective:fieldString(input.objective,800),procedure:fieldString(input.procedure,1400),steps,patterns,content:schemaContent(input.content)};
   }
-  function checkLibrary(lib){if(!Array.isArray(lib)||lib.length<1||lib.length>25)throw Error('A library must contain 1–25 scenarios.');let ids=new Set();return lib.map(x=>{let s=normalise(x);if(!s.id||ids.has(s.id))throw Error('Each scenario needs a unique ID.');ids.add(s.id);return s;});}
+  function checkLibrary(lib,strict=false){if(!Array.isArray(lib)||lib.length<1||lib.length>25)throw Error('A library must contain 1–25 scenarios.');let ids=new Set();return lib.map(x=>{let s=normalise(x,strict);if(!s.id||ids.has(s.id))throw Error('Each scenario needs a unique ID.');ids.add(s.id);return s;});}
   function validate(s){let errs=[];for(const [field,label] of [['title','scenario title'],['learnerName','learner name'],['learnerProfile','learner profile'],['objective','learning objective'],['procedure','instructional procedure']])if(!s[field]?.trim())errs.push(label);
     for(let i=0;i<s.steps.length;i++){const st=s.steps[i];for(const f of ['name','target','context','initial','waiting','gestureNoResponse','independent','gestureDone','modelDone'])if(!st[f]?.trim())errs.push(`step ${i+1}: ${f}`);}
     for(let i=0;i<s.patterns.length;i++)if(!s.patterns[i].name?.trim())errs.push(`variation ${i+1}: name`);
     return errs;}
   function validateAll(){const bad=library.flatMap(s=>validate(s).map(x=>`${s.title||'Untitled'}: ${x}`));if(bad.length)throw Error(`Complete these fields first: ${bad.slice(0,4).join('; ')}${bad.length>4?'…':''}`);}
-  try{const raw=localStorage.getItem(STORAGE_KEY)||localStorage.getItem('teachlab_v3_drafts');if(raw){library=checkLibrary(JSON.parse(raw));selectedId=library[0].id;}}catch(e){library=checkLibrary(SEED);selectedId=library[0]?.id;}
+  try{const raw=localStorage.getItem(STORAGE_KEY)||localStorage.getItem(LEGACY_STORAGE_KEY);if(raw){library=checkLibrary(JSON.parse(raw));selectedId=library[0].id;}}catch(e){library=checkLibrary(SEED);selectedId=library[0]?.id;}
+  let savedLibrary=clone(library);
   const current=()=>library.find(s=>s.id===selectedId)||library[0];
   // V6: one authored task and procedure, two adult-learner pathways.
   // Pattern 0 is predictable rehearsal (New); patterns 1+ are varied rehearsal
@@ -106,16 +111,18 @@
   function ensurePattern(){const available=indicesForPath();if(!available.includes(patternIndex))patternIndex=available[0]??0;}
   function setPathway(value){if(value!=='new'&&value!=='experienced')return;pathway=value;patternIndex=indicesForPath()[0]??0;renderPrepare();}
 
-  function saveDraft(){try{library=checkLibrary(library);localStorage.setItem(STORAGE_KEY,JSON.stringify(library));dirty=false;updateDraftStatus();toast('Draft library saved in this browser. Export to publish on GitHub.');return true;}catch(e){toast(`Cannot save: ${e.message}`,true);return false;}}
+  function persistLibrary(candidate){const checked=checkLibrary(candidate);localStorage.setItem(STORAGE_KEY,JSON.stringify(checked));savedLibrary=clone(checked);return checked;}
+  function saveDraft(){try{library=persistLibrary(library);dirty=false;updateDraftStatus();toast('Draft library saved in this browser. Export to publish on GitHub.');return true;}catch(e){toast(`Cannot save: ${e.message}`,true);return false;}}
   function updateDraftStatus(){if($('draft-status'))$('draft-status').textContent=dirty?'Unsaved edits on this device':'Local browser draft · not published to GitHub';}
   function markDirty(){dirty=true;updateDraftStatus();}
   function guardUnsaved(){return !dirty||confirm('You have unsaved edits in this scenario. Discard them?');}
   function selectScenario(id){if(!guardUnsaved())return; // editor inputs mutate the in-memory object; restore last saved draft if discarded
-    if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=clone(SEED);}dirty=false;}
+    if(dirty){library=clone(savedLibrary);dirty=false;}
     selectedId=library.some(s=>s.id===id)?id:library[0].id;patternIndex=0;wizardStage='details';renderEditor();renderPrepare();}
-  function setPage(to){page=to;const editor=to==='editor';$('page-editor').classList.toggle('hidden',!editor);$('teacher-space').classList.toggle('hidden',editor);$('nav-editor').classList.toggle('active',editor);$('nav-teacher').classList.toggle('active',!editor);for(const name of ['prepare','practice','review']){$('page-'+name).classList.toggle('hidden',editor||name!==to);const div=document.querySelector(`[data-stage="${name}"]`);div.classList.toggle('active',!editor&&name===to);div.classList.toggle('done',!editor&&['prepare','practice','review'].indexOf(name)<['prepare','practice','review'].indexOf(to));}window.scrollTo({top:0,behavior:'instant'});}
-  function goEditor(){wizardStage='details';setPage('editor');renderEditor();}
-  function goTeacher(){if(!guardUnsaved())return;if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=clone(SEED);}dirty=false;}renderPrepare();setPage('prepare');}
+  function setPage(to){page=to;const editor=to==='editor';$('page-editor').classList.toggle('hidden',!editor);$('teacher-space').classList.toggle('hidden',editor);$('nav-editor').classList.toggle('active',editor);$('nav-teacher').classList.toggle('active',!editor);for(const name of ['prepare','practice','review']){$('page-'+name).classList.toggle('hidden',editor||name!==to);const div=document.querySelector(`[data-stage="${name}"]`);div.classList.toggle('active',!editor&&name===to);div.classList.toggle('done',!editor&&['prepare','practice','review'].indexOf(name)<['prepare','practice','review'].indexOf(to));}window.scrollTo({top:0,behavior:'instant'});const heading=$(editor?'page-editor':'page-'+to).querySelector('h1');if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true});}}
+  function leavePractice(){return page!=='practice'||confirm('Leave this unfinished teaching episode? Your practice actions will be lost.');}
+  function goEditor(){if(!leavePractice())return;wizardStage='details';setPage('editor');renderEditor();}
+  function goTeacher(){if(!leavePractice()||!guardUnsaved())return;if(dirty){library=clone(savedLibrary);dirty=false;}renderPrepare();setPage('prepare');}
   function renderPrepare(){const s=current();if(!s)return;ensurePattern();$('scenario-picker').innerHTML=library.map(x=>`<option value="${escapeHTML(x.id)}">${escapeHTML(x.title||'Untitled scenario')}</option>`).join('');$('scenario-picker').value=selectedId;
     document.querySelectorAll('input[name="practice-pathway"]').forEach(el=>{el.checked=el.value===pathway;});
     const choices=indicesForPath(),idx=choices.indexOf(patternIndex);
@@ -172,7 +179,7 @@
     $('retry-next').textContent=variations.length<2?'No other variation in this pathway':'Try next variation →';
     $('step-feedback').innerHTML=records.map((r,i)=>{const st=s.steps[r.index],good=r.completed&&r.issues.length===0;const observed=r.events.map(e=>e.action==='say'?`Said “${e.details}”`:(ACTION_LABELS[e.action]||e.action)).join(' → ');const concerns=r.issues.map(code=>s.content.messages[code]||FEEDBACK[code]||'Review this action.');return `<details class="step-review" ${(pathway==='new'||!good)?'open':''}><summary><span><strong>${i+1}. ${escapeHTML(st.name)}</strong><br><small class="subdued">${escapeHTML(r.completionType||'Not completed')}</small></span><span class="rowstatus ${good?'':'review'}">${good?'Aligned':'Review'}</span></summary><div class="review-detail"><div class="label">Your actions</div><div class="sequence">${escapeHTML(observed)}</div><div class="label" style="margin-top:10px">Expected procedure for this simulated response</div><div class="sequence">${escapeHTML(expectedSequence(r.required).join(' → '))}</div><div class="review-callout">${good?escapeHTML(pathway==='new'?s.content.alignedNew:s.content.alignedExperienced): `<strong>${pathway==='new'?'What to practise on retry:':'Action sequence to revisit:'}</strong><ul>${concerns.map(c=>`<li>${escapeHTML(c)}</li>`).join('')}</ul>`}</div></div></details>`;}).join('');}
   function returnBrief(next=false){const eligible=indicesForPath();if(next&&eligible.length>1)patternIndex=eligible[(eligible.indexOf(patternIndex)+1)%eligible.length];renderPrepare();setPage('prepare');}
-  function refreshWizard(){
+  function refreshWizard(preserveQuickSteps=false){
     $('editor-toolbar').classList.toggle('hidden',wizardStage==='templates');
     for(const stage of ['templates','details','review']){
       const id=stage==='review'?'wizard-review-panel':`wizard-${stage}`;
@@ -192,12 +199,12 @@
       $('feedback-messages').innerHTML=Object.keys(FEEDBACK).map(key=>`<label class="wide-input">${escapeHTML(FEEDBACK_LABELS[key])}<textarea rows="2" maxlength="700" data-feedback-key="${escapeHTML(key)}">${escapeHTML(s.content.messages[key]||FEEDBACK[key])}</textarea></label>`).join('');
       $('quick-count').textContent=`(${s.steps.length} of 16)`;
       $('quick-add-step').disabled=s.steps.length>=16;
-      $('quick-steps').innerHTML=s.steps.map((st,i)=>`<div class="quick-step"><span class="quick-step-num">${i+1}</span><div class="quick-step-body"><div class="quick-step-toolbar"><div class="quick-step-label"><span class="quick-icon-preview" aria-label="Current visual: ${escapeHTML(st.icon||'🧩')}">${escapeHTML(st.icon||'🧩')}</span><strong>Step ${i+1}</strong></div><div class="quick-step-actions"><button type="button" class="btn" data-quick-move="up" data-i="${i}" ${i===0?'disabled':''} aria-label="Move step ${i+1} up">↑</button><button type="button" class="btn" data-quick-move="down" data-i="${i}" ${i===s.steps.length-1?'disabled':''} aria-label="Move step ${i+1} down">↓</button><button type="button" class="btn" data-quick-delete="${i}" ${s.steps.length===1?'disabled':''} aria-label="Remove step ${i+1}">Remove</button></div></div><div class="quick-step-fields"><label>What the student practises<input data-quick-step="${i}" data-quick-step-key="name" maxlength="100" value="${escapeHTML(st.name)}" placeholder="e.g. Put folder in bag"></label><label>Object to point at<input data-quick-step="${i}" data-quick-step-key="target" maxlength="100" value="${escapeHTML(st.target)}" placeholder="e.g. folder"></label><label>Step visual<select data-quick-step="${i}" data-quick-step-key="iconMode"><option value="auto" ${st.iconMode!=='manual'?'selected':''}>Auto · ${escapeHTML(suggestVisual(st))}</option>${VISUALS.map(([icon,label])=>`<option value="${escapeHTML(icon)}" ${st.iconMode==='manual'&&st.icon===icon?'selected':''}>${escapeHTML(icon)} ${escapeHTML(label)}</option>`).join('')}${st.iconMode==='manual'&&!VISUALS.some(([ic])=>ic===st.icon)?`<option selected value="${escapeHTML(st.icon)}">${escapeHTML(st.icon)} Custom</option>`:''}</select></label></div></div></div>`).join('');
+      if(!preserveQuickSteps)$('quick-steps').innerHTML=s.steps.map((st,i)=>`<div class="quick-step"><span class="quick-step-num">${i+1}</span><div class="quick-step-body"><div class="quick-step-toolbar"><div class="quick-step-label"><span class="quick-icon-preview" aria-label="Current visual: ${escapeHTML(st.icon||'🧩')}">${escapeHTML(st.icon||'🧩')}</span><strong>Step ${i+1}</strong></div><div class="quick-step-actions"><button type="button" class="btn" data-quick-move="up" data-i="${i}" ${i===0?'disabled':''} aria-label="Move step ${i+1} up">↑</button><button type="button" class="btn" data-quick-move="down" data-i="${i}" ${i===s.steps.length-1?'disabled':''} aria-label="Move step ${i+1} down">↓</button><button type="button" class="btn" data-quick-delete="${i}" ${s.steps.length===1?'disabled':''} aria-label="Remove step ${i+1}">Remove</button></div></div><div class="quick-step-fields"><label>What the student practises<input data-quick-step="${i}" data-quick-step-key="name" maxlength="100" value="${escapeHTML(st.name)}" placeholder="e.g. Put folder in bag"></label><label>Object to point at<input data-quick-step="${i}" data-quick-step-key="target" maxlength="100" value="${escapeHTML(st.target)}" placeholder="e.g. folder"></label><label>Step visual<select data-quick-step="${i}" data-quick-step-key="iconMode"><option value="auto" ${st.iconMode!=='manual'?'selected':''}>Auto · ${escapeHTML(suggestVisual(st))}</option>${VISUALS.map(([icon,label])=>`<option value="${escapeHTML(icon)}" ${st.iconMode==='manual'&&st.icon===icon?'selected':''}>${escapeHTML(icon)} ${escapeHTML(label)}</option>`).join('')}${st.iconMode==='manual'&&!VISUALS.some(([ic])=>ic===st.icon)?`<option selected value="${escapeHTML(st.icon)}">${escapeHTML(st.icon)} Custom</option>`:''}</select></label></div></div></div>`).join('');
       $('quick-summary').innerHTML=`<div class="summary-item"><div class="label">Scenario</div><h3>${escapeHTML(s.title)}</h3><p>${escapeHTML(s.objective)}</p></div><div class="summary-item"><div class="label">Fictional learner</div><p><strong>${escapeHTML(s.learnerName)}</strong> · ${escapeHTML(s.learnerProfile)}</p></div><div class="summary-item"><div class="label">Task steps</div><ol>${s.steps.map(st=>`<li>${escapeHTML(st.name)}</li>`).join('')}</ol></div><div class="summary-item"><div class="label">Controlled variations</div><div class="pattern-pills">${s.patterns.map((p,i)=>`<span>${i===0?'New':'Experienced'}: ${escapeHTML(p.name)} · ${p.needs.length} steps</span>`).join('')}</div></div><div class="summary-item"><div class="label">Instructional procedure</div><p>${escapeHTML(s.procedure)}</p></div><div class="summary-item"><div class="label">Trainer modelling notes</div><p>${escapeHTML(s.content.model)}</p></div>`;
     }
   }
   function openTemplatePicker(){if(!guardUnsaved())return;
-    if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=clone(SEED);}dirty=false;}
+    if(dirty){library=clone(savedLibrary);dirty=false;}
     wizardStage='templates';$('advanced-panel').open=false;$('publish-panel').open=false;
     renderEditor();
   }
@@ -222,15 +229,15 @@
   function finishWizard(){const problems=validate(current());if(problems.length){toast(`Complete these fields first: ${problems.slice(0,3).join(', ')}`,true);return;}
     if(dirty&&!saveDraft())return;patternIndex=0;renderPrepare();setPage('prepare');
   }
-  function renderEditor(){const s=current();$('scenario-total').textContent=`${library.length} / 25`; $('scenario-list').innerHTML=library.map(sc=>`<button type="button" class="scenario-item ${sc.id===selectedId?'selected':''}" data-select="${escapeHTML(sc.id)}"><strong>${escapeHTML(sc.title||'Untitled scenario')}</strong><span>${escapeHTML(sc.domain||'Uncategorised')}</span></button>`).join('');$('editing-title').textContent=s.title||'Untitled scenario';updateDraftStatus();
+  function renderEditor(preserveQuickSteps=false){const s=current();$('scenario-total').textContent=`${library.length} / 25`; $('scenario-list').innerHTML=library.map(sc=>`<button type="button" class="scenario-item ${sc.id===selectedId?'selected':''}" data-select="${escapeHTML(sc.id)}"><strong>${escapeHTML(sc.title||'Untitled scenario')}</strong><span>${escapeHTML(sc.domain||'Uncategorised')}</span></button>`).join('');$('editing-title').textContent=s.title||'Untitled scenario';updateDraftStatus();
     for(const key of ['title','domain','learnerName','learnerProfile','objective','procedure']){const inp=document.querySelector(`[data-key="${key}"]`);if(inp)inp.value=s[key]||'';}
     $('steps-editor').innerHTML=s.steps.map((st,i)=>`<div class="step-block"><div class="step-head"><h3>Step ${i+1}: ${escapeHTML(st.name||'Untitled')}</h3><div class="step-controls"><button type="button" class="btn" data-step-move="up" data-i="${i}" ${i===0?'disabled':''} aria-label="Move step ${i+1} up">↑</button><button type="button" class="btn" data-step-move="down" data-i="${i}" ${i===s.steps.length-1?'disabled':''} aria-label="Move step ${i+1} down">↓</button><button type="button" class="btn" data-step-delete="${i}" ${s.steps.length===1?'disabled':''}>Remove</button></div></div><div class="step-fields">
-      ${stepField(i,'name','Step name',st.name)}${stepField(i,'icon','Visual emoji',st.icon)}${stepField(i,'target','Pointing target',st.target)}${stepField(i,'direction','Example task direction (brief only)',st.direction)}
+      ${stepField(i,'name','Step name',st.name)}${stepField(i,'icon','Visual emoji',st.icon)}${stepField(i,'target','Pointing target',st.target)}${stepField(i,'direction','Prepared task direction (New pathway)',st.direction)}
       ${stepField(i,'context','Context',st.context,true)}${stepField(i,'initial','Before instruction',st.initial,true)}${stepField(i,'waiting','After waiting (no independent action)',st.waiting,true)}${stepField(i,'gestureNoResponse','After gesture (still requires a model)',st.gestureNoResponse,true)}${stepField(i,'independent','Independent response',st.independent,true)}${stepField(i,'gestureDone','Response after pointing',st.gestureDone,true)}${stepField(i,'modelDone','Response after modelling',st.modelDone,true)}
       </div></div>`).join('');
     $('patterns-editor').innerHTML=s.patterns.map((p,i)=>`<div class="pattern-block"><div class="step-head"><h3>Variation ${i+1} · ${i===0?'New pathway':'Experienced pathway'}</h3><button type="button" class="btn small-btn" data-pattern-delete="${i}" ${s.patterns.length===1?'disabled':''}>Remove</button></div><div class="pattern-row"><label>Variation name<input data-pattern="${i}" data-pattern-key="name" maxlength="80" value="${escapeHTML(p.name)}"></label></div><div class="pattern-grid">${p.needs.map((need,j)=>`<label>${j+1}. ${escapeHTML(s.steps[j].name||'Untitled step')}<select data-pattern="${i}" data-need="${j}"><option value="0" ${need===0?'selected':''}>0 · Independent after wait</option><option value="1" ${need===1?'selected':''}>1 · After gesture</option><option value="2" ${need===2?'selected':''}>2 · After modelling</option></select></label>`).join('')}</div></div>`).join('');
-    refreshWizard();}
-  function stepField(i,key,label,value,multi=false){return `<label class="${multi?'all':''}">${escapeHTML(label)}${multi?`<textarea rows="2" maxlength="650" data-step="${i}" data-step-key="${key}">${escapeHTML(value)}</textarea>`:`<input maxlength="${key==='icon'?16:220}" data-step="${i}" data-step-key="${key}" value="${escapeHTML(value)}">`}</label>`;}
+    refreshWizard(preserveQuickSteps);}
+  function stepField(i,key,label,value,multi=false){return `<label class="${multi?'all':''}">${escapeHTML(label)}${multi?`<textarea rows="2" maxlength="650" data-step="${i}" data-step-key="${key}">${escapeHTML(value)}</textarea>`:`<input maxlength="${key==='icon'?16:key==='direction'?220:100}" data-step="${i}" data-step-key="${key}" value="${escapeHTML(value)}">`}</label>`;}
   function newStep(){return schemaStep({id:slug(),name:'New task step',icon:'🧩',target:'teaching material',context:'Learner is ready for the next step.',direction:'Please complete this step.',initial:'Learner looks at the material.',waiting:'Learner has not responded yet.',gestureNoResponse:'Learner notices the gesture but does not act.',independent:'Learner completes the step independently.',gestureDone:'Learner completes the step after the gesture.',modelDone:'Learner completes the step after the model.'},0);}
   function addStep(guided=false){const s=current();if(s.steps.length>=16){toast('Maximum 16 steps per scenario.',true);return;}const st=newStep();if(guided){st.name='';st.target='';st.iconMode='auto';st.icon='🧩';refreshStepResponses(st);}s.steps.push(st);s.patterns.forEach(p=>p.needs.push(0));markDirty();renderEditor();}
   function deleteStep(i){const s=current();if(s.steps.length<=1)return;if(!confirm(`Remove step ${i+1} from all variations?`))return;s.steps.splice(i,1);s.patterns.forEach(p=>p.needs.splice(i,1));markDirty();renderEditor();}
@@ -239,20 +246,20 @@
   function createScenario(){openTemplatePicker();}
   function addMissingBuiltIns(){
     if(!guardUnsaved())return;
-    if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=clone(SEED);}dirty=false;}
+    if(dirty){library=clone(savedLibrary);dirty=false;}
     const existing=new Set(library.map(s=>s.id));const toAdd=SEED.filter(s=>!existing.has(s.id));
     if(!toAdd.length){toast('All built-in examples are already in your library.');return;}
     if(library.length+toAdd.length>25){toast('Not enough space. Export a backup or remove a scenario first (maximum 25).',true);return;}
-    library.push(...toAdd.map(normalise)); selectedId=toAdd[0].id;patternIndex=0;wizardStage='details';dirty=true;
+    library.push(...toAdd.map(s=>normalise(s))); selectedId=toAdd[0].id;patternIndex=0;wizardStage='details';dirty=true;
     if(saveDraft()){renderEditor();renderPrepare();toast(`${toAdd.length} new built-in example${toAdd.length===1?'':'s'} added without removing your existing work.`);}
   }
-  function duplicateScenario(){if(!guardUnsaved())return;if(library.length>=25){toast('Maximum 25 scenarios.',true);return;}if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=clone(SEED);}dirty=false;}
+  function duplicateScenario(){if(!guardUnsaved())return;if(library.length>=25){toast('Maximum 25 scenarios.',true);return;}if(dirty){library=clone(savedLibrary);dirty=false;}
     const s=normalise(clone(current()));s.id=slug();s.title+=' (copy)';library.push(s);selectedId=s.id;patternIndex=0;wizardStage='details';markDirty();renderEditor();}
   function deleteScenario(){if(library.length<=1){toast('Keep at least one scenario.',true);return;}if(!confirm(`Delete “${current().title}” from your local library?`))return;library=library.filter(x=>x.id!==selectedId);selectedId=library[0].id;patternIndex=0;wizardStage='details';dirty=true;saveDraft();renderEditor();}
   function download(filename,content,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
-  function exportLibrary(mode){try{validateAll();const data=JSON.stringify({version:2,scenarios:library},null,2);if(mode==='json')download('teachsim-scenarios-backup.json',data,'application/json;charset=utf-8');else download('scenarios.js',`/* Exported from TeachSim V6.2 Content Editor. Fictional training data only. */\nwindow.TEACHLAB_SEED_SCENARIOS = ${JSON.stringify(library,null,2)};\n`,'application/javascript;charset=utf-8');toast(mode==='json'?'JSON backup downloaded.':'scenarios.js downloaded. Commit it to your repository to update your public website.');}catch(e){toast(e.message,true);}}
-  async function importBackup(file){if(!file)return;if(file.size>2000000){toast('Backup exceeds the 2 MB limit.',true);return;}if(!guardUnsaved())return;try{const obj=JSON.parse(await file.text());const candidates=Array.isArray(obj)?obj:(Array.isArray(obj.scenarios)?obj.scenarios:[obj]);const newLibrary=checkLibrary(candidates);if(!confirm(`Replace your browser library with ${newLibrary.length} imported scenario(s)? Export a backup first if needed.`))return;library=newLibrary;selectedId=library[0].id;patternIndex=0;dirty=true;saveDraft();renderEditor();toast('Imported library saved in this browser.');}catch(e){toast(`Import failed: ${e.message}`,true);}finally{$('import-json').value='';}}
-  function restore(){if(!confirm('Discard local drafts and restore the scenarios bundled with this website? Export a backup first if needed.'))return;try{localStorage.removeItem(STORAGE_KEY);}catch{}library=checkLibrary(SEED);selectedId=library[0].id;patternIndex=0;dirty=false;renderEditor();toast('Published library restored.');}
+  function exportLibrary(mode){try{if(mode!=='json')validateAll();const data=JSON.stringify({version:2,scenarios:library},null,2);if(mode==='json')download('teachsim-scenarios-backup.json',data,'application/json;charset=utf-8');else download('scenarios.js',`/* Exported from TeachSim V6.3 Content Editor. Fictional training data only. */\nwindow.TEACHLAB_SEED_SCENARIOS = ${JSON.stringify(library,null,2)};\n`,'application/javascript;charset=utf-8');toast(mode==='json'?'JSON backup downloaded.':'scenarios.js downloaded. Commit it to your repository to update your public website.');}catch(e){toast(e.message,true);}}
+  async function importBackup(file){if(!file)return;if(file.size>2000000){toast('Backup exceeds the 2 MB limit.',true);return;}if(!guardUnsaved())return;try{const obj=JSON.parse(await file.text());const candidates=Array.isArray(obj)?obj:(Array.isArray(obj.scenarios)?obj.scenarios:[obj]);const newLibrary=checkLibrary(candidates,true);if(!confirm(`Replace your browser library with ${newLibrary.length} imported scenario(s)? Export a backup first if needed.`))return;library=persistLibrary(newLibrary);selectedId=library[0].id;patternIndex=0;dirty=false;wizardStage='details';renderEditor();toast('Imported library saved in this browser.');}catch(e){toast(`Import failed: ${e.message}`,true);}finally{$('import-json').value='';}}
+  function restore(){if(!confirm('Discard local drafts and restore the scenarios bundled with this website? Export a backup first if needed.'))return;try{localStorage.removeItem(LEGACY_STORAGE_KEY);localStorage.removeItem(STORAGE_KEY);}catch(e){toast(`Cannot restore: ${e.message}`,true);return;}library=checkLibrary(SEED);savedLibrary=clone(library);selectedId=library[0].id;patternIndex=0;dirty=false;renderEditor();toast('Published library restored.');}
   /* Navigation and teacher interaction */
   $('nav-editor').addEventListener('click',goEditor);$('nav-teacher').addEventListener('click',goTeacher);
   function openDialog(el){if(typeof el.showModal==='function')el.showModal();else el.setAttribute('open','');}
@@ -296,18 +303,25 @@
       if(el.value==='auto'){st.iconMode='auto';st.icon=suggestVisual(st);}
       else{st.iconMode='manual';st.icon=el.value;}
     }else if(['name','target'].includes(key)){
-      st[key]=el.value;
-      refreshStepResponses(st);
+      // Keep authored response text. Refresh only fields still matching generated defaults.
+      const previous={...st},generated={...st};refreshStepResponses(generated);
+      st[key]=el.value;const updated={...st};refreshStepResponses(updated);
+      for(const field of ['direction','context','initial','waiting','gestureNoResponse','independent','gestureDone','modelDone']){
+        if(previous[field]===generated[field])st[field]=updated[field];
+      }
       if(st.iconMode!=='manual')st.icon=suggestVisual(st);
     }else{return;}
-    markDirty();renderEditor();
+    // Leave the active controls in place so Tab, click and select focus remain native.
+    const preview=el.closest('.quick-step').querySelector('.quick-icon-preview');
+    preview.textContent=st.icon||'🧩';preview.setAttribute('aria-label',`Current visual: ${st.icon||'🧩'}`);
+    markDirty();renderEditor(true);
   });
   $('wizard-review').addEventListener('click',advanceWizard);
   $('wizard-back').addEventListener('click',()=>{wizardStage='details';renderEditor();});
   $('wizard-commit').addEventListener('click',finishWizard);
-  $('wizard-leave').addEventListener('click',()=>{if(!guardUnsaved())return;if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=clone(SEED);}dirty=false;selectedId=library[0].id;}wizardStage='details';renderEditor();});
+  $('wizard-leave').addEventListener('click',()=>{if(!guardUnsaved())return;if(dirty){library=clone(savedLibrary);dirty=false;selectedId=library[0].id;}wizardStage='details';renderEditor();});
   $('create-scenario').addEventListener('click',createScenario);$('add-builtins').addEventListener('click',addMissingBuiltIns);$('duplicate-scenario').addEventListener('click',duplicateScenario);$('delete-scenario').addEventListener('click',deleteScenario);$('save-draft').addEventListener('click',()=>{saveDraft();renderEditor();});
-  $('preview-scenario').addEventListener('click',()=>{const errs=validate(current());if(errs.length){toast(`Fix the incomplete scenario fields: ${errs.slice(0,4).join(', ')}`,true);return;}if(dirty)saveDraft();patternIndex=0;renderPrepare();setPage('prepare');});
+  $('preview-scenario').addEventListener('click',()=>{const errs=validate(current());if(errs.length){toast(`Fix the incomplete scenario fields: ${errs.slice(0,4).join(', ')}`,true);return;}if(dirty&&!saveDraft())return;patternIndex=0;renderPrepare();setPage('prepare');});
   $('add-step').addEventListener('click',()=>addStep(false));$('add-pattern').addEventListener('click',addPattern);
   $('export-json').addEventListener('click',()=>exportLibrary('json'));$('export-github').addEventListener('click',()=>exportLibrary('github'));$('import-json').addEventListener('change',e=>importBackup(e.target.files[0]));$('restore-published').addEventListener('click',restore);
   $('scenario-list').addEventListener('click',e=>{const b=e.target.closest('[data-select]');if(b)selectScenario(b.dataset.select);});
