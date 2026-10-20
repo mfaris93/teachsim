@@ -5,7 +5,7 @@ window.TEACHLAB_SEED_SCENARIOS = [
     "title": "Handwashing routine",
     "domain": "Daily Living Skills",
     "learnerName": "Sam",
-    "learnerProfile": "Fictional learner rehearsing a short handwashing routine. Student actions are scripted; no diagnosis is implied.",
+    "learnerProfile": "Sam can follow short directions and is learning to complete a handwashing routine with less support.",
     "objective": "Practise giving a task direction, allowing a response opportunity, using the specified least-to-most prompts, and acknowledging completion.",
     "procedure": "Demonstration protocol (provisional): Say a brief task direction once → simulate a five-second wait → if needed, point at the relevant object → if still needed, model the action → acknowledge completion → advance. This is NOT validated teaching guidance; adapt with expert review.",
     "steps": [
@@ -104,7 +104,7 @@ window.TEACHLAB_SEED_SCENARIOS = [
     "title": "Packing a school bag",
     "domain": "Daily Living Skills",
     "learnerName": "Ari",
-    "learnerProfile": "Fictional learner practising a short packing routine using a visual checklist; responses are scripted and not linked to a diagnosis.",
+    "learnerProfile": "Learner uses a visual checklist to pack school materials and is practising greater independence.",
     "objective": "Rehearse an agreed task direction, response opportunity, prompting, and acknowledgement when packing essential school items.",
     "procedure": "Demonstration protocol (provisional): Say a brief task direction once → simulate a five-second wait → if needed, point at the relevant object → if still needed, model the action → acknowledge completion → advance. This is NOT validated teaching guidance; adapt with expert review.",
     "steps": [
@@ -302,9 +302,9 @@ window.TEACHLAB_SEED_SCENARIOS = [
     "title": "Clear a meal area",
     "domain": "Daily Living Skills",
     "learnerName": "Ari",
-    "learnerProfile": "Fictional learner practising clearing up after a meal. Learner actions and support needs are scripted for rehearsal, not a disability profile.",
+    "learnerProfile": "Learner is practising clearing used items and tidying a meal space.",
     "objective": "Rehearse supporting a learner to clear their eating area using opportunities for independent responding, prompts and acknowledgement.",
-    "procedure": "Provisional simulation protocol: Give one brief task direction → select Wait & observe (simulates an opportunity to respond, not actual timing) → if the scripted learner has not responded, point to the object → if still needed, model → acknowledge completion → advance. This is an illustrative rule set and must be reviewed by an instructional specialist.",
+    "procedure": "For this practice: give one brief task direction → wait for a response opportunity → if needed, point to the relevant material → if needed, model the action → acknowledge completion → continue to the next step.",
     "steps": [
       {
         "id": "clear-meal-area-1",
@@ -405,9 +405,9 @@ window.TEACHLAB_SEED_SCENARIOS = [
     "title": "Wipe a shared table",
     "domain": "Daily Living Skills",
     "learnerName": "Min",
-    "learnerProfile": "Fictional learner taking part in a familiar cleaning routine. The simulation uses scripted, non-predictive responses.",
+    "learnerProfile": "Learner follows familiar cleaning directions and is practising a table-wiping routine.",
     "objective": "Practise implementing instruction and graded prompting during a simple table-wiping routine.",
-    "procedure": "Provisional simulation protocol: Give one brief task direction → select Wait & observe (simulates an opportunity to respond, not actual timing) → if the scripted learner has not responded, point to the object → if still needed, model → acknowledge completion → advance. This is an illustrative rule set and must be reviewed by an instructional specialist.",
+    "procedure": "For this practice: give one brief task direction → wait for a response opportunity → if needed, point to the relevant material → if needed, model the action → acknowledge completion → continue to the next step.",
     "steps": [
       {
         "id": "wipe-table-1",
@@ -510,7 +510,7 @@ window.TEACHLAB_SEED_SCENARIOS = [
     "learnerName": "Jia",
     "learnerProfile": "Fictional learner practising a housekeeping-related task. Observations are authored teaching prompts, not predictions.",
     "objective": "Practise delivering concise directions and adapting prompts while teaching a towel folding and sorting sequence.",
-    "procedure": "Provisional simulation protocol: Give one brief task direction → select Wait & observe (simulates an opportunity to respond, not actual timing) → if the scripted learner has not responded, point to the object → if still needed, model → acknowledge completion → advance. This is an illustrative rule set and must be reviewed by an instructional specialist.",
+    "procedure": "For this practice: give one brief task direction → wait for a response opportunity → if needed, point to the relevant material → if needed, model the action → acknowledge completion → continue to the next step.",
     "steps": [
       {
         "id": "fold-towels-1",
@@ -629,9 +629,9 @@ window.TEACHLAB_SEED_SCENARIOS = [
     "title": "Restock a retail shelf",
     "domain": "Vocational Education",
     "learnerName": "Kai",
-    "learnerProfile": "Fictional learner practising a retail display routine with labelled shelf positions. Scripted responses do not represent any particular learner.",
+    "learnerProfile": "Learner is practising placing items into labelled shelf positions.",
     "objective": "Practise implementing a step sequence and prompts for a supported retail restocking activity.",
-    "procedure": "Provisional simulation protocol: Give one brief task direction → select Wait & observe (simulates an opportunity to respond, not actual timing) → if the scripted learner has not responded, point to the object → if still needed, model → acknowledge completion → advance. This is an illustrative rule set and must be reviewed by an instructional specialist.",
+    "procedure": "For this practice: give one brief task direction → wait for a response opportunity → if needed, point to the relevant material → if needed, model the action → acknowledge completion → continue to the next step.",
     "steps": [
       {
         "id": "restock-shelf-1",
@@ -750,9 +750,9 @@ window.TEACHLAB_SEED_SCENARIOS = [
     "title": "Prepare a simple snack tray",
     "domain": "Daily Living Skills",
     "learnerName": "Noor",
-    "learnerProfile": "Fictional learner practising a supervised, no-heat food-serving activity using ready-to-eat items and previously checked dietary needs. Scripted learner responses are for rehearsal only.",
+    "learnerProfile": "Learner is practising a supervised, no-heat food-serving routine using ready-to-eat items.",
     "objective": "Rehearse task directions and prompts during a supervised snack-serving routine. Actual food safety and individual support plans are outside this simulation.",
-    "procedure": "Provisional simulation protocol: Give one brief task direction → select Wait & observe (simulates an opportunity to respond, not actual timing) → if the scripted learner has not responded, point to the object → if still needed, model → acknowledge completion → advance. This is an illustrative rule set and must be reviewed by an instructional specialist.",
+    "procedure": "For this practice: give one brief task direction → wait for a response opportunity → if needed, point to the relevant material → if needed, model the action → acknowledge completion → continue to the next step.",
     "steps": [
       {
         "id": "prepare-snack-tray-1",

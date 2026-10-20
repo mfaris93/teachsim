@@ -1,5 +1,5 @@
 'use strict';
-/* TeachSim V6.2: local-only, deterministic educational demonstration.
+/* TeachSim V6.4: local-only, deterministic educational demonstration.
    NO network calls, AI model, PII processing, or assessment of real teaching fidelity. */
 (() => {
   const STORAGE_KEY='teachlab_v4_drafts'; // intentionally preserved so users keep prior browser drafts
@@ -36,6 +36,11 @@
     ];
     const match=matches.find(([rule])=>rule.test(desc));
     return match?match[1]:'🧩';
+  }
+  function inferPromptTarget(action){
+    const trimmed=String(action||'').trim();
+    const match=trimmed.match(/\b(?:the|a|an)\s+(.+?)(?=\s+(?:in|inside|into|on|onto|at|from|with|to)\b|[.,;]|$)/i);
+    return (match?.[1]||trimmed||'task material').slice(0,100);
   }
   const ACTION_LABELS={say:'Said',wait:'Wait & observe',gesture:'Pointed to object',model:'Modelled action',ack:'Acknowledged',next:'Advanced'};
   const FEEDBACK={
@@ -74,7 +79,7 @@
   const fieldString=(v,lim=1400)=>typeof v==='string'?v.slice(0,lim):'';
   const limit=(n,min,max)=>Math.max(min,Math.min(max,Number.isFinite(+n)?Number(n):min));
   let library=checkLibrary(SEED),selectedId=library[0]?.id,patternIndex=0,pathway='new',page='prepare',dirty=false;
-  let stepIndex=0,records=[],practiceState=null,toastTimer=null,wizardStage='details';
+  let stepIndex=0,records=[],practiceState=null,toastTimer=null,wizardStage='details',allScenariosShown=false,editorPreviewIndex=0;
   function toast(message,error=false){const t=$('toast');t.textContent=message;t.classList.remove('hidden');t.classList.toggle('error-toast',error);clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.add('hidden'),5300);}
   function schemaStep(item,index){return {
     id:fieldString(item.id||`step-${index+1}`,85),name:fieldString(item.name,100),icon:fieldString(item.icon||'🧩',16),iconMode:item.iconMode==='manual'?'manual':'auto',target:fieldString(item.target,100),context:fieldString(item.context,650),direction:fieldString(item.direction,220),initial:fieldString(item.initial,650),waiting:fieldString(item.waiting,650),gestureNoResponse:fieldString(item.gestureNoResponse,650),independent:fieldString(item.independent,650),gestureDone:fieldString(item.gestureDone,650),modelDone:fieldString(item.modelDone,650)};
@@ -96,7 +101,7 @@
   try{const raw=localStorage.getItem(STORAGE_KEY)||localStorage.getItem('teachlab_v3_drafts');if(raw){library=checkLibrary(JSON.parse(raw));selectedId=library[0].id;}}catch(e){library=checkLibrary(SEED);selectedId=library[0]?.id;}
   const current=()=>library.find(s=>s.id===selectedId)||library[0];
   // V6: one authored task and procedure, two adult-learner pathways.
-  // Pattern 0 is predictable rehearsal (New); patterns 1+ are varied rehearsal
+  // Pattern 0 is predictable rehearsal (Guided); patterns 1+ are varied rehearsal
   // (Experienced). For user-created scenarios with only one pattern, both share it.
   function indicesForPath(s=current()){
     if(!s?.patterns?.length)return [];
@@ -111,18 +116,26 @@
   function markDirty(){dirty=true;updateDraftStatus();}
   function guardUnsaved(){return !dirty||confirm('You have unsaved edits in this scenario. Discard them?');}
   function selectScenario(id){if(!guardUnsaved())return; // editor inputs mutate the in-memory object; restore last saved draft if discarded
-    if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=clone(SEED);}dirty=false;}
-    selectedId=library.some(s=>s.id===id)?id:library[0].id;patternIndex=0;wizardStage='details';renderEditor();renderPrepare();}
+    if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=checkLibrary(SEED);}dirty=false;}
+    selectedId=library.some(s=>s.id===id)?id:library[0].id;patternIndex=0;editorPreviewIndex=0;wizardStage='details';renderEditor();renderPrepare();}
   function setPage(to){page=to;const editor=to==='editor';$('page-editor').classList.toggle('hidden',!editor);$('teacher-space').classList.toggle('hidden',editor);$('nav-editor').classList.toggle('active',editor);$('nav-teacher').classList.toggle('active',!editor);for(const name of ['prepare','practice','review']){$('page-'+name).classList.toggle('hidden',editor||name!==to);const div=document.querySelector(`[data-stage="${name}"]`);div.classList.toggle('active',!editor&&name===to);div.classList.toggle('done',!editor&&['prepare','practice','review'].indexOf(name)<['prepare','practice','review'].indexOf(to));}window.scrollTo({top:0,behavior:'instant'});}
   function goEditor(){wizardStage='details';setPage('editor');renderEditor();}
-  function goTeacher(){if(!guardUnsaved())return;if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=clone(SEED);}dirty=false;}renderPrepare();setPage('prepare');}
-  function renderPrepare(){const s=current();if(!s)return;ensurePattern();$('scenario-picker').innerHTML=library.map(x=>`<option value="${escapeHTML(x.id)}">${escapeHTML(x.title||'Untitled scenario')}</option>`).join('');$('scenario-picker').value=selectedId;
+  function goTeacher(){if(!guardUnsaved())return;if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=checkLibrary(SEED);}dirty=false;}if(!library.some(s=>s.id===selectedId))selectedId=library[0].id;renderPrepare();setPage('prepare');}
+  function renderScenarioCards(){
+    const picks=allScenariosShown?library:library.slice(0,4);
+    if(!picks.some(sc=>sc.id===selectedId)){const selected=library.find(sc=>sc.id===selectedId);if(selected)picks.push(selected);}
+    $('scenario-cards').innerHTML=picks.map(sc=>`<button type="button" class="scenario-choice ${sc.id===selectedId?'selected':''}" data-pick-scenario="${escapeHTML(sc.id)}" aria-pressed="${sc.id===selectedId}"><span class="scenario-choice-icon" aria-hidden="true">${escapeHTML(sc.steps[0]?.icon||'🧩')}</span><span class="scenario-choice-content"><strong>${escapeHTML(sc.title)}</strong><small>${escapeHTML(sc.domain||'Functional learning')} · ${sc.steps.length} steps</small></span><span class="scenario-selected-mark" aria-hidden="true">${sc.id===selectedId?'✓':''}</span></button>`).join('');
+    $('toggle-scenarios').textContent=allScenariosShown?'Show fewer scenarios':`See all ${library.length} scenarios`;
+    $('toggle-scenarios').setAttribute('aria-expanded',String(allScenariosShown));
+    $('toggle-scenarios').classList.toggle('hidden',library.length<=4);
+  }
+  function renderPrepare(){const s=current();if(!s)return;ensurePattern();renderScenarioCards();$('scenario-picker').innerHTML=library.map(x=>`<option value="${escapeHTML(x.id)}">${escapeHTML(x.title||'Untitled scenario')}</option>`).join('');$('scenario-picker').value=selectedId;
     document.querySelectorAll('input[name="practice-pathway"]').forEach(el=>{el.checked=el.value===pathway;});
     const choices=indicesForPath(),idx=choices.indexOf(patternIndex);
     $('pattern-brief').textContent=pathway==='new'?'Guided · predictable responses':`Independent · variation ${idx+1}/${choices.length}`;
     $('pathway-note').textContent='Choose based on the practice support you want, not years of experience. Both pathways follow the same instructional procedure.';
-    $('pathway-explainer').textContent=pathway==='new'?'New · Guided rehearsal: click a prepared instruction for each step, then choose actions yourself. One predictable learner-response pattern; feedback after the episode.':'Experienced · Independent rehearsal: type your own direction and manage varied scripted responses. Words are logged but not assessed; feedback after the episode.';
-    $('learner-initial').textContent=(s.learnerName[0]||'?').toUpperCase();$('brief-learner').textContent=s.learnerName;$('brief-profile').textContent=s.learnerProfile;$('brief-title').textContent=s.title;$('brief-objective').textContent=s.objective;$('brief-procedure').textContent=s.procedure;$('brief-steps').innerHTML=s.steps.map((st,i)=>`<span>${i+1} · ${escapeHTML(st.name)}</span>`).join('');$('brief-model-notes').textContent=s.content.model;$('prepare-error').classList.add('hidden');}
+    $('pathway-explainer').textContent='';
+    $('brief-task-icon').textContent=s.steps[0]?.icon||'🧩';$('learner-initial').textContent=(s.learnerName[0]||'?').toUpperCase();$('brief-learner').textContent=s.learnerName;$('brief-profile').textContent=s.learnerProfile;$('brief-title').textContent=s.title;$('brief-objective').textContent=s.objective;$('brief-procedure').textContent=s.procedure;$('brief-steps').innerHTML=s.steps.map((st,i)=>`<span>${i+1} · ${escapeHTML(st.name)}</span>`).join('');$('brief-model-notes').textContent=s.content.model;$('prepare-error').classList.add('hidden');}
   function freshState(){const s=current().steps[stepIndex];return {said:0,waits:0,gestures:0,models:0,completed:false,acknowledged:false,completionType:null,response:s.initial,events:[],issues:[]};}
   function log(action,details,issues=[]){practiceState.events.push({action,details});for(const code of issues){if(!practiceState.issues.includes(code))practiceState.issues.push(code);}}
   function start(){const problems=validate(current());if(problems.length){$('prepare-error').textContent=`Scenario incomplete: ${problems.slice(0,4).join(', ')}`;$('prepare-error').classList.remove('hidden');return;}
@@ -152,25 +165,69 @@
     }
     renderPractice();
   }
+  // Lightweight SVG teaching scenes. Illustrations are connected to scenario content
+  // and reflect whether the fictional learner is waiting or completing the step.
+  function sceneKind(s,st){
+    const name=(s.title+' '+st.name+' '+st.target).toLowerCase();
+    if(/wash|soap|rinse|hand|tap/.test(name) && /wash|soap|rinse/.test(name))return 'sink';
+    if(/bag|school|book|pencil/.test(name))return 'bag';
+    if(/wipe|table|clear|meal/.test(name))return 'table';
+    if(/fold|towel|linen|laundry/.test(name))return 'linen';
+    if(/shelf|restock|retail/.test(name))return 'shelf';
+    if(/order|box|parcel|pack/.test(name))return 'box';
+    if(/snack|tray|plate|food/.test(name))return 'tray';
+    return 'task';
+  }
+  function sceneSVG(s,st,working=false){
+    const kind=sceneKind(s,st), icon=escapeHTML(st.icon||'🧩');
+    const stroke='#315262',dark='#204654',light='#e8f2ef',accent='#58ae9d',skin='#dfae8e';
+    const rect=(x,y,w,h,fill,rx=10)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}"/>`;
+    const line=(x1,y1,x2,y2,sw=6,col=stroke)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${sw}" stroke-linecap="round"/>`;
+    const props={
+      sink:`${rect(332,185,242,58,'#a9d7d0',24)}${rect(349,205,202,17,'#e2f4f1',9)}${rect(431,87,15,102,stroke,7)}${rect(442,88,68,15,stroke,6)}${rect(501,92,13,23,stroke,5)}${rect(355,151,44,42,'#f4bf6d',7)}${rect(363,141,29,13,'#f4bf6d',3)}${line(383,141,405,141,4)}`,
+      bag:`${rect(352,124,150,143,'#77aea8',26)}${rect(375,106,104,39,'none',16)}<path d="M375 133V120Q375 104 394 104H462Q481 104 481 120V133" fill="none" stroke="${stroke}" stroke-width="10"/>${rect(382,179,90,58,'#bfe4dd',14)}${rect(495,137,44,87,'#f2bd72',4)}${rect(499,142,36,15,'#fcf8ec',2)}`,
+      table:`${rect(321,174,257,22,'#c79b76',5)}${rect(337,193,16,83,'#a47a5c',4)}${rect(546,193,16,83,'#a47a5c',4)}${rect(439,145,69,22,'#75c5b5',10)}${rect(477,131,40,11,'#e9c77c',5)}${line(409,174,468,174,6,accent)}`,
+      linen:`${rect(350,207,190,27,'#90bbb2',6)}${rect(363,180,169,25,'#f1c0a9',7)}${rect(377,157,140,23,'#bdd9e9',7)}${rect(396,134,102,22,'#e5d2a3',6)}${line(384,154,384,228,3,'#d8ece7')}`,
+      shelf:`${rect(350,96,17,180,stroke,3)}${rect(541,96,17,180,stroke,3)}${rect(362,145,184,12,'#a8c9c0',3)}${rect(362,220,184,12,'#a8c9c0',3)}${rect(387,109,34,37,'#dabb8d',5)}${rect(431,110,27,35,'#7fc7b3',5)}${rect(470,102,45,43,'#e7b9a4',5)}${rect(393,176,34,43,'#a3c5df',4)}${rect(449,166,37,54,'#eacb96',5)}${rect(496,180,32,39,'#e3b2b2',5)}`,
+      box:`${rect(363,158,166,98,'#e6ba80',3)}<path d="M363 157L398 122H564L529 158Z" fill="#f2d5ac"/><path d="M529 158L564 122V218L529 257Z" fill="#c89b67"/>${rect(415,193,71,31,'#fff7e8',3)}${line(451,193,451,225,2,'#b28a5c')}`,
+      tray:`${rect(346,186,204,40,'#8fbbb4',16)}<ellipse cx="450" cy="183" rx="77" ry="26" fill="#eef8f5" stroke="#679f96" stroke-width="4"/>${rect(401,147,53,23,'#e4b76c',7)}${rect(416,135,56,24,'#e9c784',7)}${rect(485,124,31,57,'#add8df',5)}${rect(491,123,20,8,'#f5faf6',4)}`,
+      task:`${rect(349,141,195,110,'#dcebe9',15)}${rect(361,151,174,87,'#f5faf8',9)}<text x="447" y="215" text-anchor="middle" font-size="64">${icon}</text>`
+    };
+    // Arms change pose after a learner response, without implying precise motor behaviour.
+    const arm=working?`<path d="M231 165Q296 180 343 169" fill="none" stroke="${skin}" stroke-width="18" stroke-linecap="round"/>`:`<path d="M231 165Q251 216 276 235" fill="none" stroke="${skin}" stroke-width="18" stroke-linecap="round"/>`;
+    const cue=working?`<circle cx="341" cy="170" r="9" fill="${skin}"/>`:`<path d="M274 228Q284 233 289 245" fill="none" stroke="${skin}" stroke-width="12" stroke-linecap="round"/>`;
+    return `<svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of ${escapeHTML(s.learnerName)} ${working?'engaging with':'looking towards'} materials for ${escapeHTML(st.name)}"><rect width="640" height="300" rx="16" fill="#edf6f4"/>${rect(22,255,596,12,'#d7e7e2',6)}<ellipse cx="205" cy="275" rx="83" ry="12" fill="#d4e3e0"/>${rect(163,139,83,124,'#6daaa8',29)}${line(181,253,174,281,13,dark)}${line(226,253,239,281,13,dark)}${line(170,164,144,233,17,skin)}${arm}${cue}<circle cx="207" cy="101" r="49" fill="${skin}"/><path d="M156 95Q151 47 204 48Q258 45 256 104Q244 75 210 80Q178 81 156 95" fill="${dark}"/><circle cx="190" cy="109" r="4" fill="${dark}"/><circle cx="226" cy="109" r="4" fill="${dark}"/><path d="M195 127Q209 135 220 126" stroke="#915b4a" stroke-width="3" fill="none" stroke-linecap="round"/>${props[kind]}</svg>`;
+  }
+  function renderEditorScene(){const s=current();if(!$('editor-scene-preview')||wizardStage==='templates'||!s?.steps?.length)return;
+    editorPreviewIndex=Math.max(0,Math.min(editorPreviewIndex,s.steps.length-1));
+    const st=s.steps[editorPreviewIndex];
+    $('editor-scene-preview').innerHTML=`<div class="editor-preview-top"><strong>Illustration preview</strong><span>${editorPreviewIndex+1} / ${s.steps.length}</span></div><div class="editor-preview-layout"><div class="editor-preview-art">${sceneSVG(s,st,false)}</div><div class="editor-preview-side"><p>${escapeHTML(st.name||'New step')}</p><div class="editor-preview-stepbuttons">${s.steps.map((x,i)=>`<button type="button" class="mini-step ${i===editorPreviewIndex?'chosen':''}" data-preview-step="${i}" aria-label="Preview step ${i+1}: ${escapeHTML(x.name)}" aria-pressed="${i===editorPreviewIndex}">${i+1}</button>`).join('')}</div><small>The practice illustration changes with your task and step.</small></div></div>`;
+  }
   function renderPractice(){const s=current(),st=s.steps[stepIndex];
     const guided=pathway==='new';
-    $('guided-instruction').classList.toggle('hidden',!guided);
-    $('say-form').classList.toggle('hidden',guided);
-    $('guided-words').textContent='“'+(st.direction||'Please complete this step.')+'”';
+    $('guided-instruction').classList.remove('hidden');
+    $('say-form').classList.add('hidden');
+    $('guided-words').textContent=guided?'“'+(st.direction||'Please complete this step.')+'”':'Decide what instruction you would give. Indicate when delivered.';
+    $('direction-label').textContent=guided?'Suggested instruction':'Deliver your instruction';
     $('give-guided-direction').disabled=practiceState.said>0;
-    $('give-guided-direction').textContent=practiceState.said>0?'✓ Instruction delivered':'▸ Say this instruction to learner';
-    $('practice-pathway-tag').textContent=guided?'New · Guided actions':'Experienced · Independent practice';
-    $('practice-lead').textContent=guided?'Use the prepared direction, then choose how to respond. No correctness hints appear during practice.':'Type your own direction, then respond using the mouse controls. The content of typed directions is not scored.';$('step-count').textContent=`Instructional opportunity ${stepIndex+1}`;$('step-name').textContent=st.name;$('step-context').textContent=st.context;$('count-badge').textContent=`${stepIndex+1} / ${s.steps.length}`;
-    $('progressbar').innerHTML=s.steps.map((_,i)=>`<i class="${i<stepIndex?'done':i===stepIndex?'now':''}"></i>`).join('');$('progressbar').setAttribute('aria-label',`Step ${stepIndex+1} of ${s.steps.length}`);$('scene-student').textContent=s.learnerName;$('scene-icon').textContent=st.icon||'🧩';$('scene-target-name').textContent=st.target;$('student-response').textContent=practiceState.response;$('advance').textContent=stepIndex===s.steps.length-1?'Finish and review →':'Next task step →';}
+    $('give-guided-direction').textContent=practiceState.said>0?'✓ Instruction given':(guided?'▸ Give suggested instruction':'▸ I gave an instruction');
+    $('practice-pathway-tag').textContent=guided?'Guided':'Experienced';
+    $('practice-lead').textContent='Observe the learner, then choose an action below.';$('step-count').textContent=`Instructional opportunity ${stepIndex+1}`;$('step-name').textContent=st.name;$('step-context').textContent=st.context;$('count-badge').textContent=`${stepIndex+1} / ${s.steps.length}`;
+    $('progressbar').innerHTML=s.steps.map((_,i)=>`<i class="${i<stepIndex?'done':i===stepIndex?'now':''}"></i>`).join('');$('progressbar').setAttribute('aria-label',`Step ${stepIndex+1} of ${s.steps.length}`);$('scene-student').textContent=s.learnerName;$('scene-icon').textContent=st.icon||'🧩';$('scene-object-label').textContent=st.target||'Task material';$('scene-visual').innerHTML=sceneSVG(s,st,practiceState.completed);$('point-target').title=`Point towards ${st.target||'the object'}`;$('student-response').textContent=practiceState.response;$('advance').textContent=stepIndex===s.steps.length-1?'Finish and review →':'Next task step →';}
   function advance(){if(page!=='practice')return;const st=practiceState;if(!st.said&&!st.issues.includes('missingDirection'))st.issues.push('missingDirection');if(!st.completed)st.issues.push('incomplete');else if(!st.acknowledged)st.issues.push('missedAck');st.events.push({action:'next',details:'Advanced to next task step'});records.push({...clone(st),index:stepIndex,required:support()});if(stepIndex===current().steps.length-1){renderReview();setPage('review');}else{stepIndex++;practiceState=freshState();$('teacher-words').value='';renderPractice();}}
   function expectedSequence(need){return ['Say task direction','Wait',...(need>=1?['Point at object']:[]),...(need===2?['Model action']:[]),'Acknowledge completion','Advance'];}
-  function renderReview(){const s=current();const aligned=records.filter(r=>r.completed&&r.issues.length===0).length;const complete=records.filter(r=>r.completed).length;$('overall').innerHTML=`<div class="label">${pathway==='new'?'New teacher':'Experienced teacher'} pathway · ${escapeHTML(s.patterns[patternIndex].name)}</div><h2>${aligned===records.length?'Your recorded action sequences aligned with the demonstration rules.':'Episode complete. Review the recorded action sequences.'}</h2><p>${escapeHTML(s.learnerName)} completed ${complete} of ${records.length} simulated steps. ${aligned} of ${records.length} selected action sequences matched the provisional procedure. These are not teacher competency measures.</p>`;
-    $('review-stats').innerHTML=`<div class="stat"><strong>${aligned} / ${records.length}</strong><span>Sequences aligned</span></div><div class="stat"><strong>${records.length-aligned}</strong><span>Steps to review</span></div>`;
-    $('review-reflection').textContent='Reflect with your trainer: '+(pathway==='new'?s.content.reflectNew:s.content.reflectExperienced);
+  function renderReview(){const s=current();const aligned=records.filter(r=>r.completed&&r.issues.length===0).length;const complete=records.filter(r=>r.completed).length;$('overall').innerHTML=`<div class="label">${pathway==='new'?'Guided':'Experienced'} · ${escapeHTML(s.title)}</div><h2>${aligned===records.length?'Your action sequence followed the selected procedure.':'Practice complete — review your next step.'}</h2><p>Focus on one improvement and try again.</p>`;
+    $('review-stats').innerHTML=`<div class="stat"><strong>${aligned} of ${records.length}</strong><span>Action sequences aligned with the chosen protocol</span></div>`;
+    const firstIssue=records.find(r=>r.issues.length);
+    const firstAligned=records.find(r=>r.completed&&r.issues.length===0);
+    const strength=firstAligned?'You followed the prescribed sequence for “'+s.steps[firstAligned.index].name+'”.':'You completed a full rehearsal and can now refine the action sequence.';
+    const improvement=firstIssue?`Step ${firstIssue.index+1} (${s.steps[firstIssue.index].name}): `+(s.content.messages[firstIssue.issues[0]]||FEEDBACK[firstIssue.issues[0]]||'Revisit your selected actions.'):(indicesForPath().length>1?'Try another variation to practise responding to different learner cues.':'Repeat the episode and practise the sequence again.');
+    $('review-focus').innerHTML=`<div><span class="review-focus-label">${firstAligned?'Worked well':'Episode snapshot'}</span><p>${escapeHTML(strength)}</p></div><div><span class="review-focus-label">Try next</span><p>${escapeHTML(improvement)}</p></div>`;
+    $('review-reflection').textContent='Discuss with your trainer: '+(pathway==='new'?s.content.reflectNew:s.content.reflectExperienced);
     const variations=indicesForPath();$('retry-next').disabled=variations.length<2;
     $('retry-next').title=variations.length<2?'Only one response pattern is configured for this pathway.':'';
     $('retry-next').textContent=variations.length<2?'No other variation in this pathway':'Try next variation →';
-    $('step-feedback').innerHTML=records.map((r,i)=>{const st=s.steps[r.index],good=r.completed&&r.issues.length===0;const observed=r.events.map(e=>e.action==='say'?`Said “${e.details}”`:(ACTION_LABELS[e.action]||e.action)).join(' → ');const concerns=r.issues.map(code=>s.content.messages[code]||FEEDBACK[code]||'Review this action.');return `<details class="step-review" ${(pathway==='new'||!good)?'open':''}><summary><span><strong>${i+1}. ${escapeHTML(st.name)}</strong><br><small class="subdued">${escapeHTML(r.completionType||'Not completed')}</small></span><span class="rowstatus ${good?'':'review'}">${good?'Aligned':'Review'}</span></summary><div class="review-detail"><div class="label">Your actions</div><div class="sequence">${escapeHTML(observed)}</div><div class="label" style="margin-top:10px">Expected procedure for this simulated response</div><div class="sequence">${escapeHTML(expectedSequence(r.required).join(' → '))}</div><div class="review-callout">${good?escapeHTML(pathway==='new'?s.content.alignedNew:s.content.alignedExperienced): `<strong>${pathway==='new'?'What to practise on retry:':'Action sequence to revisit:'}</strong><ul>${concerns.map(c=>`<li>${escapeHTML(c)}</li>`).join('')}</ul>`}</div></div></details>`;}).join('');}
+    $('step-feedback').innerHTML=records.map((r,i)=>{const st=s.steps[r.index],good=r.completed&&r.issues.length===0;const observed=r.events.map(e=>e.action==='say'?(pathway==='new'?'Selected the suggested instruction':'Indicated an instruction was delivered (not recorded)'):(ACTION_LABELS[e.action]||e.action)).join(' → ');const concerns=r.issues.map(code=>s.content.messages[code]||FEEDBACK[code]||'Review this action.');return `<details class="step-review" ><summary><span><strong>${i+1}. ${escapeHTML(st.name)}</strong><br><small class="subdued">${escapeHTML(r.completionType||'Not completed')}</small></span><span class="rowstatus ${good?'':'review'}">${good?'Aligned':'Review'}</span></summary><div class="review-detail"><div class="label">Recorded selections</div><div class="sequence">${escapeHTML(observed)}</div><div class="label" style="margin-top:10px">Expected procedure for this simulated response</div><div class="sequence">${escapeHTML(expectedSequence(r.required).join(' → '))}</div><div class="review-callout">${good?escapeHTML(pathway==='new'?s.content.alignedNew:s.content.alignedExperienced): `<strong>${pathway==='new'?'What to practise on retry:':'Action sequence to revisit:'}</strong><ul>${concerns.map(c=>`<li>${escapeHTML(c)}</li>`).join('')}</ul>`}</div></div></details>`;}).join('');}
   function returnBrief(next=false){const eligible=indicesForPath();if(next&&eligible.length>1)patternIndex=eligible[(eligible.indexOf(patternIndex)+1)%eligible.length];renderPrepare();setPage('prepare');}
   function refreshWizard(){
     $('editor-toolbar').classList.toggle('hidden',wizardStage==='templates');
@@ -192,12 +249,13 @@
       $('feedback-messages').innerHTML=Object.keys(FEEDBACK).map(key=>`<label class="wide-input">${escapeHTML(FEEDBACK_LABELS[key])}<textarea rows="2" maxlength="700" data-feedback-key="${escapeHTML(key)}">${escapeHTML(s.content.messages[key]||FEEDBACK[key])}</textarea></label>`).join('');
       $('quick-count').textContent=`(${s.steps.length} of 16)`;
       $('quick-add-step').disabled=s.steps.length>=16;
-      $('quick-steps').innerHTML=s.steps.map((st,i)=>`<div class="quick-step"><span class="quick-step-num">${i+1}</span><div class="quick-step-body"><div class="quick-step-toolbar"><div class="quick-step-label"><span class="quick-icon-preview" aria-label="Current visual: ${escapeHTML(st.icon||'🧩')}">${escapeHTML(st.icon||'🧩')}</span><strong>Step ${i+1}</strong></div><div class="quick-step-actions"><button type="button" class="btn" data-quick-move="up" data-i="${i}" ${i===0?'disabled':''} aria-label="Move step ${i+1} up">↑</button><button type="button" class="btn" data-quick-move="down" data-i="${i}" ${i===s.steps.length-1?'disabled':''} aria-label="Move step ${i+1} down">↓</button><button type="button" class="btn" data-quick-delete="${i}" ${s.steps.length===1?'disabled':''} aria-label="Remove step ${i+1}">Remove</button></div></div><div class="quick-step-fields"><label>What the student practises<input data-quick-step="${i}" data-quick-step-key="name" maxlength="100" value="${escapeHTML(st.name)}" placeholder="e.g. Put folder in bag"></label><label>Object to point at<input data-quick-step="${i}" data-quick-step-key="target" maxlength="100" value="${escapeHTML(st.target)}" placeholder="e.g. folder"></label><label>Step visual<select data-quick-step="${i}" data-quick-step-key="iconMode"><option value="auto" ${st.iconMode!=='manual'?'selected':''}>Auto · ${escapeHTML(suggestVisual(st))}</option>${VISUALS.map(([icon,label])=>`<option value="${escapeHTML(icon)}" ${st.iconMode==='manual'&&st.icon===icon?'selected':''}>${escapeHTML(icon)} ${escapeHTML(label)}</option>`).join('')}${st.iconMode==='manual'&&!VISUALS.some(([ic])=>ic===st.icon)?`<option selected value="${escapeHTML(st.icon)}">${escapeHTML(st.icon)} Custom</option>`:''}</select></label></div></div></div>`).join('');
-      $('quick-summary').innerHTML=`<div class="summary-item"><div class="label">Scenario</div><h3>${escapeHTML(s.title)}</h3><p>${escapeHTML(s.objective)}</p></div><div class="summary-item"><div class="label">Fictional learner</div><p><strong>${escapeHTML(s.learnerName)}</strong> · ${escapeHTML(s.learnerProfile)}</p></div><div class="summary-item"><div class="label">Task steps</div><ol>${s.steps.map(st=>`<li>${escapeHTML(st.name)}</li>`).join('')}</ol></div><div class="summary-item"><div class="label">Controlled variations</div><div class="pattern-pills">${s.patterns.map((p,i)=>`<span>${i===0?'New':'Experienced'}: ${escapeHTML(p.name)} · ${p.needs.length} steps</span>`).join('')}</div></div><div class="summary-item"><div class="label">Instructional procedure</div><p>${escapeHTML(s.procedure)}</p></div><div class="summary-item"><div class="label">Trainer modelling notes</div><p>${escapeHTML(s.content.model)}</p></div>`;
+      $('quick-steps').innerHTML=s.steps.map((st,i)=>`<div class="quick-step"><span class="quick-step-num">${i+1}</span><div class="quick-step-body"><div class="quick-step-toolbar"><div class="quick-step-label"><span class="quick-icon-preview" aria-label="Current visual: ${escapeHTML(st.icon||'🧩')}">${escapeHTML(st.icon||'🧩')}</span><strong>Step ${i+1}</strong></div><div class="quick-step-actions"><button type="button" class="btn" data-quick-move="up" data-i="${i}" ${i===0?'disabled':''} aria-label="Move step ${i+1} up">↑</button><button type="button" class="btn" data-quick-move="down" data-i="${i}" ${i===s.steps.length-1?'disabled':''} aria-label="Move step ${i+1} down">↓</button><button type="button" class="btn" data-quick-delete="${i}" ${s.steps.length===1?'disabled':''} aria-label="Remove step ${i+1}">Remove</button></div></div><div class="quick-step-fields v63-step-fields"><label>Action<input data-quick-step="${i}" data-quick-step-key="name" maxlength="100" value="${escapeHTML(st.name)}" placeholder="e.g. Place the book inside the bag"></label></div><details class="step-more"><summary>Prompt target & visual <span>optional</span></summary><div class="quick-step-fields"><label>Prompt target<input data-quick-step="${i}" data-quick-step-key="target" maxlength="100" value="${escapeHTML(st.target)}"></label><label>Visual<select data-quick-step="${i}" data-quick-step-key="iconMode"><option value="auto" ${st.iconMode!=='manual'?'selected':''}>Auto · ${escapeHTML(suggestVisual(st))}</option>${VISUALS.map(([icon,label])=>`<option value="${escapeHTML(icon)}" ${st.iconMode==='manual'&&st.icon===icon?'selected':''}>${escapeHTML(icon)} ${escapeHTML(label)}</option>`).join('')}${st.iconMode==='manual'&&!VISUALS.some(([ic])=>ic===st.icon)?`<option selected value="${escapeHTML(st.icon)}">${escapeHTML(st.icon)} Custom</option>`:''}</select></label></div></details></div></div>`).join('');
+      renderEditorScene();
+      $('quick-summary').innerHTML=`<div class="summary-item"><div class="label">Scenario</div><h3>${escapeHTML(s.title)}</h3><p>${escapeHTML(s.objective)}</p></div><div class="summary-item"><div class="label">Fictional learner</div><p><strong>${escapeHTML(s.learnerName)}</strong> · ${escapeHTML(s.learnerProfile)}</p></div><div class="summary-item"><div class="label">Task steps</div><ol>${s.steps.map(st=>`<li>${escapeHTML(st.name)}</li>`).join('')}</ol></div><div class="summary-item"><div class="label">Controlled variations</div><div class="pattern-pills">${s.patterns.map((p,i)=>`<span>${i===0?'Guided':'Experienced'}: ${escapeHTML(p.name)} · ${p.needs.length} steps</span>`).join('')}</div></div><div class="summary-item"><div class="label">Instructional procedure</div><p>${escapeHTML(s.procedure)}</p></div><div class="summary-item"><div class="label">Trainer modelling notes</div><p>${escapeHTML(s.content.model)}</p></div>`;
     }
   }
   function openTemplatePicker(){if(!guardUnsaved())return;
-    if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=clone(SEED);}dirty=false;}
+    if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=checkLibrary(SEED);}dirty=false;}
     wizardStage='templates';$('advanced-panel').open=false;$('publish-panel').open=false;
     renderEditor();
   }
@@ -222,13 +280,13 @@
   function finishWizard(){const problems=validate(current());if(problems.length){toast(`Complete these fields first: ${problems.slice(0,3).join(', ')}`,true);return;}
     if(dirty&&!saveDraft())return;patternIndex=0;renderPrepare();setPage('prepare');
   }
-  function renderEditor(){const s=current();$('scenario-total').textContent=`${library.length} / 25`; $('scenario-list').innerHTML=library.map(sc=>`<button type="button" class="scenario-item ${sc.id===selectedId?'selected':''}" data-select="${escapeHTML(sc.id)}"><strong>${escapeHTML(sc.title||'Untitled scenario')}</strong><span>${escapeHTML(sc.domain||'Uncategorised')}</span></button>`).join('');$('editing-title').textContent=s.title||'Untitled scenario';updateDraftStatus();
+  function renderEditor(){const s=current();editorPreviewIndex=Math.min(editorPreviewIndex,s.steps.length-1);$('scenario-total').textContent=`${library.length} / 25`; $('scenario-list').innerHTML=library.map(sc=>`<button type="button" class="scenario-item ${sc.id===selectedId?'selected':''}" data-select="${escapeHTML(sc.id)}"><span class="scenario-list-icon" aria-hidden="true">${escapeHTML(sc.steps[0]?.icon||'🧩')}</span><span class="scenario-list-text"><strong>${escapeHTML(sc.title||'Untitled scenario')}</strong><small>${escapeHTML(sc.domain||'Functional learning')} · ${sc.steps.length} steps</small></span></button>`).join('');$('editing-title').textContent=s.title||'Untitled scenario';updateDraftStatus();
     for(const key of ['title','domain','learnerName','learnerProfile','objective','procedure']){const inp=document.querySelector(`[data-key="${key}"]`);if(inp)inp.value=s[key]||'';}
     $('steps-editor').innerHTML=s.steps.map((st,i)=>`<div class="step-block"><div class="step-head"><h3>Step ${i+1}: ${escapeHTML(st.name||'Untitled')}</h3><div class="step-controls"><button type="button" class="btn" data-step-move="up" data-i="${i}" ${i===0?'disabled':''} aria-label="Move step ${i+1} up">↑</button><button type="button" class="btn" data-step-move="down" data-i="${i}" ${i===s.steps.length-1?'disabled':''} aria-label="Move step ${i+1} down">↓</button><button type="button" class="btn" data-step-delete="${i}" ${s.steps.length===1?'disabled':''}>Remove</button></div></div><div class="step-fields">
       ${stepField(i,'name','Step name',st.name)}${stepField(i,'icon','Visual emoji',st.icon)}${stepField(i,'target','Pointing target',st.target)}${stepField(i,'direction','Example task direction (brief only)',st.direction)}
       ${stepField(i,'context','Context',st.context,true)}${stepField(i,'initial','Before instruction',st.initial,true)}${stepField(i,'waiting','After waiting (no independent action)',st.waiting,true)}${stepField(i,'gestureNoResponse','After gesture (still requires a model)',st.gestureNoResponse,true)}${stepField(i,'independent','Independent response',st.independent,true)}${stepField(i,'gestureDone','Response after pointing',st.gestureDone,true)}${stepField(i,'modelDone','Response after modelling',st.modelDone,true)}
       </div></div>`).join('');
-    $('patterns-editor').innerHTML=s.patterns.map((p,i)=>`<div class="pattern-block"><div class="step-head"><h3>Variation ${i+1} · ${i===0?'New pathway':'Experienced pathway'}</h3><button type="button" class="btn small-btn" data-pattern-delete="${i}" ${s.patterns.length===1?'disabled':''}>Remove</button></div><div class="pattern-row"><label>Variation name<input data-pattern="${i}" data-pattern-key="name" maxlength="80" value="${escapeHTML(p.name)}"></label></div><div class="pattern-grid">${p.needs.map((need,j)=>`<label>${j+1}. ${escapeHTML(s.steps[j].name||'Untitled step')}<select data-pattern="${i}" data-need="${j}"><option value="0" ${need===0?'selected':''}>0 · Independent after wait</option><option value="1" ${need===1?'selected':''}>1 · After gesture</option><option value="2" ${need===2?'selected':''}>2 · After modelling</option></select></label>`).join('')}</div></div>`).join('');
+    $('patterns-editor').innerHTML=s.patterns.map((p,i)=>`<div class="pattern-block"><div class="step-head"><h3>Variation ${i+1} · ${i===0?'Guided pathway':'Experienced pathway'}</h3><button type="button" class="btn small-btn" data-pattern-delete="${i}" ${s.patterns.length===1?'disabled':''}>Remove</button></div><div class="pattern-row"><label>Variation name<input data-pattern="${i}" data-pattern-key="name" maxlength="80" value="${escapeHTML(p.name)}"></label></div><div class="pattern-grid">${p.needs.map((need,j)=>`<label>${j+1}. ${escapeHTML(s.steps[j].name||'Untitled step')}<select data-pattern="${i}" data-need="${j}"><option value="0" ${need===0?'selected':''}>0 · Independent after wait</option><option value="1" ${need===1?'selected':''}>1 · After gesture</option><option value="2" ${need===2?'selected':''}>2 · After modelling</option></select></label>`).join('')}</div></div>`).join('');
     refreshWizard();}
   function stepField(i,key,label,value,multi=false){return `<label class="${multi?'all':''}">${escapeHTML(label)}${multi?`<textarea rows="2" maxlength="650" data-step="${i}" data-step-key="${key}">${escapeHTML(value)}</textarea>`:`<input maxlength="${key==='icon'?16:220}" data-step="${i}" data-step-key="${key}" value="${escapeHTML(value)}">`}</label>`;}
   function newStep(){return schemaStep({id:slug(),name:'New task step',icon:'🧩',target:'teaching material',context:'Learner is ready for the next step.',direction:'Please complete this step.',initial:'Learner looks at the material.',waiting:'Learner has not responded yet.',gestureNoResponse:'Learner notices the gesture but does not act.',independent:'Learner completes the step independently.',gestureDone:'Learner completes the step after the gesture.',modelDone:'Learner completes the step after the model.'},0);}
@@ -239,18 +297,18 @@
   function createScenario(){openTemplatePicker();}
   function addMissingBuiltIns(){
     if(!guardUnsaved())return;
-    if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=clone(SEED);}dirty=false;}
+    if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=checkLibrary(SEED);}dirty=false;}
     const existing=new Set(library.map(s=>s.id));const toAdd=SEED.filter(s=>!existing.has(s.id));
     if(!toAdd.length){toast('All built-in examples are already in your library.');return;}
     if(library.length+toAdd.length>25){toast('Not enough space. Export a backup or remove a scenario first (maximum 25).',true);return;}
     library.push(...toAdd.map(normalise)); selectedId=toAdd[0].id;patternIndex=0;wizardStage='details';dirty=true;
     if(saveDraft()){renderEditor();renderPrepare();toast(`${toAdd.length} new built-in example${toAdd.length===1?'':'s'} added without removing your existing work.`);}
   }
-  function duplicateScenario(){if(!guardUnsaved())return;if(library.length>=25){toast('Maximum 25 scenarios.',true);return;}if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=clone(SEED);}dirty=false;}
+  function duplicateScenario(){if(!guardUnsaved())return;if(library.length>=25){toast('Maximum 25 scenarios.',true);return;}if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=checkLibrary(SEED);}dirty=false;}
     const s=normalise(clone(current()));s.id=slug();s.title+=' (copy)';library.push(s);selectedId=s.id;patternIndex=0;wizardStage='details';markDirty();renderEditor();}
   function deleteScenario(){if(library.length<=1){toast('Keep at least one scenario.',true);return;}if(!confirm(`Delete “${current().title}” from your local library?`))return;library=library.filter(x=>x.id!==selectedId);selectedId=library[0].id;patternIndex=0;wizardStage='details';dirty=true;saveDraft();renderEditor();}
   function download(filename,content,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
-  function exportLibrary(mode){try{validateAll();const data=JSON.stringify({version:2,scenarios:library},null,2);if(mode==='json')download('teachsim-scenarios-backup.json',data,'application/json;charset=utf-8');else download('scenarios.js',`/* Exported from TeachSim V6.2 Content Editor. Fictional training data only. */\nwindow.TEACHLAB_SEED_SCENARIOS = ${JSON.stringify(library,null,2)};\n`,'application/javascript;charset=utf-8');toast(mode==='json'?'JSON backup downloaded.':'scenarios.js downloaded. Commit it to your repository to update your public website.');}catch(e){toast(e.message,true);}}
+  function exportLibrary(mode){try{validateAll();const data=JSON.stringify({version:2,scenarios:library},null,2);if(mode==='json')download('teachsim-scenarios-backup.json',data,'application/json;charset=utf-8');else download('scenarios.js',`/* Exported from TeachSim V6.4 Content Editor. Fictional training data only. */\nwindow.TEACHLAB_SEED_SCENARIOS = ${JSON.stringify(library,null,2)};\n`,'application/javascript;charset=utf-8');toast(mode==='json'?'JSON backup downloaded.':'scenarios.js downloaded. Commit it to your repository to update your public website.');}catch(e){toast(e.message,true);}}
   async function importBackup(file){if(!file)return;if(file.size>2000000){toast('Backup exceeds the 2 MB limit.',true);return;}if(!guardUnsaved())return;try{const obj=JSON.parse(await file.text());const candidates=Array.isArray(obj)?obj:(Array.isArray(obj.scenarios)?obj.scenarios:[obj]);const newLibrary=checkLibrary(candidates);if(!confirm(`Replace your browser library with ${newLibrary.length} imported scenario(s)? Export a backup first if needed.`))return;library=newLibrary;selectedId=library[0].id;patternIndex=0;dirty=true;saveDraft();renderEditor();toast('Imported library saved in this browser.');}catch(e){toast(`Import failed: ${e.message}`,true);}finally{$('import-json').value='';}}
   function restore(){if(!confirm('Discard local drafts and restore the scenarios bundled with this website? Export a backup first if needed.'))return;try{localStorage.removeItem(STORAGE_KEY);}catch{}library=checkLibrary(SEED);selectedId=library[0].id;patternIndex=0;dirty=false;renderEditor();toast('Published library restored.');}
   /* Navigation and teacher interaction */
@@ -273,17 +331,20 @@
   $('close-brief').addEventListener('click',()=>closeDialog(briefDialog));
   for(const d of [helpDialog,briefDialog])d.addEventListener('click',e=>{if(e.target===d)closeDialog(d);});
   $('give-guided-direction').addEventListener('click',()=>{
-    if(pathway!=='new'||page!=='practice'||practiceState.said>0)return;
+    if(page!=='practice'||practiceState.said>0)return;
     action('say',current().steps[stepIndex].direction||'Please complete this step.');
   });
+  $('scenario-cards').addEventListener('click',e=>{const b=e.target.closest('[data-pick-scenario]');if(!b)return;selectedId=b.dataset.pickScenario;patternIndex=0;renderPrepare();});
+  $('toggle-scenarios').addEventListener('click',()=>{allScenariosShown=!allScenariosShown;renderScenarioCards();});
   $('scenario-picker').addEventListener('change',e=>{selectedId=e.target.value;patternIndex=0;renderPrepare();});document.querySelectorAll('input[name="practice-pathway"]').forEach(el=>el.addEventListener('change',e=>setPathway(e.target.value)));$('start').addEventListener('click',start);
   $('say-form').addEventListener('submit',e=>{e.preventDefault();const inp=$('teacher-words');if(!inp.value.trim()){toast('Type a short task direction first.',true);return;}action('say',inp.value);inp.value='';});
   $('point-target').addEventListener('click',()=>action('gesture'));$('do-wait').addEventListener('click',()=>action('wait'));$('do-model').addEventListener('click',()=>action('model'));$('do-ack').addEventListener('click',()=>action('ack'));$('advance').addEventListener('click',advance);
   $('retry-same').addEventListener('click',()=>returnBrief(false));$('retry-next').addEventListener('click',()=>returnBrief(true));$('back-brief').addEventListener('click',()=>returnBrief(false));
   $('template-list').addEventListener('click',e=>{const el=e.target.closest('[data-template]');if(el)makeFromTemplate(el.dataset.template);});
   $('quick-form').addEventListener('submit',e=>e.preventDefault());
-  $('quick-form').addEventListener('input',e=>{const el=e.target;if(el.hasAttribute('data-quick')){const key=el.dataset.quick;if(!Object.prototype.hasOwnProperty.call(current(),key))return;current()[key]=el.value;markDirty();}else if(el.hasAttribute('data-content')){const key=el.dataset.content;if(key in current().content){current().content[key]=el.value;markDirty();}}else if(el.hasAttribute('data-feedback-key')){const key=el.dataset.feedbackKey;if(key in FEEDBACK){current().content.messages[key]=el.value;markDirty();}}});
+  $('quick-form').addEventListener('input',e=>{const el=e.target;if(el.hasAttribute('data-quick')){const key=el.dataset.quick;if(!Object.prototype.hasOwnProperty.call(current(),key))return;current()[key]=el.value;markDirty();if(key==='title'||key==='learnerName')renderEditorScene();}else if(el.hasAttribute('data-content')){const key=el.dataset.content;if(key in current().content){current().content[key]=el.value;markDirty();}}else if(el.hasAttribute('data-feedback-key')){const key=el.dataset.feedbackKey;if(key in FEEDBACK){current().content.messages[key]=el.value;markDirty();}}});
   $('quick-add-step').addEventListener('click',()=>addStep(true));$('quick-add-step-bottom').addEventListener('click',()=>addStep(true));
+  $('editor-scene-preview').addEventListener('click',e=>{const b=e.target.closest('[data-preview-step]');if(!b)return;editorPreviewIndex=Number(b.dataset.previewStep);renderEditorScene();});
   $('quick-steps').addEventListener('click',e=>{
     const del=e.target.closest('[data-quick-delete]'),move=e.target.closest('[data-quick-move]');
     if(del)deleteStep(Number(del.dataset.quickDelete));
@@ -296,7 +357,9 @@
       if(el.value==='auto'){st.iconMode='auto';st.icon=suggestVisual(st);}
       else{st.iconMode='manual';st.icon=el.value;}
     }else if(['name','target'].includes(key)){
+      const needsTarget=key==='name'&&(!st.target.trim()||st.target==='task material');
       st[key]=el.value;
+      if(needsTarget)st.target=inferPromptTarget(el.value);
       refreshStepResponses(st);
       if(st.iconMode!=='manual')st.icon=suggestVisual(st);
     }else{return;}
@@ -305,7 +368,7 @@
   $('wizard-review').addEventListener('click',advanceWizard);
   $('wizard-back').addEventListener('click',()=>{wizardStage='details';renderEditor();});
   $('wizard-commit').addEventListener('click',finishWizard);
-  $('wizard-leave').addEventListener('click',()=>{if(!guardUnsaved())return;if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=clone(SEED);}dirty=false;selectedId=library[0].id;}wizardStage='details';renderEditor();});
+  $('wizard-leave').addEventListener('click',()=>{if(!guardUnsaved())return;if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=checkLibrary(SEED);}dirty=false;selectedId=library[0].id;}wizardStage='details';renderEditor();});
   $('create-scenario').addEventListener('click',createScenario);$('add-builtins').addEventListener('click',addMissingBuiltIns);$('duplicate-scenario').addEventListener('click',duplicateScenario);$('delete-scenario').addEventListener('click',deleteScenario);$('save-draft').addEventListener('click',()=>{saveDraft();renderEditor();});
   $('preview-scenario').addEventListener('click',()=>{const errs=validate(current());if(errs.length){toast(`Fix the incomplete scenario fields: ${errs.slice(0,4).join(', ')}`,true);return;}if(dirty)saveDraft();patternIndex=0;renderPrepare();setPage('prepare');});
   $('add-step').addEventListener('click',()=>addStep(false));$('add-pattern').addEventListener('click',addPattern);
@@ -321,4 +384,6 @@
   window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
   $('template-list').innerHTML=TEMPLATES.map(t=>`<button type="button" class="template-card" data-template="${escapeHTML(t.id)}"><span class="template-icon">${escapeHTML(t.icon)}</span><span class="template-copy"><strong>${escapeHTML(t.scenario.title)}</strong><small>${escapeHTML(t.desc)}</small><small>${escapeHTML(t.scenario.domain)} · ${t.scenario.steps.length} editable steps</small></span><span class="template-arrow">Use →</span></button>`).join('');
   renderPrepare();renderEditor();setPage('prepare');
+  // Hide the startup help only after scenarios have been successfully rendered.
+  if($('scenario-picker').options.length > 0){$('startup-notice')?.classList.add('hidden');}
 })();
