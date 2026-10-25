@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#193646"><title>TeachSim · Systematic Instruction Practice</title>
+<meta name="theme-color" content="#193646"><title>TeachSim · Eight SI practice scenarios</title>
 <style>
 :root{color-scheme:light;--navy:#193646;--text:#223e4d;--muted:#546d79;--teal:#087a72;--teal-deep:#08665f;--bg:#f6f9fa;--line:#cadbe0;--pale:#e9f5f2;--focus:#c77a12;--warning:#fff4e6}
 *{box-sizing:border-box}html{font-size:17px}body{margin:0;background:var(--bg);color:var(--text);font:1rem/1.5 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}button{font:inherit;cursor:pointer}button:focus-visible,summary:focus-visible,input:focus-visible{outline:4px solid var(--focus);outline-offset:3px}button:disabled{cursor:default;opacity:.5}p{margin:.35rem 0 .9rem}h1,h2,h3{line-height:1.2;letter-spacing:-.025em}h1{font-size:clamp(1.35rem,4vw,1.8rem);margin:0}h2{font-size:clamp(1.3rem,3.5vw,1.75rem);margin:.2rem 0 .85rem}h3{font-size:1rem;margin:0 0 .6rem}.muted{color:var(--muted)}.tiny{font-size:.81rem}.eyebrow{font-weight:800;text-transform:uppercase;color:var(--teal-deep);font-size:.76rem;letter-spacing:.09em}.site-head{background:var(--navy);color:#fff;padding:1rem max(1rem,calc((100% - 900px)/2));display:flex;gap:1rem;align-items:center;justify-content:space-between}.brand{font-weight:800;font-size:1.15rem}.brand span{color:#85d8cd}.pilot-mark{border:1px solid #85a4b0;border-radius:999px;padding:.25rem .65rem;font-size:.72rem;font-weight:750}.wrap{max-width:900px;margin:0 auto;padding:1.15rem clamp(1rem,3vw,2rem) 3rem}.steps{display:flex;gap:.65rem;align-items:center;margin:.45rem 0 1.4rem;flex-wrap:wrap}.step-label{font-size:.82rem;color:var(--muted);font-weight:650}.step-label.active{color:var(--teal-deep);font-weight:850}.dot{display:inline-grid;place-items:center;width:1.55rem;height:1.55rem;border:1px solid #a4b6bf;border-radius:100%;margin-right:.3rem}.active .dot{background:var(--teal);border-color:var(--teal);color:#fff}.bar{width:2rem;height:1px;background:#adc1c9}[hidden]{display:none!important}.card{border:1px solid var(--line);background:#fff;border-radius:18px;padding:clamp(1rem,3vw,1.5rem);box-shadow:0 3px 16px #12344305}.stack{display:grid;gap:1rem}.target{font-size:1.15rem;font-weight:800;margin:0}.info-strip{background:var(--pale);border-radius:12px;padding:.8rem 1rem}.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}.choice{border:2px solid var(--line);border-radius:12px;background:#fff;text-align:left;padding:.9rem;display:flex;gap:.6rem;align-items:flex-start;min-height:93px}.choice.active{border-color:var(--teal);background:#f1faf8}.choice strong{display:block}.choice small{display:block;color:var(--muted);line-height:1.35;margin-top:.15rem}.radio{width:1.2rem;height:1.2rem;flex:0 0 auto;border:2px solid #879aa4;border-radius:50%;margin-top:.22rem}.choice.active .radio{border:5px solid var(--teal)}.row{display:flex;justify-content:space-between;align-items:center;gap:.8rem;flex-wrap:wrap}.button{background:var(--teal);color:#fff;border:2px solid var(--teal);border-radius:12px;padding:.78rem 1.15rem;font-weight:780;min-height:50px}.button:hover{background:var(--teal-deep)}.button-secondary{background:#fff;color:var(--navy);border-color:#b8cbd1}.button-secondary:hover{background:#f0f5f7}.button-quiet{background:transparent;color:var(--navy);border-color:transparent}.button:disabled{opacity:.55}.actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}.action{background:#fff;color:var(--navy);border:1.5px solid #aac4c9;border-radius:12px;padding:.75rem .8rem;text-align:left;min-height:71px;font-weight:800}.action:hover{border-color:var(--teal);background:#eff9f7}.action small{display:block;color:var(--muted);font-weight:520;margin-top:.1rem;line-height:1.28}.action.wide{grid-column:1/-1}.action-group{margin-top:1rem}.action-group+.action-group{border-top:1px solid var(--line);padding-top:1rem}.label{font-weight:750;font-size:.89rem;margin:0 0 .5rem}.scene-card{border:1px solid var(--line);border-radius:16px;padding:.7rem;background:#f6fbfc}.scene-svg{display:block;width:100%;height:auto;max-height:260px}.scene-copy{padding:.7rem .25rem .1rem;min-height:62px}.observe{font-size:1.08rem;font-weight:750;margin:0}.status-tag{display:inline-block;background:#e6f1f5;color:#23516b;border-radius:999px;padding:.22rem .6rem;font-size:.76rem;font-weight:800}.prompt-tag{background:var(--pale);color:var(--teal-deep)}.workspace{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(260px,1fr);gap:1rem;align-items:start}.practice-left,.practice-right{min-width:0}.livehead{margin:.1rem 0 .8rem}.practice-right{border:1px solid var(--line);border-radius:16px;background:#fff;padding:1rem}.help{border:1px solid var(--line);border-radius:13px;padding:.7rem .9rem;background:#fff;margin-top:.8rem}.help summary,.teaching-plan summary{font-weight:750;cursor:pointer;color:var(--navy)}.help p,.teaching-plan p{margin:.6rem 0 .2rem}.teaching-plan{border:1px solid var(--line);border-radius:12px;padding:.8rem 1rem;background:#fff}.teaching-plan ul{margin:.6rem 0 .2rem;padding-left:1.2rem}.foot{color:var(--muted);font-size:.77rem;margin-top:1.5rem}.review-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.review-point{border:1px solid var(--line);border-radius:12px;padding:1rem}.outcome{font-size:1.2rem;font-weight:800;padding:.75rem 1rem;background:var(--pale);border-radius:12px;margin:.6rem 0 1rem}.checklist{margin:0;padding:0;list-style:none}.checklist li{border-bottom:1px solid #e1e9ec;padding:.6rem 0}.checklist li:last-child{border-bottom:0}.check-mark{display:inline-block;min-width:1.5rem;font-weight:900}.good{color:#11745e}.consider{color:#a35b0b}.log{font-size:.85rem;margin:.5rem 0 0;padding-left:1.2rem}.review-note{background:#fff6e9;padding:.7rem 1rem;border-radius:10px;color:#684612}.pill{font-size:.75rem;color:var(--muted)}.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.noscript{padding:1rem;border:2px solid #c57d23;background:#fff0d8;margin:1rem}
@@ -25,25 +25,39 @@
 .scene-svg{max-height:285px}
 .ready-next{padding:.55rem .8rem;background:#edf7f4;color:#075c55;border-radius:10px;margin:.5rem 0}
 @media(max-width:560px){.progress-panel{gap:.3rem}.progress-item{padding:.4rem .42rem;font-size:.7rem}.progress-item strong{font-size:.72rem}.step-records th,.step-records td{padding:.6rem .3rem}.scene-svg{max-height:235px}}
+
+.scenario-select{width:100%;min-height:52px;border:2px solid #9eafb9;border-radius:12px;padding:.65rem .8rem;font:inherit;background:#fff;color:var(--navy);font-weight:750}
+.generic-graphic{border:1px solid #c1d8de;border-radius:14px;background:linear-gradient(160deg,#f1f8fa,#e8f5f1);min-height:245px;text-align:center;padding:1rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem}
+.generic-step-number{color:#3c616e;font-size:.78rem;font-weight:800;letter-spacing:.09em}
+.generic-icon{font-size:4.7rem;line-height:1.3;filter:saturate(.85)}
+.generic-action{font-size:1.15rem;font-weight:850;max-width:28rem}
+.generic-status{font-size:.86rem;font-weight:700;color:#245267;background:#fff;padding:.3rem .9rem;border-radius:30px;border:1px solid #b7cdd2;margin-top:.3rem}
+.generic-graphic[data-response=correct]{background:#e8f6f1}.generic-graphic[data-response=no]{background:#fff7ec}
+.generic-done{font-size:.77rem;color:#345b66;min-height:1.5rem;max-width:95%}
+.review-counts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}
+.count-chip{background:#eff7f6;border:1px solid #bfd5d2;border-radius:12px;padding:.7rem;text-align:center}
+.count-chip strong{display:block;font-size:1.55rem;color:#075c55}
+.count-chip span{font-size:.82rem;color:#254b58}
+@media(max-width:480px){.review-counts{grid-template-columns:repeat(3,minmax(0,1fr))}.count-chip{padding:.5rem .25rem}.count-chip strong{font-size:1.3rem}.count-chip span{font-size:.69rem}}
 </style></head><body>
 <header class="site-head"><div class="brand">Teach<span>Sim</span></div><div class="pilot-mark">SI PRACTICE</div></header>
 <main class="wrap">
 <nav class="steps" aria-label="Practice stages"><span id="nav-prepare" class="step-label active"><span class="dot">1</span>Prepare</span><span class="bar"></span><span id="nav-practise" class="step-label"><span class="dot">2</span>Practise</span><span class="bar"></span><span id="nav-review" class="step-label"><span class="dot">3</span>Review</span></nav>
 <section id="prepare" class="stack" aria-labelledby="prepare-title">
- <div><div class="eyebrow">Least-to-most prompting · School bag</div><h1 id="prepare-title">Practise systematic instruction.</h1></div>
+ <div><div class="eyebrow">Least-to-most prompting</div><h1 id="prepare-title">Practise systematic instruction.</h1></div>
  <div class="card stack">
-  <div><h2 style="margin:0">Packing a school bag</h2><p class="muted">Ari is learning to pack an exercise book and pencil case, then close the bag.</p></div>
-  <div class="info-strip"><div class="label">Three observable targets</div><ol style="margin:.3rem 0;padding-left:1.35rem"><li>Book fully inside the bag</li><li>Pencil case fully inside the bag</li><li>Zipper closed across the top</li></ol></div>
+  <div><label class="label" for="scenario-select">Choose a scenario</label><select class="scenario-select" id="scenario-select"><option value="bag">Packing a school bag</option><option value="hands">Handwashing routine</option><option value="order">Packing an order</option><option value="meal">Clear a meal area</option><option value="wipe">Wipe a shared table</option><option value="towels">Fold and sort towels</option><option value="shelf">Restock a retail shelf</option><option value="snack">Prepare a simple snack tray</option></select><p id="scenario-intro" class="muted" style="margin-top:.6rem">Ari is learning to pack an exercise book and pencil case, then close the bag.</p></div>
+  <details class="teaching-plan"><summary>View three teaching targets</summary><ol id="prepare-targets" style="margin:.5rem 0 .2rem;padding-left:1.35rem"><li>Book fully inside the bag</li><li>Pencil case fully inside the bag</li><li>Zipper closed across the top</li></ol></details>
   <div><h3>Choose a pathway</h3><div class="choice-grid" role="group" aria-label="Practice pathway">
    <button class="choice active" id="guided-select" type="button" aria-pressed="true"><span class="radio" aria-hidden="true"></span><span><strong>Guided</strong><small>Suggested directions and optional hints</small></span></button>
    <button class="choice" id="experienced-select" type="button" aria-pressed="false"><span class="radio" aria-hidden="true"></span><span><strong>Experienced</strong><small>Decide without teaching hints</small></span></button>
   </div></div>
   <details class="teaching-plan" id="prepare-plan"><summary>View teaching plan (optional)</summary>
-   <p><strong>Target:</strong> complete three connected packing steps. The required response for each step is a fully completed action, not simply starting it.</p>
+   <p><strong>Target:</strong> complete three connected task steps. The required response for each step is a fully completed action, not simply starting it.</p>
    <p><strong>Provisional plan:</strong> give the instruction, allow an independent response, then use a gestural prompt followed by a model prompt only if needed. Observe after each prompt. Acknowledge a completed response.</p>
    <p class="tiny muted">The fictional learner, response patterns and prompt effectiveness require SI specialist review. Do not treat this as a universal hierarchy.</p>
   </details>
-  <div class="row"><span class="tiny muted">Three steps · One routine · No score</span><button class="button" id="start" type="button">Start practice →</button></div>
+  <div class="row"><span class="tiny muted">Three steps per scenario · No score</span><button class="button" id="start" type="button">Start practice →</button></div>
  </div>
 </section>
 <section id="practise" hidden aria-labelledby="practise-title">
@@ -54,7 +68,7 @@
   <div class="practice-left">
    <div class="scene-card">
     <div class="row"><strong id="step-name">Step 1 · Exercise book</strong><span class="status-tag" id="observation-state">Ready</span></div>
-    <svg id="task-scene" class="scene-svg" viewBox="0 0 620 310" role="img" aria-label="Open school bag and packing materials on the table">
+    <div id="bag-graphic"><svg id="task-scene" class="scene-svg" viewBox="0 0 620 310" role="img" aria-label="Open school bag and packing materials on the table">
       <rect width="620" height="310" fill="#f7fbfc" rx="18"/>
       <rect x="40" y="253" width="540" height="22" rx="11" fill="#d9e8eb"/>
       <!-- Bag opening and body -->
@@ -73,7 +87,14 @@
       <g id="attention-ring" style="display:none"><rect x="362" y="145" width="188" height="114" rx="24" fill="none" stroke="#ac7018" stroke-width="5" stroke-dasharray="9 8"/></g>
       <text x="201" y="292" text-anchor="middle" font-size="16" font-weight="700" fill="#466573">SCHOOL BAG</text>
       <text id="material-name" x="458" y="292" text-anchor="middle" font-size="16" font-weight="700" fill="#466573">BOOK</text>
-    </svg>
+    </svg></div>
+    <div id="generic-graphic" class="generic-graphic" hidden role="img" aria-label="Illustrative task materials and response status">
+      <div class="generic-step-number" id="generic-step-number">STEP 1</div>
+      <div class="generic-icon" id="generic-icon" aria-hidden="true">🧼</div>
+      <div class="generic-action" id="generic-action">Apply soap</div>
+      <div class="generic-status" id="generic-status">Materials ready</div>
+      <div class="generic-done" id="generic-done"></div>
+    </div>
     <div class="scene-copy" role="status" aria-live="polite" aria-atomic="true"><p class="observe" id="observation">The book is beside the bag.</p><span class="pill" id="observation-extra">Ari is ready for the first step.</span></div>
    </div>
   </div>
@@ -101,62 +122,73 @@
  <div class="card stack">
   <div class="outcome" id="outcome">Episode reviewed</div><p id="review-intro" class="muted"></p>
   <div class="review-grid"><div class="review-point"><h3>What worked</h3><p id="worked">—</p></div><div class="review-point"><h3>Consider next time</h3><p id="improve">—</p></div></div>
+  <div id="review-counts" class="review-counts" aria-label="Prompt level summary"></div>
   <div><h3>Task-step outcomes</h3><table class="step-records"><thead><tr><th scope="col">Step</th><th scope="col">Recorded response</th></tr></thead><tbody id="step-results"></tbody></table></div>
   <details class="teaching-plan"><summary>Six SI practice checks</summary><ul class="checklist" id="checks"></ul></details>
   <details class="teaching-plan"><summary>View action log</summary><ol class="log" id="event-log"></ol></details>
-  <p class="tiny muted">This evaluates simulated button decisions, not actual instructional delivery. The prompting plan and scripted learner responses are provisional.</p>
-  <div class="row"><button class="button button-secondary" type="button" id="back-prepare">Back to Prepare</button><button class="button" type="button" id="retry">Retry with another variation →</button></div>
+  <p class="tiny muted">The review describes simulated decisions, not actual teaching fidelity. Prompt effectiveness still needs specialist review.</p>
+  <div class="row"><button class="button button-secondary" type="button" id="back-prepare">Back to Prepare</button><button class="button" type="button" id="retry">Retry · different learner responses →</button></div>
  </div>
 </section>
 <noscript><div class="noscript"><strong>Interactive practice is unavailable in this file viewer.</strong> Open the published site in Safari.</div></noscript>
-<footer class="wrap foot">TeachSim · SI practice prototype · Fictional learner; instructional review pending.</footer>
+<footer class="wrap foot">TeachSim · SI practice prototype · Fictional learners; instructional review pending.</footer>
 </main>
 <script>(() => {
 'use strict';
 const $=id=>document.getElementById(id);
-const STEPS=[
- {id:'book',name:'Exercise book',target:'Book fully inside the open bag',cue:'Put the book in your bag.',gesture:'Point towards the open bag.',model:'Demonstrate with a spare book.',ready:'The book is beside the open bag.',no:'Ari has not moved the book.',correct:'Ari puts the entire book inside the bag.',detail:'The exercise book remains on the table.'},
- {id:'pencil',name:'Pencil case',target:'Pencil case fully inside the open bag',cue:'Put the pencil case in your bag.',gesture:'Point towards the open bag.',model:'Demonstrate with a spare pencil case.',ready:'The pencil case is beside the open bag.',no:'Ari has not moved the pencil case.',correct:'Ari puts the entire pencil case inside the bag.',detail:'The pencil case remains on the table.'},
- {id:'zip',name:'Close zipper',target:'Zipper fully closed across the top of the bag',cue:'Close your bag.',gesture:'Point towards the zipper.',model:'Demonstrate closing a similar zipper.',ready:'The zipper is open.',no:'Ari has not closed the zipper.',correct:'Ari closes the zipper fully across the top.',detail:'The bag remains open.'}
-];
-// Deterministic variations. Every final model succeeds based on an UNVERIFIED fictional learner assumption.
+const SCENARIOS=[{"id":"bag","title":"Packing a school bag","learner":"Ari","summary":"Pack an exercise book and pencil case, then close the bag.","steps":[{"name":"Exercise book","icon":"📘","target":"Book fully inside the open bag","cue":"Put the book in your bag.","gesture":"Point towards the open bag.","model":"Demonstrate with a spare book.","ready":"The book is beside the open bag.","no":"Ari has not moved the book.","correct":"Ari puts the entire book inside the bag.","detail":"The target step has not been completed."},{"name":"Pencil case","icon":"🟨","target":"Pencil case fully inside the open bag","cue":"Put the pencil case in your bag.","gesture":"Point towards the open bag.","model":"Demonstrate with a spare pencil case.","ready":"The pencil case is beside the open bag.","no":"Ari has not moved the pencil case.","correct":"Ari puts the entire pencil case inside the bag.","detail":"The target step has not been completed."},{"name":"Close zipper","icon":"🎒","target":"Zipper fully closed across the top","cue":"Close your bag.","gesture":"Point towards the zipper pull.","model":"Demonstrate with a similar zipper.","ready":"The bag is open.","no":"Ari has not moved the zipper.","correct":"Ari pulls the zipper fully closed.","detail":"The target step has not been completed."}]},{"id":"hands","title":"Handwashing routine","learner":"Sam","summary":"Practise three steps after hands have already been wet.","steps":[{"name":"Apply soap","icon":"🧼","target":"Soap dispensed onto both hands","cue":"Put soap on your hands.","gesture":"Point towards the soap dispenser.","model":"Demonstrate pressing a similar soap pump.","ready":"Sam is beside the dispenser with wet hands.","no":"Sam has not pressed the dispenser.","correct":"Sam dispenses soap onto both hands.","detail":"The target step has not been completed."},{"name":"Rub hands","icon":"👐","target":"Palms and backs of hands rubbed with soap","cue":"Rub your hands together.","gesture":"Gesture rubbing both hands.","model":"Demonstrate rubbing soapy hands.","ready":"Soap is on Sam’s hands.","no":"Sam keeps their hands still.","correct":"Sam rubs both hands with soap.","detail":"The target step has not been completed."},{"name":"Rinse hands","icon":"🚰","target":"Soap washed off both hands","cue":"Rinse the soap off.","gesture":"Point towards the running water.","model":"Demonstrate rinsing hands under water.","ready":"The tap is running.","no":"Sam has not put their hands under the water.","correct":"Sam rinses the soap off both hands.","detail":"The target step has not been completed."}]},{"id":"order","title":"Packing an order","learner":"Rae","summary":"Practise packing one lightweight order at a workstation.","steps":[{"name":"Place item","icon":"📦","target":"Item fully placed inside the open box","cue":"Put the item in the box.","gesture":"Point inside the open box.","model":"Demonstrate placing a spare item inside.","ready":"The item is beside the open box.","no":"Rae has not moved the item.","correct":"Rae puts the item completely inside the box.","detail":"The target step has not been completed."},{"name":"Add slip","icon":"📝","target":"Order slip fully placed inside the box","cue":"Put the slip in the box.","gesture":"Point towards the inside of the box.","model":"Demonstrate placing a spare slip inside.","ready":"The order slip is beside the box.","no":"Rae has not moved the order slip.","correct":"Rae places the complete slip inside the box.","detail":"The target step has not been completed."},{"name":"Close box","icon":"📦","target":"Box flaps folded and closed","cue":"Close the box.","gesture":"Point to the open box flaps.","model":"Demonstrate closing a similar box.","ready":"The filled box is open.","no":"Rae has not moved the box flaps.","correct":"Rae folds the flaps so the box is closed.","detail":"The target step has not been completed."}]},{"id":"meal","title":"Clear a meal area","learner":"Ari","summary":"Practise clearing one place setting using a tray.","steps":[{"name":"Cup on tray","icon":"🥛","target":"Used cup standing securely on the tray","cue":"Put the cup on the tray.","gesture":"Point to an open space on the tray.","model":"Demonstrate placing a spare cup on a tray.","ready":"The used cup is on the table.","no":"Ari has not moved the cup.","correct":"Ari places the cup upright on the tray.","detail":"The target step has not been completed."},{"name":"Plate on tray","icon":"🍽️","target":"Plate placed flat on the tray","cue":"Put the plate on the tray.","gesture":"Point to the tray.","model":"Demonstrate placing a spare plate on a tray.","ready":"The plate is still on the table.","no":"Ari has not moved the plate.","correct":"Ari places the plate flat on the tray.","detail":"The target step has not been completed."},{"name":"Move tray","icon":"🧺","target":"Tray placed on the marked collection surface","cue":"Bring the tray to the collection point.","gesture":"Point towards the collection point.","model":"Demonstrate moving a lightweight empty tray.","ready":"The loaded tray is on the table.","no":"Ari has not started moving the tray.","correct":"Ari puts the tray on the marked collection surface.","detail":"The target step has not been completed."}]},{"id":"wipe","title":"Wipe a shared table","learner":"Min","summary":"Practise a short cleaning sequence with a cloth.","steps":[{"name":"Take cloth","icon":"🧽","target":"Clean cloth picked up from the cloth area","cue":"Pick up the cleaning cloth.","gesture":"Point to the clean cloth.","model":"Demonstrate picking up a similar cloth.","ready":"The clean cloth is on the counter.","no":"Min has not picked up the cloth.","correct":"Min picks up the cleaning cloth.","detail":"The target step has not been completed."},{"name":"Wipe surface","icon":"🪑","target":"Marked table area wiped fully","cue":"Wipe this part of the table.","gesture":"Point across the marked area.","model":"Demonstrate wiping a nearby marked area.","ready":"The marked table area needs wiping.","no":"Min has not wiped the marked area.","correct":"Min wipes across the complete marked area.","detail":"The target step has not been completed."},{"name":"Used-cloth basket","icon":"🧺","target":"Used cloth fully in the designated basket","cue":"Put the cloth in the used-cloth basket.","gesture":"Point to the used-cloth basket.","model":"Demonstrate placing another cloth in the basket.","ready":"Min is holding the used cloth.","no":"Min has not moved the cloth to the basket.","correct":"Min puts the cloth fully in the used-cloth basket.","detail":"The target step has not been completed."}]},{"id":"towels","title":"Fold and sort towels","learner":"Jia","summary":"Practise three connected towel-folding actions.","steps":[{"name":"Lay towel flat","icon":"🧻","target":"Towel spread flat on the work surface","cue":"Lay the towel flat.","gesture":"Point to the work surface.","model":"Demonstrate flattening a different towel.","ready":"A towel is folded loosely on the table.","no":"Jia has not laid the towel flat.","correct":"Jia spreads the towel flat on the work surface.","detail":"The target step has not been completed."},{"name":"Fold in half","icon":"👕","target":"Towel folded once, edge to edge","cue":"Fold the towel in half.","gesture":"Point from one edge to the matching edge.","model":"Demonstrate folding another towel in half.","ready":"The towel is lying flat.","no":"Jia has not folded the towel.","correct":"Jia folds the towel in half with the edges aligned.","detail":"The target step has not been completed."},{"name":"Place on stack","icon":"🗄️","target":"Folded towel placed fully on the stack","cue":"Put the folded towel on the stack.","gesture":"Point to the towel stack.","model":"Demonstrate placing a similar folded towel on a stack.","ready":"The folded towel is on the work surface.","no":"Jia has not moved it to the stack.","correct":"Jia places the folded towel on top of the stack.","detail":"The target step has not been completed."}]},{"id":"shelf","title":"Restock a retail shelf","learner":"Kai","summary":"Practise placing a labelled item on the correct shelf.","steps":[{"name":"Find shelf marker","icon":"🏷️","target":"Matching shelf location identified","cue":"Find the matching shelf label.","gesture":"Point towards the row of shelf labels.","model":"Demonstrate matching a different item to its marker.","ready":"The labelled product and shelf markers are visible.","no":"Kai has not identified a matching marker.","correct":"Kai identifies the shelf marker matching the product label.","detail":"The target step has not been completed."},{"name":"Place item","icon":"📦","target":"Product fully placed on its matching shelf","cue":"Put the item on that shelf.","gesture":"Point to the matching shelf space.","model":"Demonstrate placing another item on its matching shelf.","ready":"The product is beside the correct shelf.","no":"Kai has not moved the product onto the shelf.","correct":"Kai places the product on the correct shelf.","detail":"The target step has not been completed."},{"name":"Align item","icon":"📏","target":"Product front aligned with shelf edge","cue":"Move the item to the front edge.","gesture":"Point to the front edge.","model":"Demonstrate aligning another item at the front.","ready":"The product sits towards the back of the shelf.","no":"Kai has not aligned the product.","correct":"Kai moves the product so its front aligns with the shelf edge.","detail":"The target step has not been completed."}]},{"id":"snack","title":"Prepare a simple snack tray","learner":"Noor","summary":"Practise assembling three items on a clean tray.","steps":[{"name":"Plate on tray","icon":"🍽️","target":"Plate placed flat and fully on the tray","cue":"Put the plate on the tray.","gesture":"Point to the centre of the tray.","model":"Demonstrate placing another plate on a tray.","ready":"The plate is beside the clean tray.","no":"Noor has not moved the plate.","correct":"Noor places the plate flat on the tray.","detail":"The target step has not been completed."},{"name":"Add snack packet","icon":"🥪","target":"Sealed snack packet fully on the plate","cue":"Put the snack packet on the plate.","gesture":"Point to the plate.","model":"Demonstrate placing a different sealed packet on a plate.","ready":"The sealed snack packet is beside the tray.","no":"Noor has not moved the snack packet.","correct":"Noor places the sealed snack packet on the plate.","detail":"The target step has not been completed."},{"name":"Add napkin","icon":"🧻","target":"One napkin fully on the tray","cue":"Put a napkin on the tray.","gesture":"Point to an empty space on the tray.","model":"Demonstrate placing a spare napkin on another tray.","ready":"The napkin is beside the tray.","no":"Noor has not moved the napkin.","correct":"Noor places one napkin on the tray.","detail":"The target step has not been completed."}]}];
 const PATTERNS=[
- ['gesture','independent','model'],
- ['independent','gesture','independent'],
- ['model','independent','gesture']
+ ['independent','gesture','model'],
+ ['gesture','model','independent'],
+ ['model','independent','gesture'],
+ ['gesture','independent','independent']
 ];
+// Four scripted response patterns rotate on retry. Incorrect responses are deferred pending
+// agreement on an explicit, validated error-correction procedure.
+let scenario=SCENARIOS[0],STEPS=scenario.steps;
 const labels={cue:'Gave instruction',wait:'Waited / observed',gesture:'Used gestural prompt',model:'Used model prompt',ack:'Acknowledged success'};
 let guided=true, pattern=0, index=0, current, records=[],log=[];
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function show(stage){['prepare','practise','review'].forEach(k=>{$(k).hidden=k!==stage;$('nav-'+k).classList.toggle('active',k===stage)});window.scrollTo?.(0,0);}
 function selectMode(g){guided=g;$('guided-select').classList.toggle('active',g);$('experienced-select').classList.toggle('active',!g);$('guided-select').setAttribute('aria-pressed',String(g));$('experienced-select').setAttribute('aria-pressed',String(!g));$('prepare-plan').hidden=!g;}
-function blank(){return {actions:[],cue:false,firstWait:false,awaiting:null,lastPrompt:null,observed:'ready',success:false,level:null,ack:false,flags:{premature:false,skipGesture:false,noWaitAfterPrompt:false,extraAfterSuccess:false,earlyAck:false,extraWait:false,repeatCue:false}};}
+function blank(){return {responses:[],actions:[],cue:false,firstWait:false,awaiting:null,lastPrompt:null,observed:'ready',success:false,level:null,ack:false,flags:{premature:false,skipGesture:false,noWaitAfterPrompt:false,extraAfterSuccess:false,earlyAck:false,extraWait:false,repeatCue:false}};}
 function variantFor(i){return PATTERNS[pattern][i]}
 function writeProgress(){
  $('step-progress').innerHTML=STEPS.map((s,i)=>`<div class="progress-item ${i<index?'done':i===index?'current':''}" ${i===index?'aria-current="step"':''}><strong>${i+1}. ${esc(s.name)}</strong><span>${i<index?'Complete':i===index?'Now practising':'Next'}</span></div>`).join('');
 }
 function updateScene(){
- const step=STEPS[index],completed=records.map(r=>r.complete);
- const book=!!completed[0]||(index===0&&current.observed==='correct');
- const pencil=!!completed[1]||(index===1&&current.observed==='correct');
- const zip=!!completed[2]||(index===2&&current.observed==='correct');
- $('book-out').style.display=book?'none':''; $('book-in').style.display=book&&!zip?'':'none';
- $('pencil-out').style.display=pencil?'none':'';$('pencil-in').style.display=pencil&&!zip?'':'none';
- $('bag-open').style.display=zip?'none':'';$('bag-closed').style.display=zip?'':'none';
- // Highlight only the material for the current incomplete step, without giving a teaching hint.
- $('attention-ring').style.display=current.observed==='no'?'':'none';
- $('material-name').textContent=index===0?'BOOK / PENCIL CASE':index===1?'PENCIL CASE':'ZIPPER';
- const obs=current.observed;
- $('observation-state').textContent=obs==='correct'?'Completed':obs==='no'?'No response':obs==='pending'?'Observe':'Ready';
- $('observation-state').classList.toggle('prompt-tag',obs==='correct');
- $('observation').textContent=obs==='correct'?step.correct:obs==='no'?step.no:obs==='pending'?'Ari has received a teaching action.':step.ready;
- $('observation-extra').textContent=obs==='correct'?'Target response completed.':obs==='no'?step.detail:obs==='pending'?'No response observed yet.':'The step has not started.';
- $('task-scene').setAttribute('aria-label',`School-bag task. ${$('observation').textContent} ${book?'Book in bag.':'Book beside bag.'} ${pencil?'Pencil case in bag.':'Pencil case beside bag.'} ${zip?'Bag zipped.':'Bag open.'}`);
+ const step=STEPS[index],obs=current.observed, completed=records.map(r=>r.complete);
+ const correct=obs==='correct',no=obs==='no';
+ $('bag-graphic').hidden=scenario.id!=='bag';
+ $('generic-graphic').hidden=scenario.id==='bag';
+ if(scenario.id==='bag'){
+  const book=!!completed[0]||(index===0&&correct);
+  const pencil=!!completed[1]||(index===1&&correct);
+  const zip=!!completed[2]||(index===2&&correct);
+  $('book-out').style.display=book?'none':''; $('book-in').style.display=book&&!zip?'':'none';
+  $('pencil-out').style.display=pencil?'none':'';$('pencil-in').style.display=pencil&&!zip?'':'none';
+  $('bag-open').style.display=zip?'none':'';$('bag-closed').style.display=zip?'':'none';
+  $('attention-ring').style.display=no?'':'none';
+  $('material-name').textContent=index===0?'BOOK / PENCIL CASE':index===1?'PENCIL CASE':'ZIPPER';
+  $('task-scene').setAttribute('aria-label',`Bag-packing task: ${correct?step.correct:no?step.no:step.ready} ${book?'Book in bag.':'Book beside bag.'} ${pencil?'Pencil case in bag.':'Pencil case beside bag.'} ${zip?'Bag closed.':'Bag open.'}`);
+ }else{
+  $('generic-step-number').textContent=`STEP ${index+1} OF ${STEPS.length}`;
+  $('generic-icon').textContent=step.icon;
+  $('generic-action').textContent=step.name;
+  $('generic-status').textContent=correct?'Target response completed':no?'No action observed':obs==='pending'?'Response not yet observed':'Materials ready';
+  $('generic-graphic').dataset.response=correct?'correct':no?'no':'ready';
+  $('generic-done').textContent=records.map(r=>'✓ '+STEPS[r.step].name).join(' · ');
+  $('generic-graphic').setAttribute('aria-label',`${scenario.title}. ${step.name}. ${correct?step.correct:no?step.no:step.ready}`);
+ }
+ $('observation-state').textContent=correct?'Completed':no?'No response':obs==='pending'?'Observe':'Ready';
+ $('observation-state').classList.toggle('prompt-tag',correct);
+ $('observation').textContent=correct?step.correct:no?step.no:obs==='pending'?'A teaching action was delivered; no learner response observed yet.':step.ready;
+ $('observation-extra').textContent=correct?'Target response completed.':no?step.detail:obs==='pending'?'Response not observed yet.':'The step has not started.';
  $('action-count').textContent=current.actions.length+' action'+(current.actions.length===1?'':'s')+' this step';
 }
 function setStep(){
  current=blank();const s=STEPS[index];
- $('step-name').textContent=`Step ${index+1} of 3 · ${s.name}`;
+ $('step-name').textContent=`Step ${index+1} of ${STEPS.length} · ${s.name}`;
  $('current-target').textContent=s.target;
  $('suggested-text').textContent='“'+s.cue+'”';
  $('gesture-example').textContent=s.gesture; $('model-example').textContent=s.model;
@@ -164,7 +196,7 @@ function setStep(){
 }
 function start(){index=0;records=[];log=[];$('practice-mode').textContent=(guided?'Guided':'Experienced')+' · Least-to-most prompting';$('support-label').textContent=guided?'Guided':'Experienced';$('suggested-direction').hidden=!guided;$('guided-hint').hidden=!guided;document.querySelectorAll('.guided-only').forEach(e=>e.hidden=!guided);setStep();show('practise');}
 function record(complete){
- records.push({step:index,complete,level:complete?current.level:'Not completed',flags:{...current.flags},firstWait:current.firstWait,ack:current.ack,actions:[...current.actions],cue:current.cue});
+ records.push({step:index,complete,level:complete?current.level:'Not completed',responses:[...current.responses],flags:{...current.flags},firstWait:current.firstWait,ack:current.ack,actions:[...current.actions],cue:current.cue});
 }
 function act(a){
  if(!current)return;
@@ -190,7 +222,7 @@ function act(a){
    if(phase==='initial'&&desired==='independent')answer='correct';
    if(phase==='gesture'&&(desired==='independent'||desired==='gesture'))answer='correct';
    if(phase==='model')answer='correct';
-   current.observed=answer;current.awaiting=null;
+   current.observed=answer;current.awaiting=null;current.responses.push({phase,response:answer});
    if(answer==='correct'){
     current.success=true;current.level=phase==='initial'?'Independent':phase==='gesture'?'Gestural prompt':'Model prompt';
    }
@@ -211,8 +243,8 @@ function finish(){
  // End & Review can be selected mid-step; preserve unfinished step and show remaining steps as unattempted.
  if(records.length<STEPS.length && records.every(r=>r.step!==index))record(false);
  const completed=records.filter(r=>r.complete).length;
- $('outcome').textContent=completed+' of 3 steps completed';
- $('review-intro').textContent=completed===3?'All three observable targets were completed in sequence.':'The routine ended before all three target responses were completed.';
+ $('outcome').textContent=completed+' of '+STEPS.length+' steps completed';
+ $('review-intro').textContent=completed===STEPS.length?'All three observable targets were completed in sequence.':'The episode ended before all three target responses were completed.';
  const good=[];const improve=[];
  for(const r of records){
   if(r.complete&&r.firstWait&&!r.flags.premature)good.push('You allowed an independent response opportunity.');
@@ -220,9 +252,11 @@ function finish(){
   for(const i of issues(r))if(!improve.includes(i))improve.push(i);
  }
  if(!good.length)good.push('Your decisions and observed responses were recorded for review.');
- if(!improve.length)improve.push('Consider how to fade assistance when learner performance supports it.');
+ if(!improve.length)improve.push('When the learner is ready, plan how to fade prompts across future practice.');
  $('worked').textContent=[...new Set(good)].slice(0,2).join(' ');
- $('improve').textContent=improve.slice(0,2).join(' ');
+ $('improve').textContent=improve[0];
+ const levels=['Independent','Gestural prompt','Model prompt'];
+ $('review-counts').innerHTML=levels.map(l=>`<div class="count-chip"><strong>${records.filter(r=>r.complete&&r.level===l).length}</strong><span>${esc(l)}</span></div>`).join('');
  $('step-results').innerHTML=STEPS.map((s,i)=>{const r=records.find(a=>a.step===i);return `<tr><td>${i+1}. ${esc(s.name)}</td><td>${r?(r.complete?esc(r.level):'Not completed'):'Not attempted'}${r&&issues(r).length?`<span class="small-line">${esc(issues(r)[0])}</span>`:''}</td></tr>`}).join('');
  const attempted=records.length;
  const checks=[
@@ -237,6 +271,15 @@ function finish(){
  $('event-log').innerHTML=log.map(l=>`<li><strong>${esc(STEPS[l.step].name)}:</strong> ${esc(l.text)}</li>`).join('');
  show('review');
 }
+function selectScenario(id){
+ scenario=SCENARIOS.find(s=>s.id===id)||SCENARIOS[0];STEPS=scenario.steps;
+ $('scenario-select').value=scenario.id;
+ $('scenario-intro').textContent=`${scenario.learner}: ${scenario.summary}`;
+ $('prepare-targets').innerHTML=STEPS.map(s=>`<li>${esc(s.target)}</li>`).join('');
+ $('practise-title').textContent=`Observe ${scenario.learner}. Choose your response.`;
+ pattern=0;
+}
+$('scenario-select').addEventListener('change',e=>selectScenario(e.target.value));
 $('guided-select').addEventListener('click',()=>selectMode(true));
 $('experienced-select').addEventListener('click',()=>selectMode(false));
 $('start').addEventListener('click',start);
@@ -244,6 +287,6 @@ document.querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',()
 $('quit').addEventListener('click',finish);
 $('retry').addEventListener('click',()=>{pattern=(pattern+1)%PATTERNS.length;start();});
 $('back-prepare').addEventListener('click',()=>{pattern=0;show('prepare');});
-selectMode(true);show('prepare');
+selectScenario('bag');selectMode(true);show('prepare');
 })();</script>
 </body></html>

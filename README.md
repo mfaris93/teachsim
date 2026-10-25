@@ -1,31 +1,27 @@
-# TeachSim — SI Practice (main website)
+# TeachSim — Eight scenarios, rotating learner responses
 
-This **three-step school-bag scenario** replaces the previous eight-scenario TeachSim home page. It is a simple, static teaching-decision rehearsal for least-to-most prompting with two pathways: Guided and Experienced.
+Standalone GitHub Pages site: upload `index.html` to the repository root. No other files or dependencies are required.
 
-## Deployment to GitHub Pages
+## What changed
+- Eight ready-made fictional SPED functional-skills scenarios, each with three focused instructional steps.
+- Same lightweight **Prepare → Practise → Review** workflow and **Guided / Experienced** pathways.
+- Four scripted response patterns rotate on every **Retry** within the same scenario. Each step may complete independently, after a gestural prompt, or after a model prompt.
+- Review shows a per-step prompt level, totals for independent/gestural/model completion, and **one priority improvement**.
+- Simplified schematic visuals for the seven newly restored scenarios; the school-bag scene is retained.
+- All scenario variations are deterministic and fictional; no user data is transmitted.
 
-1. Open repository `mfaris93/teachsim` on branch `main`.
-2. **Replace the root `index.html`** with the `index.html` in this package, and commit. Do not put it inside the `multi-step` or `pilot` folder.
-3. Visit https://mfaris93.github.io/teachsim/ in Safari, refresh, and test the scenario in both pathways.
+## Important instructional boundaries
+- This is a provisional model of least-to-most prompting, not a universal sequence; actual prompting hierarchies, response intervals, controlling prompts, reinforcement and error-correction procedures must be individualised and reviewed by an SI specialist.
+- Incorrect responses, physical prompts, timed response intervals, prompt fading and real student data are deliberately **not** implemented yet.
+- Some scenarios are three-step **practice excerpts**, not complete task analyses (for example, handwashing omits drying). Avoid interpreting a completed excerpt as independent mastery of the entire skill.
+- The UI records button selections, not actual delivery, timing, learner behaviour, or teaching fidelity.
+- The schematic visual communicates task materials and status; the text gives the precise observed response.
 
-This version is one self-contained HTML file; it **does not require** the previous `app.js`, `styles.css`, `scenarios.js`, `templates.js`, or `scene_renderer.js` to load. Those legacy files can stay in the repository for now as a rollback safeguard, but are not used by the new home page.
+## Trial checks
+1. Choose each scenario. Check the three targets, Guided vs Experienced mode and step-specific prompts.
+2. Complete three steps by **Give instruction → Wait**, add **Gestural** or **Model** only if needed and wait after each prompt, then **Acknowledge success**.
+3. Retry three times and verify the observed learner responses change while the scenario stays the same.
+4. Review per-step independence/prompt levels and improvement priority.
+5. Check in Safari on iPad and with keyboard + screen-reader users.
 
-The Git commit history also preserves earlier versions if rollback is needed.
-
-## What is included
-
-- Prepare → Practise → Review
-- Three observable targets: book fully inside bag; pencil case fully inside bag; zipper fully closed
-- Guided (examples and optional hints) and Experienced (no examples or hints)
-- Three scripted response variations across retries
-- Action-based post-practice review, not a numerical teacher-competence score
-- No external files, logins, personal-data storage, or AI dependency
-
-## Important instructional limitations
-
-- The gestural → model prompt sequence and its effectiveness for each target are **provisional** and await SI specialist review.
-- The learner simulation does not yet include incorrect responses; it models no response and successful response at planned prompt levels.
-- The simulation records button choices rather than assessing actual teaching, timing, quality of reinforcement or student performance.
-- Before rolling it out as formal professional learning, review the procedural fidelity, test on actual iPad Safari, and run a small teacher usability trial.
-
-Research foundation: Dr Bree Jimenez and colleagues' systematic instruction and task-analysis teacher training work. This particular six-point practice checklist and the scenario response scripts are TeachSim adaptations, not validated instruments published by the authors.
+This prototype is not SI specialist-approved.
