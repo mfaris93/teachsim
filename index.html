@@ -4,182 +4,117 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>TeachSim V6.4 · Instructional rehearsal</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>TeachSim V6.7.1 · Instructional rehearsal</title>
+  <link rel="stylesheet" href="styles.css?v=6.7.1">
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to main content</a>
 <header class="topbar">
   <div class="top-inner">
     <div class="brand">Teach<span>Sim</span><small> / instructional rehearsal</small></div>
-    <div class="top-actions">
-      <button type="button" class="navbtn active" id="nav-teacher">Teacher mode</button>
-      <button type="button" class="navbtn" id="nav-editor">Content editor</button>
-      <button type="button" class="navbtn help-nav" id="open-guide">? How TeachSim works</button>
-    </div>
+    <div class="top-actions"><button type="button" class="navbtn help-nav" id="open-guide" disabled>How TeachSim works</button></div>
   </div>
 </header>
-<main id="main">
+<main id="main" tabindex="-1">
   <div id="teacher-space">
-    <nav id="stepper" class="stepper" aria-label="Simulation progress"><div data-stage="prepare" class="active"><b>1</b>Prepare</div><div data-stage="practice"><b>2</b>Practise</div><div data-stage="review"><b>3</b>Review</div></nav>
+    <nav aria-label="Practice progress"><ol id="stepper" class="stepper"><li data-stage="prepare" class="active" aria-current="step"><b aria-hidden="true">1</b>Prepare</li><li data-stage="practice"><b aria-hidden="true">2</b>Practise</li><li data-stage="review"><b aria-hidden="true">3</b>Review</li></ol></nav>
     <section id="page-prepare" class="v63-prepare">
       <div class="eyebrow">01 / Prepare</div>
-      <h1>Choose your teaching practice</h1>
-      <div class="scenario-section-heading"><h2>Choose a scenario</h2><button type="button" class="btn small-btn" id="toggle-scenarios" aria-expanded="false">Show all scenarios</button></div>
-      <div id="scenario-cards" class="scenario-cards" aria-label="Available practice scenarios"></div>
-      <label class="sr-only" for="scenario-picker">Choose a scenario</label><select class="sr-only" id="scenario-picker" aria-label="Choose a scenario"><option value="" disabled>Loading scenarios…</option></select><span id="pattern-brief" class="sr-only"></span>
-      <p id="startup-notice" class="startup-notice" role="status">Scenarios are not available in this preview. Some iPad file viewers do not run interactive JavaScript. Open the <a href="https://mfaris93.github.io/teachsim/">published TeachSim website in Safari</a> instead. If you're testing a new version, upload the update to GitHub first.</p>
-      <noscript><p class="startup-noscript">TeachSim needs JavaScript enabled. Open the published website in Safari or another modern browser.</p></noscript>
+      <h1 tabindex="-1">Choose your teaching practice</h1>
+      <section class="strategy-card" aria-labelledby="strategy-title"><div class="label">TEACHING STRATEGY</div><h2 id="strategy-title">Least-to-Most Prompting</h2><p>Give a direction and wait for the learner’s response. Increase support only after observing no response or an incorrect response.</p><ol class="prompt-hierarchy"><li><strong>Independent opportunity</strong><span>Instruction → Wait</span></li><li><strong>Gestural prompt</strong><span>Point → Wait</span></li><li><strong>Model prompt</strong><span>Demonstrate → Wait</span></li></ol><p class="small hierarchy-note">Acknowledge a correct response. If the learner remains unable to complete the step after modelling, pause and review the teaching plan.</p></section>
+      <div class="scenario-selector">
+        <label for="scenario-select" id="scenario-heading">Choose a scenario</label>
+        <select id="scenario-select" aria-describedby="scenario-help" disabled>
+          <option value="handwashing" selected>Handwashing routine · Daily Living Skills</option>
+          <option value="template-school-bag">Packing a school bag · Daily Living Skills</option>
+          <option value="template-work-packing">Packing an order · Vocational Education</option>
+          <option value="clear-meal-area">Clear a meal area · Daily Living Skills</option>
+          <option value="wipe-table">Wipe a shared table · Daily Living Skills</option>
+          <option value="fold-towels">Fold and sort towels · Vocational Education</option>
+          <option value="restock-shelf">Restock a retail shelf · Vocational Education</option>
+          <option value="prepare-snack-tray">Prepare a simple snack tray · Daily Living Skills</option>
+        </select>
+        <p id="scenario-help" class="small subdued">Eight ready-made activities. Choose one to update the practice brief.</p>
+      </div>
+      <p id="startup-notice" class="startup-notice" role="status">This file preview shows an example teaching plan, but it cannot run the interactive simulation when scripts are blocked. Open the <a href="https://mfaris93.github.io/teachsim/">published TeachSim website in Safari</a> to select scenarios and practise.</p>
       <fieldset class="pathway-choice" aria-describedby="pathway-note">
-        <legend>Practice level</legend>
-        <label class="pathway-option"><input type="radio" name="practice-pathway" value="new" checked><span><strong>Guided</strong><small>See a suggested instruction and predictable learner responses</small></span></label>
-        <label class="pathway-option"><input type="radio" name="practice-pathway" value="experienced"><span><strong>Experienced</strong><small>Deliver instructions without suggested wording; varied responses</small></span></label>
+        <legend>Choose a practice pathway</legend>
+        <label class="pathway-option"><input type="radio" name="practice-pathway" value="new" checked disabled><span><strong>Guided</strong><small>Suggested instructions, prompt examples and optional hints</small></span></label>
+        <label class="pathway-option"><input type="radio" name="practice-pathway" value="experienced" disabled><span><strong>Experienced</strong><small>Choose your own instruction; no prompt examples or hints</small></span></label>
       </fieldset>
       <p class="small subdued pathway-caption" id="pathway-note">Choose the support you need, not your years of experience.</p>
-      <p class="pathway-explainer hidden" id="pathway-explainer" aria-live="polite"></p>
+      
       <article class="card pad brief-snapshot">
         <div class="brief-snapshot-icon" id="brief-task-icon" aria-hidden="true">🧼</div>
-        <div class="brief-snapshot-body"><div class="label">Practice goal</div><h2 id="brief-title"></h2><p id="brief-objective"></p>
-          <div class="profile-inline"><span class="avatar" id="learner-initial">S</span><strong id="brief-learner"></strong><span id="brief-profile"></span></div>
+        <div class="brief-snapshot-body"><div class="label">Practice goal</div><h2 id="brief-title">Handwashing routine</h2><p id="brief-objective">Practise giving a task direction, allowing a response opportunity, using the specified least-to-most prompts, and acknowledging completion.</p>
+          <div class="profile-inline"><span class="avatar" id="learner-initial">S</span><strong id="brief-learner">Sam</strong><span id="brief-profile">Sam can follow short directions and is learning to complete a handwashing routine with less support.</span></div>
         </div>
       </article>
-      <details class="essentials-details" id="prepare-details"><summary>View teaching plan <span>task steps & procedure</span></summary>
-        <div class="brief-detail-content"><div class="label">Task steps</div><div id="brief-steps" class="tag-list"></div>
-        <div class="label">Procedure for this demonstration</div><p id="brief-procedure"></p>
-        <details class="pathway-scaffold" id="trainer-model-panel"><summary>Trainer's worked example</summary><div class="scaffold-body"><p id="brief-model-notes"></p></div></details>
+      <details class="essentials-details" id="prepare-details"><summary>Prepare: teaching plan <span>task steps &amp; procedure</span></summary>
+        <div class="brief-detail-content"><div class="label">Task steps</div><div id="brief-steps" class="tag-list"><span>1 · Apply soap</span><span>2 · Rub hands</span><span>3 · Rinse hands</span><span>4 · Dry hands</span></div>
+        <div class="label">Procedure for this demonstration</div><p id="brief-procedure">Least-to-most prompting (illustrative): Give the task direction and wait for an independent response. If the learner does not respond or responds incorrectly, use the planned gestural prompt, then wait/observe. If still needed, model the action, then wait/observe. Acknowledge a correct response. If the step remains incomplete after modelling, pause and consult the teaching plan or trainer before proceeding. Confirm prompt hierarchy and error-correction procedures for the learner and task.</p>
         </div>
       </details>
+      <details class="essentials-details trainer-example" id="trainer-model-panel">
+        <summary>Trainer's worked example <span>optional example</span></summary>
+        <div class="brief-detail-content"><ol id="brief-model-notes" class="worked-example-list"><li><strong>Give instruction:</strong> “Sam, put soap on your hands.”</li><li><strong>Wait and observe:</strong> Look for the correct response: The learner pumps soap independently.</li><li><strong>Gestural prompt (if needed):</strong> Point towards the soap dispenser, then wait again.</li><li><strong>Model prompt (if needed):</strong> Demonstrate “Apply soap”, then wait again.</li><li><strong>Respond to the outcome:</strong> If the learner completes the step, acknowledge it. Otherwise, pause and review the plan after modelling.</li></ol></div>
+      </details>
       <div id="prepare-error" class="error hidden" role="alert"></div>
-      <div class="actions right"><button type="button" id="prepare-how" class="btn">How it works</button><button type="button" id="start" class="btn primary">Start practice →</button></div>
+      <div class="actions right"><button type="button" id="start" class="btn primary" disabled>Start practice →</button></div>
     </section>
     <section id="page-practice" class="hidden">
-      <div class="eyebrow">02 / Simulation</div>
-      <h1>Practise instruction</h1>
+      <div class="eyebrow">02 / Practise</div>
+      <h1 tabindex="-1">Practise instruction</h1>
       <p class="lead compact" id="practice-lead">Observe the learner. Choose your next action.</p>
+      <div class="practice-strategy" role="note"><strong>Least-to-Most Prompting</strong><span>Instruction + Wait → Gestural + Wait → Model + Wait</span></div>
       <div class="practice-tools"><span class="pathway-tag" id="practice-pathway-tag">Guided</span><button type="button" class="btn review-brief" id="review-brief">View teaching plan</button></div>
       <article class="card scene-card">
-        <div class="scene-heading"><div><span class="eyebrow" id="step-count"></span><h2 id="step-name"></h2><p class="small subdued" id="step-context"></p></div><span class="counter" id="count-badge"></span></div>
+        <div class="scene-heading"><div><span class="eyebrow" id="step-count"></span><h2 id="step-name" tabindex="-1"></h2><p class="small subdued" id="step-context"></p></div><span class="counter" id="count-badge"></span></div>
         <div id="progressbar" class="progressbar" aria-label="Step progress"></div>
-        <div class="scene-art" id="scene-art" role="group" aria-label="Illustrated learner and teaching materials"><div id="scene-visual" class="scene-visual"></div><div class="scene-caption"><strong id="scene-student">Sam</strong><span class="scene-icon" id="scene-icon" aria-hidden="true">🧼</span><span id="scene-object-label">Task materials</span></div></div>
-        <div class="student-observation"><div class="label">What the learner does</div><p id="student-response" aria-live="polite"></p></div>
+        <div class="scene-art" id="scene-art" role="group" aria-label="Task illustration"><div id="scene-visual" class="scene-visual"></div><div class="scene-caption"><strong id="scene-student">Sam</strong><span class="scene-icon" id="scene-icon" aria-hidden="true">🧼</span><span id="scene-object-label">Task materials</span></div></div>
+        <div class="student-observation"><div class="observation-header"><div class="label">What the learner does</div><span id="response-type" class="observation-type" aria-live="polite">Ready</span></div><p id="student-response" role="status" aria-live="polite" aria-atomic="true"></p></div>
         <div class="interaction">
           <div id="guided-instruction" class="guided-instruction hidden">
             <div class="label" id="direction-label">Give instruction</div>
             <p class="guided-copy" id="guided-words"></p>
           </div>
-          <form id="say-form" class="hidden"><label for="teacher-words" class="label input-label">What would you say?</label><div class="say-row"><input id="teacher-words" type="text" maxlength="220" placeholder="Type the words you would say to the learner…" autocomplete="off" aria-describedby="say-note"><button class="btn" type="submit">Say to learner ↵</button></div><p class="small subdued" id="say-note">Text entry is not used in V6.3; spoken directions are not recorded.</p></form>
-          <div class="label actions-label">Choose your next action</div><div class="action-grid"><button type="button" class="btn action-btn" id="give-guided-direction">Give instruction</button><button type="button" class="btn action-btn" id="do-wait">Wait</button><button type="button" class="btn action-btn" id="point-target">Point</button><button type="button" class="btn action-btn" id="do-model">Demonstrate</button><button type="button" class="btn action-btn" id="do-ack">Acknowledge</button></div><div class="advance-row"><p class="small subdued">Review after the last step</p><button type="button" id="advance" class="btn primary">Next task step →</button></div></div>
+          <div class="label actions-label" id="actions-label">Choose your next action</div><div class="action-grid" role="group" aria-labelledby="actions-label"><button type="button" class="btn action-btn" id="give-guided-direction">Give instruction</button><button type="button" class="btn action-btn" id="do-wait">Wait</button><button type="button" class="btn action-btn prompt-action" id="point-target"><strong>Gestural prompt</strong><small class="prompt-example" id="gesture-example"></small></button><button type="button" class="btn action-btn prompt-action" id="do-model"><strong>Model prompt</strong><small class="prompt-example" id="model-example"></small></button><button type="button" class="btn action-btn" id="do-ack">Acknowledge</button></div><div class="guided-hint" id="guided-hint"><button type="button" class="btn hint-toggle" id="toggle-hint" aria-expanded="false" aria-controls="hint-content">Show prompting hint</button><div id="hint-content" class="hint-content hidden" role="note">Observe the learner after each response opportunity. After no response or an incorrect response, consider the next planned prompt. If the response is correct, acknowledge it. If modelling does not help, pause and review the plan.</div></div><div class="advance-row"><div class="step-close-note"><p class="small subdued">Acknowledge a completed step, or pause an unresolved step before continuing.</p><button type="button" id="pause-step" class="btn subtle hidden">Pause &amp; review plan</button></div><button type="button" id="advance" class="btn primary">Next task step →</button></div></div>
       </article>
       
     </section>
-    <section id="page-review" class="hidden"><div class="eyebrow">03 / Debrief</div><h1>Review your teaching episode</h1><p class="lead">One takeaway, one improvement, then retry.</p><div class="review-intro card pad" id="overall"></div><div id="review-stats" class="stats"></div><div id="review-focus" class="review-focus"></div><div id="review-reflection" class="reflection-prompt" aria-label="Reflection question"></div><details class="essentials-details feedback-details"><summary>See my full action-by-action review <span>optional</span></summary><div id="step-feedback" class="feedback-list"></div></details><p class="small subdued">Discuss these practice notes with your trainer.</p><div class="actions wrap"><button type="button" id="retry-same" class="btn primary">↻ Retry same pattern</button><button type="button" id="retry-next" class="btn">Try next variation →</button><button type="button" id="back-brief" class="btn subtle">Return to brief</button></div></section>
+    <section id="page-review" class="hidden"><div class="eyebrow">03 / Debrief</div><h1 tabindex="-1">Review your teaching episode</h1><p class="lead">Review how you responded to correct, incorrect, and absent learner responses, then retry.</p><div class="review-intro card pad" id="overall"></div><div id="review-stats" class="stats"></div><div id="review-focus" class="review-focus"></div><div class="decision-summary" id="decision-summary" aria-label="Prompting decision review"></div><div id="review-reflection" class="reflection-prompt" aria-label="Reflection question"></div><details class="essentials-details feedback-details"><summary>See my full action-by-action review <span>optional</span></summary><div id="step-feedback" class="feedback-list"></div></details><p class="small subdued">Discuss these practice notes with your trainer.</p><div class="actions wrap"><button type="button" id="retry-same" class="btn primary">↻ Retry same pattern</button><button type="button" id="retry-next" class="btn">Try next variation →</button><button type="button" id="back-brief" class="btn subtle">Return to brief</button></div></section>
   </div>
-  <section id="page-editor" class="hidden" aria-labelledby="editor-title">
-    <div class="eyebrow">TeachSim · Scenario builder</div><h1 id="editor-title">Scenario editor</h1>
-    <p class="lead">Edit the same three things teachers see: task, learner and steps. Other settings are optional.</p>
-    <div class="editor-layout">
-      <aside class="card library-panel">
-        <div class="library-heading"><h2>Your scenarios</h2><span class="small subdued" id="scenario-total"></span></div>
-        <div id="scenario-list" class="scenario-list" role="list"></div>
-        <div class="library-buttons">
-          <button type="button" class="btn primary full" id="create-scenario">＋ Create from template</button>
-          <button type="button" class="btn full" id="duplicate-scenario">Duplicate selected</button>
-          <button type="button" class="btn full" id="add-builtins">＋ Add missing built-in examples</button>
-        </div>
-      </aside>
-      <div class="editor-main">
-        <div class="editor-toolbar" id="editor-toolbar"><div><h2 id="editing-title">Instructional content</h2><p id="draft-status" class="small subdued" aria-live="polite"></p></div>
-          <div class="actions wrap"><button type="button" class="btn" id="save-draft">Save draft</button><button type="button" class="btn primary" id="preview-scenario">Preview as teacher →</button></div>
-        </div>
-        <div class="wizard-track" id="wizard-track" aria-label="Scenario builder progress">
-          <span data-wizard-track="templates">1 · Task</span><span data-wizard-track="details">2 · Edit content</span><span data-wizard-track="review">3 · Review</span>
-        </div>
-        <section class="card pad wizard-panel hidden" id="wizard-templates" aria-labelledby="template-title">
-          <div class="label">Step 1 of 3</div><h2 id="template-title">Choose a task template</h2>
-          <p class="subdued">Choose a starting point, then customise the task and steps.</p>
-          <div class="template-list" id="template-list"></div>
-          <p class="small subdued">Templates are illustrative starting points, not validated instructional programmes.</p>
-        </section>
-        <section class="card pad wizard-panel hidden" id="wizard-details" aria-labelledby="quick-title">
-          <div class="label">Step 2 of 3</div><h2 id="quick-title">Set up the practice</h2>
-          <p class="subdued">Edit the goal and steps. Preview the practice before publishing.</p>
-          <form id="quick-form" novalidate>
-            <div class="quick-grid v63-quick-grid">
-              <label>Task name<input id="quick-title-input" data-quick="title" maxlength="100" required></label>
-              <label>Fictional learner<input id="quick-name" data-quick="learnerName" maxlength="65" required></label>
-              <label class="all">Learning goal<textarea id="quick-objective" data-quick="objective" maxlength="800" rows="2" required></textarea></label>
-            </div>
-            <details class="essentials-details v63-more-content"><summary>More about this scenario <span>learner context &amp; procedure wording</span></summary>
-              <div class="quick-grid detail-grid">
-                <label class="all">Learner context (fictional)<textarea id="quick-profile" data-quick="learnerProfile" maxlength="1200" rows="3" required></textarea></label>
-                <label class="all">Procedure description <span class="small subdued">(editing this text does not change the simulation rules)</span><textarea id="quick-procedure" data-quick="procedure" maxlength="1400" rows="3" required></textarea></label>
-                <label class="all">Curriculum domain<input id="quick-domain" data-quick="domain" maxlength="80"></label>
-              </div>
-            </details>
-            <div class="quick-steps-head"><div><h3>Task steps <span id="quick-count" class="small subdued"></span></h3><p class="small subdued">Edit a step, then preview its illustration.</p></div><button type="button" class="btn small-btn" id="quick-add-step">＋ Add step</button></div>
-            <div id="editor-scene-preview" class="editor-scene-preview" aria-label="Visual preview of a selected task step"></div>
-            <div id="quick-steps"></div>
-            <button type="button" class="btn" id="quick-add-step-bottom">＋ Add another step</button>
-            <details class="content-edit-panel" id="model-content-panel"><summary>Trainer modelling & worked example <span>optional</span></summary><div class="content-edit-body">
-              <label class="wide-input">Illustrative trainer modelling notes<textarea id="content-model" data-content="model" maxlength="1600" rows="4" placeholder="Describe or script an example of the prescribed instructional sequence…"></textarea></label>
-              <p class="small subdued">This text appears in the teaching brief. Editing it does not change the simulation's rules.</p>
-            </div></details>
-            <details class="content-edit-panel" id="feedback-content-panel"><summary>Feedback wording & debrief <span>optional</span></summary><div class="content-edit-body">
-              <p class="small subdued">Change the language of feedback and trainer discussion questions. The underlying trigger rules and expected action sequences stay unchanged.</p>
-              <label class="wide-input">Debrief prompt · Guided pathway<textarea data-content="reflectNew" maxlength="500" rows="2"></textarea></label>
-              <label class="wide-input">Debrief prompt · Experienced teachers<textarea data-content="reflectExperienced" maxlength="500" rows="2"></textarea></label>
-              <label class="wide-input">Aligned-sequence feedback · Guided<textarea data-content="alignedNew" maxlength="600" rows="2"></textarea></label>
-              <label class="wide-input">Aligned-sequence feedback · Experienced<textarea data-content="alignedExperienced" maxlength="600" rows="2"></textarea></label>
-              <details class="nested-feedback"><summary>Specific feedback messages · <span id="feedback-count"></span></summary><div id="feedback-messages"></div></details>
-            </div></details>
-            <div class="actions wrap wizard-actions"><button class="btn subtle" type="button" id="wizard-leave">← Scenario library</button><button class="btn primary" type="button" id="wizard-review">Preview summary →</button></div>
-          </form>
-        </section>
-        <section class="card pad wizard-panel hidden" id="wizard-review-panel" aria-labelledby="review-title">
-          <div class="label">Step 3 of 3</div><h2 id="review-title">Check before practising</h2>
-          <p class="subdued">Check the essentials, then try the simulation.</p>
-          <div id="quick-summary"></div>
-          
-          <div class="actions wrap wizard-actions"><button type="button" class="btn" id="wizard-back">← Edit details</button><button type="button" class="btn primary" id="wizard-commit">Save and preview →</button></div>
-        </section>
-        <details class="advanced-details" id="advanced-panel">
-          <summary>Advanced settings <span class="small subdued">· Detailed student response scripts and support patterns</span></summary>
-          <div class="advanced-content"><p class="small subdued">For instructional designers. These settings affect the simulation logic; review carefully before publishing.</p>
-        <form id="editor-form" novalidate>
-          <section class="card pad edit-section"><div class="edit-heading"><div><div class="label">1 / Task analysis</div><h3>Instructional opportunities</h3><p class="small subdued">Each step has a static visual target and a scripted student response.</p></div><button type="button" class="btn small-btn" id="add-step">＋ Add step</button></div><div id="steps-editor"></div></section>
-          <section class="card pad edit-section"><div class="edit-heading"><div><div class="label">2 / Controlled variation</div><h3>Student response patterns</h3><p class="small subdued">Pattern 1 is the Guided pathway; patterns 2 onward are the Experienced pathway (if only one pattern exists, both share it). 0 = acts after wait · 1 = acts after gesture · 2 = acts after model. These are authored conditions, not predictions about learners.</p></div><button type="button" class="btn small-btn" id="add-pattern">＋ Add variation</button></div><div id="patterns-editor"></div></section>
-        </form>
-          </div>
-        </details>
-        <details class="advanced-details publish-details" id="publish-panel"><summary>Publish or back up your scenarios <span class="small subdued">· GitHub workflow</span></summary><div class="advanced-content">
-        <div class="card pad publish-panel"><div class="label">4 / Save and publish</div><h3>Export instructional content library</h3><p class="small subdued">Download a JSON backup or export <code>scenarios.js</code> and replace that file in your GitHub repository. Your local browser drafts do not update the public site.</p><div class="actions wrap"><button type="button" class="btn" id="export-json">↓ Download JSON backup</button><button type="button" class="btn primary" id="export-github">↓ Export scenarios.js for GitHub</button><label for="import-json" class="btn file-label">↑ Import JSON backup</label><input id="import-json" type="file" accept=".json,application/json" class="sr-only"></div><hr><div class="actions wrap"><button type="button" class="btn subtle" id="restore-published">Restore published library</button><button type="button" class="btn danger" id="delete-scenario">Delete selected scenario</button></div></div>
-        </div></details>
-      </div>
-    </div>
-  </section>
-  <dialog id="help-dialog" class="teachsim-dialog" aria-labelledby="help-title">
+<dialog id="help-dialog" class="teachsim-dialog" aria-labelledby="help-title">
     <div class="dialog-top"><h2 id="help-title">How TeachSim works</h2><button type="button" class="btn small-btn" id="close-help" aria-label="Close guide">✕ Close</button></div>
-    <p>Practise a fictional teaching task, then discuss the review with your trainer. This is not a formal competence test.</p>
+    <p>Practise <strong>Least-to-Most Prompting</strong> in fictional teaching tasks, then discuss your decisions with a trainer.</p>
     <ol class="guide-steps">
       <li><strong>Prepare</strong> — Choose a fictional scenario and a pathway. Review the learner profile, task steps, and prescribed procedure.</li>
-      <li><strong>Practise</strong> — Give an instruction, allow a response opportunity, and choose how to prompt or acknowledge the learner. Each action changes a pre-authored learner response.</li>
-      <li><strong>Review</strong> — Only after the complete episode, compare your recorded sequence with the demonstration protocol, then reflect and retry.</li>
+      <li><strong>Practise</strong> — Give an instruction and wait. Observe the learner’s response. After no response or an incorrect response, use the next planned prompt and observe again. Acknowledge success or pause an unresolved step.</li>
+      <li><strong>Review</strong> — After completing the episode, reflect on response opportunities, prompt escalation and acknowledgement.</li>
     </ol>
-    <div class="guide-pathways"><div><strong>Guided</strong><p>Click a prepared direction; use the action controls. Learner responses are predictable.</p></div><div><strong>Experienced</strong><p>Deliver the direction independently, then select actions for varied learner patterns. Speech and timing are not measured.</p></div></div>
+    <div class="guide-pathways"><div><strong>Guided</strong><p>Suggested directions, prompt examples and optional hints. You still choose each action.</p></div><div><strong>Experienced</strong><p>Use the same prompt types, without examples or hints.</p></div></div>
     
   </dialog>
   <dialog id="brief-dialog" class="teachsim-dialog" aria-labelledby="brief-dialog-title">
     <div class="dialog-top"><h2 id="brief-dialog-title">Review teaching brief</h2><button type="button" class="btn small-btn" id="close-brief" aria-label="Close teaching brief">✕ Close</button></div>
     <p><strong id="brief-dialog-learner"></strong> · <span id="brief-dialog-title-text"></span></p>
     <div class="label">Learning objective</div><p id="brief-dialog-objective"></p>
-    <div class="label">Prescribed procedure</div><p id="brief-dialog-procedure"></p>
+    <div class="label">Least-to-Most Prompting procedure</div><p id="brief-dialog-procedure"></p>
     <div class="label">Task steps</div><ol id="brief-dialog-steps" class="brief-step-list"></ol>
     <p class="small subdued">This brief is available for reference during practice. Feedback remains hidden until the episode ends.</p>
   </dialog>
-  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+  
 </main>
-<footer class="footer">TeachSim V6.4 · Practice prototype · Use fictional learner information only.</footer>
-<script src="scenarios.js"></script>
-<script src="templates.js"></script>
-<script src="app.js"></script>
+<footer class="footer">TeachSim V6.7.1 · Instructional rehearsal</footer>
+<script src="scenarios.js?v=6.7.1"></script>
+<script src="app.js?v=6.7.1"></script>
+<script>
+  // Keep the static, readable fallback whenever app initialisation fails.
+  window.addEventListener('load', function () {
+    var picker = document.getElementById('scenario-select');
+    var notice = document.getElementById('startup-notice');
+    if (picker && notice && picker.disabled) notice.textContent = 'TeachSim did not start. Refresh the published website in Safari. This preview can still display the sample teaching plan.';
+  });
+</script>
 </body>
 </html>

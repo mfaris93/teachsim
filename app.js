@@ -1,61 +1,26 @@
 'use strict';
-/* TeachSim V6.4: local-only, deterministic educational demonstration.
+/* TeachSim V6.7.1: local-only, deterministic educational demonstration.
    NO network calls, AI model, PII processing, or assessment of real teaching fidelity. */
 (() => {
-  const STORAGE_KEY='teachlab_v4_drafts'; // intentionally preserved so users keep prior browser drafts
-  const TEMPLATES=Array.isArray(window.TEACHLAB_TEMPLATES)?cloneSafe(window.TEACHLAB_TEMPLATES):[];
-  function cloneSafe(obj){return JSON.parse(JSON.stringify(obj));}
-  const VISUALS=[['🧼','Soap'],['🤲','Hands'],['🚰','Tap / rinse'],['🧻','Towel'],['🎒','School bag'],['📘','Book'],['📁','Folder'],['🧴','Water bottle / dispenser'],['✏️','Pencil'],['🖊️','Pen'],['📦','Box / parcel'],['📋','Checklist'],['🏷️','Label'],['🥪','Food'],['🍽️','Plate'],['🪥','Toothbrush'],['👟','Shoes'],['👕','Clothes'],['🗑️','Bin'],['🧽','Cleaning cloth'],['🧺','Basket / linen'],['🏬','Retail'],['🔎','Look / match'],['✅','Check'],['🥛','Cup'],['🗄️','Shelf'],['📏','Alignment'],['🚶','Move / return'],['🧩','Other']];
-  // This is a predictable keyword-based icon suggestion, NOT AI or generated artwork.
-  function suggestVisual(step){
-    const desc=((step.name||'')+' '+(step.target||'')).toLowerCase();
-    const matches=[
-      [/wipe|cleaning cloth|clean cloth|surface/, '🧽'],
-      [/fold|linen|towel stack|used.cloth|basket/, '🧺'],
-      [/shelf|restock|display/, '🏬'],
-      [/check|inspect|finished/, '✅'],
-      [/soap|wash hands|sanitis/, '🧼'],
-      [/rub hands|scrub|lather|soapy hands/, '🤲'],
-      [/rinse|tap|faucet|water flow/, '🚰'],
-      [/towel|dry hand|wipe hands/, '🧻'],
-      [/folder|file into|filing/, '📁'],
-      [/water bottle|drink bottle|bottle/, '🧴'],
-      [/textbook|reading book|book|workbook/, '📘'],
-      [/pencil|eraser|stationery|pencil case/, '✏️'],
-      [/pen|write|writing/, '🖊️'],
-      [/zip|school bag|backpack|bag/, '🎒'],
-      [/label|sticker|barcode/, '🏷️'],
-      [/checklist|order slip|list/, '📋'],
-      [/pack|parcel|carton|box|lid|order/, '📦'],
-      [/sandwich|food|snack|bread/, '🥪'],
-      [/dish|plate|cutlery|spoon|fork/, '🍽️'],
-      [/brush teeth|toothpaste|toothbrush/, '🪥'],
-      [/shoe|laces|socks/, '👟'],
-      [/shirt|cloth|uniform|laundry/, '👕'],
-      [/trash|rubbish|bin|discard/, '🗑️']
-    ];
-    const match=matches.find(([rule])=>rule.test(desc));
-    return match?match[1]:'🧩';
-  }
-  function inferPromptTarget(action){
-    const trimmed=String(action||'').trim();
-    const match=trimmed.match(/\b(?:the|a|an)\s+(.+?)(?=\s+(?:in|inside|into|on|onto|at|from|with|to)\b|[.,;]|$)/i);
-    return (match?.[1]||trimmed||'task material').slice(0,100);
-  }
-  const ACTION_LABELS={say:'Said',wait:'Wait & observe',gesture:'Pointed to object',model:'Modelled action',ack:'Acknowledged',next:'Advanced'};
+  // V6.7: fixed, fictional built-in scenarios. No accounts, storage, or content editor.
+  const ACTION_LABELS={say:'Gave instruction',wait:'Waited for response',gesture:'Gestural prompt',model:'Model prompt',ack:'Acknowledged',next:'Advanced',pause:'Paused and reviewed plan'};
   const FEEDBACK={
     missingDirection:'No task direction was entered before the response opportunity. The demonstration protocol begins with one spoken direction.',
     multipleDirections:'More than one direction was entered within this step. This demo specifies a single initial direction.',
     lateDirection:'A direction was entered after the initial response opportunity.',
-    earlyPrompt:'A prompt was given before the planned initial response opportunity.',
-    skipGesture:'Modelling was used without the gestural cue specified in this demonstration protocol.',
+    earlyPrompt:'You prompted before giving the learner an independent response opportunity. Give the instruction, then wait first.',
+    skipGesture:'You skipped the gestural prompt in this demonstration hierarchy. Try the gestural prompt and wait before modelling.',
     extraPrompt:'An additional teaching prompt or direction was delivered after the student completed this step.',
-    repeatedWait:'The response interval was repeated rather than advancing to the next specified prompt.',
-    repeatedGesture:'The same gestural cue was repeated without advancing to modelling.',
+    repeatedGesture:'You repeated the gestural prompt. Wait and observe before choosing the next level.',
     earlyAck:'Completion was acknowledged before the student completed the step.',
     repeatedAck:'Completion was acknowledged more than once.',
     missedAck:'Completion was not acknowledged before advancing.',
-    incomplete:'The episode advanced before this step was completed.'
+    incomplete:'You moved on before the learner completed the step or paused for plan review.',
+    prematurePause:'You paused before observing the outcome after the model prompt. In this exercise, pause when the planned hierarchy has not supported completion.',
+    missedPause:'The learner remained unable to complete the step after modelling. Pause and consult the plan before moving on.',
+    missedPromptWait:'You moved to another prompt without observing the previous response. Wait and observe after each prompt.',
+    repeatedWait:'You selected Wait again without delivering a new prompt or direction.',
+    unnecessaryEscalation:'You added a prompt after the learner already responded correctly.'
   };
   const CONTENT_DEFAULT={
     model:'Trainer model (illustrative): Present a single clear direction. Allow the response opportunity. Provide the prescribed gestural cue only when needed, then model if that does not lead to a response. Acknowledge completion. Discuss how this would need adaptation for a real learner.',
@@ -65,44 +30,50 @@
     alignedExperienced:'The selected action sequence matched the provisional procedure. Spoken words and actual prompt delivery were not assessed.',
     messages:FEEDBACK
   };
-  const FEEDBACK_LABELS={missingDirection:'Missing initial direction',multipleDirections:'Repeated directions',lateDirection:'Late direction',earlyPrompt:'Early prompt',skipGesture:'Skipped gestural cue',extraPrompt:'Extra prompt after completion',repeatedWait:'Repeated waiting',repeatedGesture:'Repeated gesture',earlyAck:'Early acknowledgement',repeatedAck:'Repeated acknowledgement',missedAck:'Missing acknowledgement',incomplete:'Incomplete step'};
+  const FEEDBACK_LABELS={missingDirection:'Missing initial direction',multipleDirections:'Repeated directions',lateDirection:'Late direction',earlyPrompt:'Prompted too early',missedPromptWait:'Missing wait after prompt',skipGesture:'Skipped gestural prompt',extraPrompt:'Extra prompt after completion',repeatedWait:'Repeated waiting',repeatedGesture:'Repeated gesture',earlyAck:'Early acknowledgement',repeatedAck:'Repeated acknowledgement',missedAck:'Missing acknowledgement',incomplete:'Incomplete step',prematurePause:'Paused early',missedPause:'Missing plan review',unnecessaryEscalation:'Prompt after correct response'};
   function schemaContent(obj){obj=obj&&typeof obj==='object'&&!Array.isArray(obj)?obj:{};
     const messages={};for(const key of Object.keys(FEEDBACK))messages[key]=fieldString(obj.messages?.[key]||FEEDBACK[key],700);
     const out={messages};for(const key of ['model','reflectNew','reflectExperienced','alignedNew','alignedExperienced'])out[key]=fieldString(obj[key]||CONTENT_DEFAULT[key],1600);
     return out;
   }
-  const SEED=JSON.parse(JSON.stringify(window.TEACHLAB_SEED_SCENARIOS||[]));
+  const SEED=window.TEACHLAB_SEED_SCENARIOS||[];
   const $=id=>document.getElementById(id);
   const clone=x=>JSON.parse(JSON.stringify(x));
   const escapeHTML=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const slug=()=>`scenario-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,6)}`;
+  const slug=()=>`scenario-${Date.now().toString(36)}`;
   const fieldString=(v,lim=1400)=>typeof v==='string'?v.slice(0,lim):'';
   const limit=(n,min,max)=>Math.max(min,Math.min(max,Number.isFinite(+n)?Number(n):min));
-  let library=checkLibrary(SEED),selectedId=library[0]?.id,patternIndex=0,pathway='new',page='prepare',dirty=false;
-  let stepIndex=0,records=[],practiceState=null,toastTimer=null,wizardStage='details',allScenariosShown=false,editorPreviewIndex=0;
-  function toast(message,error=false){const t=$('toast');t.textContent=message;t.classList.remove('hidden');t.classList.toggle('error-toast',error);clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.add('hidden'),5300);}
   function schemaStep(item,index){return {
-    id:fieldString(item.id||`step-${index+1}`,85),name:fieldString(item.name,100),icon:fieldString(item.icon||'🧩',16),iconMode:item.iconMode==='manual'?'manual':'auto',target:fieldString(item.target,100),context:fieldString(item.context,650),direction:fieldString(item.direction,220),initial:fieldString(item.initial,650),waiting:fieldString(item.waiting,650),gestureNoResponse:fieldString(item.gestureNoResponse,650),independent:fieldString(item.independent,650),gestureDone:fieldString(item.gestureDone,650),modelDone:fieldString(item.modelDone,650)};
+    id:fieldString(item.id||`step-${index+1}`,85),name:fieldString(item.name,100),icon:fieldString(item.icon||'🧩',16),iconMode:item.iconMode==='manual'?'manual':'auto',target:fieldString(item.target,100),context:fieldString(item.context,650),direction:fieldString(item.direction,220),initial:fieldString(item.initial,650),waiting:fieldString(item.waiting,650),gestureNoResponse:fieldString(item.gestureNoResponse,650),independent:fieldString(item.independent,650),gestureDone:fieldString(item.gestureDone,650),modelDone:fieldString(item.modelDone,650),correctCriterion:fieldString(item.correctCriterion||item.independent,650),incorrectResponse:fieldString(item.incorrectResponse,650),unresolvedAfterModel:fieldString(item.unresolvedAfterModel,650)};
   }
   function normalise(input){
     if(!input||typeof input!=='object'||Array.isArray(input))throw Error('Scenario is not an object.');
     if(!Array.isArray(input.steps)||input.steps.length<1||input.steps.length>16)throw Error('Each scenario needs 1–16 task steps.');
     if(!Array.isArray(input.patterns)||input.patterns.length<1||input.patterns.length>6)throw Error('Each scenario needs 1–6 response patterns.');
     const steps=input.steps.map(schemaStep);
-    const patterns=input.patterns.map((p,i)=>({id:fieldString(p?.id||`P${i+1}`,35),name:fieldString(p?.name||`Variation ${i+1}`,80),needs:steps.map((_,j)=>limit(p?.needs?.[j],0,2))}));
+    const patterns=input.patterns.map((p,i)=>({
+      id:fieldString(p?.id||`P${i+1}`,35),name:fieldString(p?.name||`Variation ${i+1}`,80),
+      responses:steps.map((_,j)=>{
+        const supplied=p?.responses?.[j];
+        const defaultNeeds=limit(p?.needs?.[j],0,2);
+        const fallback=defaultNeeds===0?['correct']:defaultNeeds===1?['no_response','correct']:['no_response','no_response','correct'];
+        const plan=Array.isArray(supplied)&&supplied.length?supplied:fallback;
+        if(plan.length>3 || !plan.every((x,k)=>['correct','incorrect','no_response','unresolved'].includes(x) && (x!=='unresolved'||k===2)))throw Error('Invalid learner response plan.');
+        if(!['correct','unresolved'].includes(plan[plan.length-1]) || plan.slice(0,-1).some(x=>x==='correct'))throw Error('Response plan must terminate correctly or remain unresolved after modelling.');
+        return plan;
+      })
+    }));
     return {id:fieldString(input.id||slug(),90),title:fieldString(input.title,100),domain:fieldString(input.domain,80),learnerName:fieldString(input.learnerName,65),learnerProfile:fieldString(input.learnerProfile,1200),objective:fieldString(input.objective,800),procedure:fieldString(input.procedure,1400),steps,patterns,content:schemaContent(input.content)};
   }
   function checkLibrary(lib){if(!Array.isArray(lib)||lib.length<1||lib.length>25)throw Error('A library must contain 1–25 scenarios.');let ids=new Set();return lib.map(x=>{let s=normalise(x);if(!s.id||ids.has(s.id))throw Error('Each scenario needs a unique ID.');ids.add(s.id);return s;});}
   function validate(s){let errs=[];for(const [field,label] of [['title','scenario title'],['learnerName','learner name'],['learnerProfile','learner profile'],['objective','learning objective'],['procedure','instructional procedure']])if(!s[field]?.trim())errs.push(label);
-    for(let i=0;i<s.steps.length;i++){const st=s.steps[i];for(const f of ['name','target','context','initial','waiting','gestureNoResponse','independent','gestureDone','modelDone'])if(!st[f]?.trim())errs.push(`step ${i+1}: ${f}`);}
+    for(let i=0;i<s.steps.length;i++){const st=s.steps[i];for(const f of ['name','target','context','initial','waiting','gestureNoResponse','independent','gestureDone','modelDone','correctCriterion','incorrectResponse','unresolvedAfterModel'])if(!st[f]?.trim())errs.push(`step ${i+1}: ${f}`);}
     for(let i=0;i<s.patterns.length;i++)if(!s.patterns[i].name?.trim())errs.push(`variation ${i+1}: name`);
     return errs;}
-  function validateAll(){const bad=library.flatMap(s=>validate(s).map(x=>`${s.title||'Untitled'}: ${x}`));if(bad.length)throw Error(`Complete these fields first: ${bad.slice(0,4).join('; ')}${bad.length>4?'…':''}`);}
-  try{const raw=localStorage.getItem(STORAGE_KEY)||localStorage.getItem('teachlab_v3_drafts');if(raw){library=checkLibrary(JSON.parse(raw));selectedId=library[0].id;}}catch(e){library=checkLibrary(SEED);selectedId=library[0]?.id;}
+  const library=checkLibrary(SEED);
+  let selectedId=library[0].id,patternIndex=0,pathway='new',page='prepare';
+  let stepIndex=0,records=[],practiceState=null;
   const current=()=>library.find(s=>s.id===selectedId)||library[0];
-  // V6: one authored task and procedure, two adult-learner pathways.
-  // Pattern 0 is predictable rehearsal (Guided); patterns 1+ are varied rehearsal
-  // (Experienced). For user-created scenarios with only one pattern, both share it.
   function indicesForPath(s=current()){
     if(!s?.patterns?.length)return [];
     if(pathway==='new'||s.patterns.length===1)return [0];
@@ -110,58 +81,122 @@
   }
   function ensurePattern(){const available=indicesForPath();if(!available.includes(patternIndex))patternIndex=available[0]??0;}
   function setPathway(value){if(value!=='new'&&value!=='experienced')return;pathway=value;patternIndex=indicesForPath()[0]??0;renderPrepare();}
-
-  function saveDraft(){try{library=checkLibrary(library);localStorage.setItem(STORAGE_KEY,JSON.stringify(library));dirty=false;updateDraftStatus();toast('Draft library saved in this browser. Export to publish on GitHub.');return true;}catch(e){toast(`Cannot save: ${e.message}`,true);return false;}}
-  function updateDraftStatus(){if($('draft-status'))$('draft-status').textContent=dirty?'Unsaved edits on this device':'Local browser draft · not published to GitHub';}
-  function markDirty(){dirty=true;updateDraftStatus();}
-  function guardUnsaved(){return !dirty||confirm('You have unsaved edits in this scenario. Discard them?');}
-  function selectScenario(id){if(!guardUnsaved())return; // editor inputs mutate the in-memory object; restore last saved draft if discarded
-    if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=checkLibrary(SEED);}dirty=false;}
-    selectedId=library.some(s=>s.id===id)?id:library[0].id;patternIndex=0;editorPreviewIndex=0;wizardStage='details';renderEditor();renderPrepare();}
-  function setPage(to){page=to;const editor=to==='editor';$('page-editor').classList.toggle('hidden',!editor);$('teacher-space').classList.toggle('hidden',editor);$('nav-editor').classList.toggle('active',editor);$('nav-teacher').classList.toggle('active',!editor);for(const name of ['prepare','practice','review']){$('page-'+name).classList.toggle('hidden',editor||name!==to);const div=document.querySelector(`[data-stage="${name}"]`);div.classList.toggle('active',!editor&&name===to);div.classList.toggle('done',!editor&&['prepare','practice','review'].indexOf(name)<['prepare','practice','review'].indexOf(to));}window.scrollTo({top:0,behavior:'instant'});}
-  function goEditor(){wizardStage='details';setPage('editor');renderEditor();}
-  function goTeacher(){if(!guardUnsaved())return;if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=checkLibrary(SEED);}dirty=false;}if(!library.some(s=>s.id===selectedId))selectedId=library[0].id;renderPrepare();setPage('prepare');}
-  function renderScenarioCards(){
-    const picks=allScenariosShown?library:library.slice(0,4);
-    if(!picks.some(sc=>sc.id===selectedId)){const selected=library.find(sc=>sc.id===selectedId);if(selected)picks.push(selected);}
-    $('scenario-cards').innerHTML=picks.map(sc=>`<button type="button" class="scenario-choice ${sc.id===selectedId?'selected':''}" data-pick-scenario="${escapeHTML(sc.id)}" aria-pressed="${sc.id===selectedId}"><span class="scenario-choice-icon" aria-hidden="true">${escapeHTML(sc.steps[0]?.icon||'🧩')}</span><span class="scenario-choice-content"><strong>${escapeHTML(sc.title)}</strong><small>${escapeHTML(sc.domain||'Functional learning')} · ${sc.steps.length} steps</small></span><span class="scenario-selected-mark" aria-hidden="true">${sc.id===selectedId?'✓':''}</span></button>`).join('');
-    $('toggle-scenarios').textContent=allScenariosShown?'Show fewer scenarios':`See all ${library.length} scenarios`;
-    $('toggle-scenarios').setAttribute('aria-expanded',String(allScenariosShown));
-    $('toggle-scenarios').classList.toggle('hidden',library.length<=4);
+  function setPage(to,focus=true){
+    page=to;
+    for(const name of ['prepare','practice','review']){
+      $('page-'+name).classList.toggle('hidden',name!==to);
+      const stage=document.querySelector(`[data-stage="${name}"]`);
+      stage.classList.toggle('active',name===to);
+      stage.classList.toggle('done',['prepare','practice','review'].indexOf(name)<['prepare','practice','review'].indexOf(to));
+      if(name===to)stage.setAttribute('aria-current','step');
+      else stage.removeAttribute('aria-current');
+    }
+    if(focus){
+      window.scrollTo({top:0,behavior:'auto'});
+      $('page-'+to).querySelector('h1').focus({preventScroll:true});
+    }
   }
-  function renderPrepare(){const s=current();if(!s)return;ensurePattern();renderScenarioCards();$('scenario-picker').innerHTML=library.map(x=>`<option value="${escapeHTML(x.id)}">${escapeHTML(x.title||'Untitled scenario')}</option>`).join('');$('scenario-picker').value=selectedId;
+  function renderScenarioSelect(){
+    const select=$('scenario-select');
+    // The matching eight options are already present in HTML for script-blocked previews.
+    // Recreate them only if the scenario data and HTML ever get out of sync.
+    if(select.options.length!==library.length || library.some((sc,i)=>select.options[i]?.value!==sc.id)){
+      select.innerHTML=library.map(sc=>`<option value="${escapeHTML(sc.id)}">${escapeHTML(sc.title)} · ${escapeHTML(sc.domain||'Functional learning')}</option>`).join('');
+    }
+    select.value=selectedId;
+  }
+  function renderWorkedExample(s){
+    const step=s.steps[0];
+    const item=(label,body)=>`<li><strong>${escapeHTML(label)}:</strong> ${escapeHTML(body)}</li>`;
+    $('brief-model-notes').innerHTML=[
+      item('Give instruction',`“${step.direction||'Please complete this step.'}”`),
+      item('Wait and observe',`Look for the correct response: ${step.correctCriterion}`),
+      item('Gestural prompt (if needed)',`Point towards the ${step.target}, then wait again.`),
+      item('Model prompt (if needed)',`Demonstrate “${step.name}”, then wait again.`),
+      item('Respond to the outcome','If the learner completes the step, acknowledge it. Otherwise, pause and review the plan after modelling.')
+    ].join('');
+  }
+  function renderPrepare(){const s=current();if(!s)return;ensurePattern();renderScenarioSelect();
     document.querySelectorAll('input[name="practice-pathway"]').forEach(el=>{el.checked=el.value===pathway;});
     const choices=indicesForPath(),idx=choices.indexOf(patternIndex);
-    $('pattern-brief').textContent=pathway==='new'?'Guided · predictable responses':`Independent · variation ${idx+1}/${choices.length}`;
+    
     $('pathway-note').textContent='Choose based on the practice support you want, not years of experience. Both pathways follow the same instructional procedure.';
-    $('pathway-explainer').textContent='';
-    $('brief-task-icon').textContent=s.steps[0]?.icon||'🧩';$('learner-initial').textContent=(s.learnerName[0]||'?').toUpperCase();$('brief-learner').textContent=s.learnerName;$('brief-profile').textContent=s.learnerProfile;$('brief-title').textContent=s.title;$('brief-objective').textContent=s.objective;$('brief-procedure').textContent=s.procedure;$('brief-steps').innerHTML=s.steps.map((st,i)=>`<span>${i+1} · ${escapeHTML(st.name)}</span>`).join('');$('brief-model-notes').textContent=s.content.model;$('prepare-error').classList.add('hidden');}
-  function freshState(){const s=current().steps[stepIndex];return {said:0,waits:0,gestures:0,models:0,completed:false,acknowledged:false,completionType:null,response:s.initial,events:[],issues:[]};}
+    
+    $('brief-task-icon').textContent=s.steps[0]?.icon||'🧩';$('learner-initial').textContent=(s.learnerName[0]||'?').toUpperCase();$('brief-learner').textContent=s.learnerName;$('brief-profile').textContent=s.learnerProfile;$('brief-title').textContent=s.title;$('brief-objective').textContent=s.objective;$('brief-procedure').textContent=s.procedure;$('brief-steps').innerHTML=s.steps.map((st,i)=>`<span>${i+1} · ${escapeHTML(st.name)}</span>`).join('');renderWorkedExample(s);$('prepare-error').classList.add('hidden');}
+  function freshState(){const s=current().steps[stepIndex];return {
+    said:0,waits:0,waitsSincePrompt:0,gestures:0,models:0,completed:false,acknowledged:false,paused:false,
+    completionType:null,response:s.initial,outcome:'ready',awaiting:null,observedLevels:[],events:[],issues:[]
+  };}
   function log(action,details,issues=[]){practiceState.events.push({action,details});for(const code of issues){if(!practiceState.issues.includes(code))practiceState.issues.push(code);}}
   function start(){const problems=validate(current());if(problems.length){$('prepare-error').textContent=`Scenario incomplete: ${problems.slice(0,4).join(', ')}`;$('prepare-error').classList.remove('hidden');return;}
-    stepIndex=0;records=[];practiceState=freshState();$('teacher-words').value='';setPage('practice');renderPractice();}
-  function support(){return current().patterns[patternIndex].needs[stepIndex];}
-  function action(type,text=''){if(page!=='practice')return;const s=current().steps[stepIndex],st=practiceState,required=support(),flags=[];
+    stepIndex=0;records=[];practiceState=freshState();resetHint();setPage('practice');renderPractice();}
+  function responsePlan(){return current().patterns[patternIndex].responses[stepIndex];}
+  function action(type,text=''){
+    if(page!=='practice')return;
+    const s=current().steps[stepIndex],st=practiceState,flags=[];
+    const name=current().learnerName;
+    const flag=x=>{if(!flags.includes(x))flags.push(x);};
     if(type==='say'){
+      if(st.said)return;
       const message=text.trim();if(!message)return;
-      if(st.completed)flags.push('extraPrompt');if(st.said)flags.push('multipleDirections');if(st.waits)flags.push('lateDirection');st.said++; // content deliberately NOT interpreted or automatically judged appropriate
-      log('say',message,flags);st.response=st.completed?`${current().learnerName} has already completed this step.`:`${current().learnerName} attends to your instruction.`;
+      if(st.waits)flag('lateDirection');
+      st.said++;st.awaiting='instruction';st.outcome='pending';
+      st.response=`${name} attends to your instruction. Select Wait to observe a response.`;
+      log('say',message,flags);
     }else if(type==='wait'){
-      if(st.completed){flags.push('extraPrompt');st.response=`${current().learnerName} has already completed this step.`;}
-      else{st.waits++;if(st.waits>1)flags.push('repeatedWait');if(!st.said)flags.push('missingDirection');if(required===0){st.completed=true;st.completionType='independently';st.response=s.independent;}else{st.response=s.waiting;}}
-      log(type,'Simulated a response opportunity',flags);
-    }else if(type==='gesture'){
-      if(st.completed){flags.push('extraPrompt');st.response=`${current().learnerName} has already completed this step.`;}
-      else{if(!st.waits)flags.push('earlyPrompt');if(!st.said)flags.push('missingDirection');if(st.gestures)flags.push('repeatedGesture');st.gestures++;if(required<=1){st.completed=true;st.completionType='after gestural cue';st.response=s.gestureDone;}else st.response=s.gestureNoResponse;}
-      log(type,`Pointed at ${s.target}`,flags);
-    }else if(type==='model'){
-      if(st.completed){flags.push('extraPrompt');st.response=`${current().learnerName} has already completed this step.`;}
-      else{if(!st.waits)flags.push('earlyPrompt');if(!st.gestures)flags.push('skipGesture');if(!st.said)flags.push('missingDirection');st.models++;st.completed=true;st.completionType='after modelling';st.response=s.modelDone;}
-      log(type,`Demonstrated ${s.name.toLowerCase()}`,flags);
+      if(st.completed||st.paused){flag('extraPrompt');}
+      else if(!st.said){flag('missingDirection');st.response=`Give the task instruction before waiting.`;}
+      else if(!st.awaiting){flag('repeatedWait');}
+      else{
+        const level=st.awaiting;
+        const pos={instruction:0,gesture:1,model:2}[level];
+        const plan=responsePlan();
+        // If the teacher skipped a prompt, still show a scripted response for the selected level.
+        const outcome=plan[pos]|| (plan[plan.length-1]==='unresolved'?'unresolved':'correct');
+        st.outcome=outcome;st.observedLevels.push(level);st.waits++;st.waitsSincePrompt++;
+        st.awaiting=null;
+        if(outcome==='correct'){
+          st.completed=true;
+          st.completionType=level==='instruction'?'independently':`after ${level==='gesture'?'gestural':'model'} prompt`;
+          st.response=level==='instruction'?s.independent:level==='gesture'?s.gestureDone:s.modelDone;
+        }else if(outcome==='incorrect'){
+          st.response=s.incorrectResponse;
+        }else if(outcome==='unresolved'){
+          st.response=s.unresolvedAfterModel;
+        }else{
+          st.response=level==='gesture'?s.gestureNoResponse:s.waiting;
+        }
+        log('wait',`Observed ${outcome.replace('_',' ')} response following ${level}`,flags);
+        renderPractice();return;
+      }
+      log('wait','Selected Wait',flags);
+    }else if(type==='gesture'||type==='model'){
+      if(st.completed){flag('unnecessaryEscalation');flag('extraPrompt');}
+      if(st.paused){flag('extraPrompt');}
+      if(!st.said)flag('missingDirection');
+      if(st.awaiting)flag(st.awaiting==='instruction'?'earlyPrompt':'missedPromptWait');
+      if(!st.observedLevels.includes('instruction'))flag('earlyPrompt');
+      if(type==='model'&&!st.observedLevels.includes('gesture'))flag('skipGesture');
+      if(type==='gesture'&&st.gestures>0)flag('repeatedGesture');
+      if(st.completed||st.paused){
+        st.response=st.completed?`${name} already completed the step.`:st.response;
+      }else{
+        if(type==='gesture')st.gestures++;else st.models++;
+        st.awaiting=type;st.outcome='pending';st.waitsSincePrompt=0;
+        st.response=type==='gesture'?`${name} notices your gesture. Select Wait to observe what happens.`:`${name} watches your model. Select Wait to observe what happens.`;
+      }
+      log(type,type==='gesture'?`Pointed to ${s.target}`:`Modelled ${s.name}`,flags);
     }else if(type==='ack'){
-      if(!st.completed)flags.push('earlyAck');else if(st.acknowledged)flags.push('repeatedAck');else st.acknowledged=true;
-      if(st.completed)st.response=`${current().learnerName} has finished this step.`;
-      log(type,'Acknowledged task step',flags);
+      if(!st.completed)flag('earlyAck');
+      else if(st.acknowledged)flag('repeatedAck');
+      else {st.acknowledged=true;st.response=`${name} completed this step. You acknowledged the response.`;}
+      log('ack','Acknowledged learner response',flags);
+    }else if(type==='pause'){
+      if(st.paused)return;
+      if(st.outcome!=='unresolved'||st.awaiting||!st.models)flag('prematurePause');
+      st.paused=true;
+      st.response=`${name} has not completed the step. Pause to consult the teaching plan or trainer.`;
+      log('pause','Paused unresolved step for plan review',flags);
     }
     renderPractice();
   }
@@ -178,7 +213,8 @@
     if(/snack|tray|plate|food/.test(name))return 'tray';
     return 'task';
   }
-  function sceneSVG(s,st,working=false){
+  function sceneSVG(s,st,outcome='ready'){
+    const working=outcome==='correct',mistaken=outcome==='incorrect';
     const kind=sceneKind(s,st), icon=escapeHTML(st.icon||'🧩');
     const stroke='#315262',dark='#204654',light='#e8f2ef',accent='#58ae9d',skin='#dfae8e';
     const rect=(x,y,w,h,fill,rx=10)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}"/>`;
@@ -194,130 +230,80 @@
       task:`${rect(349,141,195,110,'#dcebe9',15)}${rect(361,151,174,87,'#f5faf8',9)}<text x="447" y="215" text-anchor="middle" font-size="64">${icon}</text>`
     };
     // Arms change pose after a learner response, without implying precise motor behaviour.
-    const arm=working?`<path d="M231 165Q296 180 343 169" fill="none" stroke="${skin}" stroke-width="18" stroke-linecap="round"/>`:`<path d="M231 165Q251 216 276 235" fill="none" stroke="${skin}" stroke-width="18" stroke-linecap="round"/>`;
-    const cue=working?`<circle cx="341" cy="170" r="9" fill="${skin}"/>`:`<path d="M274 228Q284 233 289 245" fill="none" stroke="${skin}" stroke-width="12" stroke-linecap="round"/>`;
-    return `<svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of ${escapeHTML(s.learnerName)} ${working?'engaging with':'looking towards'} materials for ${escapeHTML(st.name)}"><rect width="640" height="300" rx="16" fill="#edf6f4"/>${rect(22,255,596,12,'#d7e7e2',6)}<ellipse cx="205" cy="275" rx="83" ry="12" fill="#d4e3e0"/>${rect(163,139,83,124,'#6daaa8',29)}${line(181,253,174,281,13,dark)}${line(226,253,239,281,13,dark)}${line(170,164,144,233,17,skin)}${arm}${cue}<circle cx="207" cy="101" r="49" fill="${skin}"/><path d="M156 95Q151 47 204 48Q258 45 256 104Q244 75 210 80Q178 81 156 95" fill="${dark}"/><circle cx="190" cy="109" r="4" fill="${dark}"/><circle cx="226" cy="109" r="4" fill="${dark}"/><path d="M195 127Q209 135 220 126" stroke="#915b4a" stroke-width="3" fill="none" stroke-linecap="round"/>${props[kind]}</svg>`;
-  }
-  function renderEditorScene(){const s=current();if(!$('editor-scene-preview')||wizardStage==='templates'||!s?.steps?.length)return;
-    editorPreviewIndex=Math.max(0,Math.min(editorPreviewIndex,s.steps.length-1));
-    const st=s.steps[editorPreviewIndex];
-    $('editor-scene-preview').innerHTML=`<div class="editor-preview-top"><strong>Illustration preview</strong><span>${editorPreviewIndex+1} / ${s.steps.length}</span></div><div class="editor-preview-layout"><div class="editor-preview-art">${sceneSVG(s,st,false)}</div><div class="editor-preview-side"><p>${escapeHTML(st.name||'New step')}</p><div class="editor-preview-stepbuttons">${s.steps.map((x,i)=>`<button type="button" class="mini-step ${i===editorPreviewIndex?'chosen':''}" data-preview-step="${i}" aria-label="Preview step ${i+1}: ${escapeHTML(x.name)}" aria-pressed="${i===editorPreviewIndex}">${i+1}</button>`).join('')}</div><small>The practice illustration changes with your task and step.</small></div></div>`;
+    const arm=working?`<path d="M231 165Q296 180 343 169" fill="none" stroke="${skin}" stroke-width="18" stroke-linecap="round"/>`:mistaken?`<path d="M231 165Q280 139 309 120" fill="none" stroke="${skin}" stroke-width="18" stroke-linecap="round"/>`:`<path d="M231 165Q251 216 276 235" fill="none" stroke="${skin}" stroke-width="18" stroke-linecap="round"/>`;
+    const cue=working?`<circle cx="341" cy="170" r="9" fill="${skin}"/>`:mistaken?`<circle cx="309" cy="120" r="9" fill="${skin}"/>`:`<path d="M274 228Q284 233 289 245" fill="none" stroke="${skin}" stroke-width="12" stroke-linecap="round"/>`;
+    return `<svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><rect width="640" height="300" rx="16" fill="#edf6f4"/>${rect(22,255,596,12,'#d7e7e2',6)}<ellipse cx="205" cy="275" rx="83" ry="12" fill="#d4e3e0"/>${rect(163,139,83,124,'#6daaa8',29)}${line(181,253,174,281,13,dark)}${line(226,253,239,281,13,dark)}${line(170,164,144,233,17,skin)}${arm}${cue}<circle cx="207" cy="101" r="49" fill="${skin}"/><path d="M156 95Q151 47 204 48Q258 45 256 104Q244 75 210 80Q178 81 156 95" fill="${dark}"/><circle cx="190" cy="109" r="4" fill="${dark}"/><circle cx="226" cy="109" r="4" fill="${dark}"/><path d="M195 127Q209 135 220 126" stroke="#915b4a" stroke-width="3" fill="none" stroke-linecap="round"/>${props[kind]}</svg>`;
   }
   function renderPractice(){const s=current(),st=s.steps[stepIndex];
     const guided=pathway==='new';
     $('guided-instruction').classList.remove('hidden');
-    $('say-form').classList.add('hidden');
+
     $('guided-words').textContent=guided?'“'+(st.direction||'Please complete this step.')+'”':'Decide what instruction you would give. Indicate when delivered.';
     $('direction-label').textContent=guided?'Suggested instruction':'Deliver your instruction';
     $('give-guided-direction').disabled=practiceState.said>0;
     $('give-guided-direction').textContent=practiceState.said>0?'✓ Instruction given':(guided?'▸ Give suggested instruction':'▸ I gave an instruction');
     $('practice-pathway-tag').textContent=guided?'Guided':'Experienced';
-    $('practice-lead').textContent='Observe the learner, then choose an action below.';$('step-count').textContent=`Instructional opportunity ${stepIndex+1}`;$('step-name').textContent=st.name;$('step-context').textContent=st.context;$('count-badge').textContent=`${stepIndex+1} / ${s.steps.length}`;
-    $('progressbar').innerHTML=s.steps.map((_,i)=>`<i class="${i<stepIndex?'done':i===stepIndex?'now':''}"></i>`).join('');$('progressbar').setAttribute('aria-label',`Step ${stepIndex+1} of ${s.steps.length}`);$('scene-student').textContent=s.learnerName;$('scene-icon').textContent=st.icon||'🧩';$('scene-object-label').textContent=st.target||'Task material';$('scene-visual').innerHTML=sceneSVG(s,st,practiceState.completed);$('point-target').title=`Point towards ${st.target||'the object'}`;$('student-response').textContent=practiceState.response;$('advance').textContent=stepIndex===s.steps.length-1?'Finish and review →':'Next task step →';}
-  function advance(){if(page!=='practice')return;const st=practiceState;if(!st.said&&!st.issues.includes('missingDirection'))st.issues.push('missingDirection');if(!st.completed)st.issues.push('incomplete');else if(!st.acknowledged)st.issues.push('missedAck');st.events.push({action:'next',details:'Advanced to next task step'});records.push({...clone(st),index:stepIndex,required:support()});if(stepIndex===current().steps.length-1){renderReview();setPage('review');}else{stepIndex++;practiceState=freshState();$('teacher-words').value='';renderPractice();}}
-  function expectedSequence(need){return ['Say task direction','Wait',...(need>=1?['Point at object']:[]),...(need===2?['Model action']:[]),'Acknowledge completion','Advance'];}
-  function renderReview(){const s=current();const aligned=records.filter(r=>r.completed&&r.issues.length===0).length;const complete=records.filter(r=>r.completed).length;$('overall').innerHTML=`<div class="label">${pathway==='new'?'Guided':'Experienced'} · ${escapeHTML(s.title)}</div><h2>${aligned===records.length?'Your action sequence followed the selected procedure.':'Practice complete — review your next step.'}</h2><p>Focus on one improvement and try again.</p>`;
-    $('review-stats').innerHTML=`<div class="stat"><strong>${aligned} of ${records.length}</strong><span>Action sequences aligned with the chosen protocol</span></div>`;
+    $('practice-lead').textContent='Observe the learner, then choose an action below.';$('step-count').textContent=`Task step ${stepIndex+1}`;$('step-name').textContent=st.name;$('step-context').textContent=st.context;$('count-badge').textContent=`${stepIndex+1} / ${s.steps.length}`;
+    $('progressbar').innerHTML=s.steps.map((_,i)=>`<i class="${i<stepIndex?'done':i===stepIndex?'now':''}"></i>`).join('');$('progressbar').setAttribute('aria-label',`Step ${stepIndex+1} of ${s.steps.length}`);$('scene-student').textContent=s.learnerName;$('scene-icon').textContent=st.icon||'🧩';$('scene-object-label').textContent=st.target||'Task material';$('scene-visual').innerHTML=sceneSVG(s,st,practiceState.outcome);$('point-target').setAttribute('aria-label',`Gestural prompt: point to ${st.target||'the object'}`);$('do-model').setAttribute('aria-label',`Model prompt: demonstrate ${st.name.toLowerCase()}`);$('gesture-example').textContent=`Point to ${st.target||'the object'}`;$('model-example').textContent=`Demonstrate ${st.name.toLowerCase()}`;$('guided-hint').classList.toggle('hidden',!guided);document.querySelectorAll('.prompt-example').forEach(el=>el.classList.toggle('hidden',!guided));$('student-response').textContent=practiceState.response;
+    const kind=practiceState.outcome;
+    const kindText={ready:'Before instruction',pending:'Await response',correct:'Correct response',incorrect:'Incorrect response',no_response:'No response',unresolved:'Still incomplete'};
+    $('response-type').textContent=practiceState.paused?'Paused':(kindText[kind]||'Observe response');
+    $('response-type').className='observation-type '+(kind||'ready');
+    $('pause-step').classList.toggle('hidden', !(practiceState.outcome==='unresolved'&&!practiceState.paused));
+    $('advance').textContent=stepIndex===s.steps.length-1?'Finish and review →':'Next task step →';}
+  function advance(){
+    if(page!=='practice')return;
+    const st=practiceState;
+    if(!st.said&&!st.issues.includes('missingDirection'))st.issues.push('missingDirection');
+    if(!st.completed&&!st.paused)st.issues.push(st.outcome==='unresolved'?'missedPause':'incomplete');
+    if(st.completed&&!st.acknowledged)st.issues.push('missedAck');
+    st.events.push({action:'next',details:'Moved to next task step'});
+    records.push({...clone(st),index:stepIndex,plan:responsePlan()});
+    if(stepIndex===current().steps.length-1){renderReview();setPage('review');}
+    else{stepIndex++;practiceState=freshState();resetHint();renderPractice();}
+  }
+  function expectedSequence(plan){
+    const result=['Give instruction','Wait'];
+    if(plan.length>1)result.push('Gestural prompt','Wait');
+    if(plan.length>2)result.push('Model prompt','Wait');
+    result.push(plan[plan.length-1]==='unresolved'?'Pause & review plan':'Acknowledge');
+    result.push('Next task step');
+    return result;
+  }
+  function renderReview(){
+    const s=current();
+    const handled=records.filter(r=>r.issues.length===0&&(r.completed||r.paused)).length;
+    const completed=records.filter(r=>r.completed).length;
+    const paused=records.filter(r=>r.paused).length;
+    $('overall').innerHTML=`<div class="label">${pathway==='new'?'Guided':'Experienced'} · ${escapeHTML(s.title)}</div><h2>${handled===records.length?'You responded to the scripted learner outcomes as planned.':'Practice complete — review your decisions.'}</h2><p>Focus on one decision to improve, then try again.</p>`;
+    $('review-stats').innerHTML=`<div class="stat"><strong>${handled} of ${records.length}</strong><span>Steps handled as planned</span></div><div class="stat"><strong>${completed}</strong><span>Completed steps</span></div><div class="stat"><strong>${paused}</strong><span>Paused for plan review</span></div>`;
     const firstIssue=records.find(r=>r.issues.length);
-    const firstAligned=records.find(r=>r.completed&&r.issues.length===0);
-    const strength=firstAligned?'You followed the prescribed sequence for “'+s.steps[firstAligned.index].name+'”.':'You completed a full rehearsal and can now refine the action sequence.';
-    const improvement=firstIssue?`Step ${firstIssue.index+1} (${s.steps[firstIssue.index].name}): `+(s.content.messages[firstIssue.issues[0]]||FEEDBACK[firstIssue.issues[0]]||'Revisit your selected actions.'):(indicesForPath().length>1?'Try another variation to practise responding to different learner cues.':'Repeat the episode and practise the sequence again.');
-    $('review-focus').innerHTML=`<div><span class="review-focus-label">${firstAligned?'Worked well':'Episode snapshot'}</span><p>${escapeHTML(strength)}</p></div><div><span class="review-focus-label">Try next</span><p>${escapeHTML(improvement)}</p></div>`;
+    const firstAligned=records.find(r=>r.issues.length===0&&(r.completed||r.paused));
+    const strength=firstAligned?(firstAligned.paused?`You paused “${s.steps[firstAligned.index].name}” when the scripted hierarchy did not produce completion.`:`You completed “${s.steps[firstAligned.index].name}” using the planned prompting decisions.`):'You practised observing learner responses and choosing teaching actions.';
+    const improvement=firstIssue?`Step ${firstIssue.index+1} (${s.steps[firstIssue.index].name}): `+(FEEDBACK[firstIssue.issues[0]]||'Revisit the teaching sequence.'):(indicesForPath().length>1?'Try another variation to practise a different learner response.':'Retry to consolidate your decisions.');
+    $('review-focus').innerHTML=`<div><span class="review-focus-label">Worked well</span><p>${escapeHTML(strength)}</p></div><div><span class="review-focus-label">Try next</span><p>${escapeHTML(improvement)}</p></div>`;
+    const independent=records.filter(r=>r.observedLevels.includes('instruction')&&!r.issues.includes('earlyPrompt')).length;
+    const escalation=records.filter(r=>!r.issues.some(x=>['earlyPrompt','skipGesture','missedPromptWait','repeatedGesture','repeatedWait','extraPrompt','unnecessaryEscalation'].includes(x))).length;
+    const closes=records.filter(r=>(r.completed&&r.acknowledged&&!r.issues.includes('earlyAck'))||(r.paused&&r.outcome==='unresolved')).length;
+    $('decision-summary').innerHTML=`<h2>Prompting decisions</h2><dl><div><dt>Independent response opportunity</dt><dd>${independent}/${records.length} steps</dd></div><div><dt>Prompt selection after observation</dt><dd>${escalation}/${records.length} steps</dd></div><div><dt>Acknowledgement or plan review</dt><dd>${closes}/${records.length} steps</dd></div></dl><p class="small subdued">Based on choices made within the fictional practice.</p>`;
     $('review-reflection').textContent='Discuss with your trainer: '+(pathway==='new'?s.content.reflectNew:s.content.reflectExperienced);
     const variations=indicesForPath();$('retry-next').disabled=variations.length<2;
     $('retry-next').title=variations.length<2?'Only one response pattern is configured for this pathway.':'';
     $('retry-next').textContent=variations.length<2?'No other variation in this pathway':'Try next variation →';
-    $('step-feedback').innerHTML=records.map((r,i)=>{const st=s.steps[r.index],good=r.completed&&r.issues.length===0;const observed=r.events.map(e=>e.action==='say'?(pathway==='new'?'Selected the suggested instruction':'Indicated an instruction was delivered (not recorded)'):(ACTION_LABELS[e.action]||e.action)).join(' → ');const concerns=r.issues.map(code=>s.content.messages[code]||FEEDBACK[code]||'Review this action.');return `<details class="step-review" ><summary><span><strong>${i+1}. ${escapeHTML(st.name)}</strong><br><small class="subdued">${escapeHTML(r.completionType||'Not completed')}</small></span><span class="rowstatus ${good?'':'review'}">${good?'Aligned':'Review'}</span></summary><div class="review-detail"><div class="label">Recorded selections</div><div class="sequence">${escapeHTML(observed)}</div><div class="label" style="margin-top:10px">Expected procedure for this simulated response</div><div class="sequence">${escapeHTML(expectedSequence(r.required).join(' → '))}</div><div class="review-callout">${good?escapeHTML(pathway==='new'?s.content.alignedNew:s.content.alignedExperienced): `<strong>${pathway==='new'?'What to practise on retry:':'Action sequence to revisit:'}</strong><ul>${concerns.map(c=>`<li>${escapeHTML(c)}</li>`).join('')}</ul>`}</div></div></details>`;}).join('');}
+    $('step-feedback').innerHTML=records.map((r,i)=>{
+      const st=s.steps[r.index];const good=r.issues.length===0&&(r.completed||r.paused);
+      const observed=r.events.map(e=>e.action==='say'?(pathway==='new'?'Gave suggested instruction':'Indicated instruction delivered'):(ACTION_LABELS[e.action]||e.action)+(e.action==='wait'?` (${e.details.replace('Observed ','')})`:'' )).join(' → ');
+      const concerns=r.issues.map(code=>FEEDBACK[code]||'Review this action.');
+      return `<details class="step-review"><summary><span><strong>${i+1}. ${escapeHTML(st.name)}</strong><br><small class="subdued">${escapeHTML(r.paused?'Paused for review':r.completionType||'Not completed')}</small></span><span class="rowstatus ${good?'':'review'}">${good?'Aligned':'Review'}</span></summary><div class="review-detail"><div class="label">Observed learner responses</div><div class="sequence">${escapeHTML(r.events.filter(e=>e.action==='wait'&&e.details.startsWith('Observed')).map(e=>e.details.replace('Observed ','')).join(' → ')||'No response observed')}</div><div class="label" style="margin-top:10px">Your actions</div><div class="sequence">${escapeHTML(observed)}</div><div class="label" style="margin-top:10px">Planned sequence for this variation</div><div class="sequence">${escapeHTML(expectedSequence(r.plan).join(' → '))}</div><div class="review-callout">${good?escapeHTML(r.paused?'Appropriate pause for trainer review within this fictional plan.':'Selected actions followed the scripted procedure.'): `<strong>Next time:</strong><ul>${concerns.map(c=>`<li>${escapeHTML(c)}</li>`).join('')}</ul>`}</div></div></details>`;
+    }).join('');
+  }
   function returnBrief(next=false){const eligible=indicesForPath();if(next&&eligible.length>1)patternIndex=eligible[(eligible.indexOf(patternIndex)+1)%eligible.length];renderPrepare();setPage('prepare');}
-  function refreshWizard(){
-    $('editor-toolbar').classList.toggle('hidden',wizardStage==='templates');
-    for(const stage of ['templates','details','review']){
-      const id=stage==='review'?'wizard-review-panel':`wizard-${stage}`;
-      $(id).classList.toggle('hidden',wizardStage!==stage);
-      const mark=document.querySelector(`[data-wizard-track="${stage}"]`);
-      if(mark)mark.classList.toggle('active',wizardStage===stage);
-    }
-    $('advanced-panel').classList.toggle('hidden',wizardStage==='templates');
-    $('publish-panel').classList.toggle('hidden',wizardStage==='templates');
-    if(wizardStage!=='templates'){
-      const s=current();
-      for(const key of ['title','domain','learnerName','objective','learnerProfile','procedure']){
-        const inp=document.querySelector(`[data-quick="${key}"]`);if(inp)inp.value=s[key]||'';
-      }
-      document.querySelectorAll('[data-content]').forEach(input=>{if(input.dataset.content in s.content)input.value=s.content[input.dataset.content]||'';});
-      $('feedback-count').textContent=`${Object.keys(FEEDBACK).length} editable messages`;
-      $('feedback-messages').innerHTML=Object.keys(FEEDBACK).map(key=>`<label class="wide-input">${escapeHTML(FEEDBACK_LABELS[key])}<textarea rows="2" maxlength="700" data-feedback-key="${escapeHTML(key)}">${escapeHTML(s.content.messages[key]||FEEDBACK[key])}</textarea></label>`).join('');
-      $('quick-count').textContent=`(${s.steps.length} of 16)`;
-      $('quick-add-step').disabled=s.steps.length>=16;
-      $('quick-steps').innerHTML=s.steps.map((st,i)=>`<div class="quick-step"><span class="quick-step-num">${i+1}</span><div class="quick-step-body"><div class="quick-step-toolbar"><div class="quick-step-label"><span class="quick-icon-preview" aria-label="Current visual: ${escapeHTML(st.icon||'🧩')}">${escapeHTML(st.icon||'🧩')}</span><strong>Step ${i+1}</strong></div><div class="quick-step-actions"><button type="button" class="btn" data-quick-move="up" data-i="${i}" ${i===0?'disabled':''} aria-label="Move step ${i+1} up">↑</button><button type="button" class="btn" data-quick-move="down" data-i="${i}" ${i===s.steps.length-1?'disabled':''} aria-label="Move step ${i+1} down">↓</button><button type="button" class="btn" data-quick-delete="${i}" ${s.steps.length===1?'disabled':''} aria-label="Remove step ${i+1}">Remove</button></div></div><div class="quick-step-fields v63-step-fields"><label>Action<input data-quick-step="${i}" data-quick-step-key="name" maxlength="100" value="${escapeHTML(st.name)}" placeholder="e.g. Place the book inside the bag"></label></div><details class="step-more"><summary>Prompt target & visual <span>optional</span></summary><div class="quick-step-fields"><label>Prompt target<input data-quick-step="${i}" data-quick-step-key="target" maxlength="100" value="${escapeHTML(st.target)}"></label><label>Visual<select data-quick-step="${i}" data-quick-step-key="iconMode"><option value="auto" ${st.iconMode!=='manual'?'selected':''}>Auto · ${escapeHTML(suggestVisual(st))}</option>${VISUALS.map(([icon,label])=>`<option value="${escapeHTML(icon)}" ${st.iconMode==='manual'&&st.icon===icon?'selected':''}>${escapeHTML(icon)} ${escapeHTML(label)}</option>`).join('')}${st.iconMode==='manual'&&!VISUALS.some(([ic])=>ic===st.icon)?`<option selected value="${escapeHTML(st.icon)}">${escapeHTML(st.icon)} Custom</option>`:''}</select></label></div></details></div></div>`).join('');
-      renderEditorScene();
-      $('quick-summary').innerHTML=`<div class="summary-item"><div class="label">Scenario</div><h3>${escapeHTML(s.title)}</h3><p>${escapeHTML(s.objective)}</p></div><div class="summary-item"><div class="label">Fictional learner</div><p><strong>${escapeHTML(s.learnerName)}</strong> · ${escapeHTML(s.learnerProfile)}</p></div><div class="summary-item"><div class="label">Task steps</div><ol>${s.steps.map(st=>`<li>${escapeHTML(st.name)}</li>`).join('')}</ol></div><div class="summary-item"><div class="label">Controlled variations</div><div class="pattern-pills">${s.patterns.map((p,i)=>`<span>${i===0?'Guided':'Experienced'}: ${escapeHTML(p.name)} · ${p.needs.length} steps</span>`).join('')}</div></div><div class="summary-item"><div class="label">Instructional procedure</div><p>${escapeHTML(s.procedure)}</p></div><div class="summary-item"><div class="label">Trainer modelling notes</div><p>${escapeHTML(s.content.model)}</p></div>`;
-    }
-  }
-  function openTemplatePicker(){if(!guardUnsaved())return;
-    if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=checkLibrary(SEED);}dirty=false;}
-    wizardStage='templates';$('advanced-panel').open=false;$('publish-panel').open=false;
-    renderEditor();
-  }
-  function makeFromTemplate(id){if(library.length>=25){toast('Maximum 25 scenarios in a library.',true);return;}
-    const t=TEMPLATES.find(x=>x.id===id);if(!t){toast('Template is unavailable.',true);return;}
-    const s=normalise(clone(t.scenario));s.id=slug();s.title=t.scenario.title+' (practice copy)';library.push(s);selectedId=s.id;patternIndex=0;wizardStage='details';markDirty();renderEditor();
-    toast('Template loaded. Adjust only what you need.');
-  }
-  function refreshStepResponses(st){const v=st.name.trim().toLowerCase()||'complete this step',obj=st.target.trim()||'task material';
-    st.direction=`Please ${v}.`;
-    st.context=`The learner is ready for the next step. The ${obj} is available.`;
-    st.initial=`The learner looks towards the ${obj}.`;
-    st.waiting=`The learner has not started to ${v}.`;
-    st.gestureNoResponse=`The learner notices your gesture towards the ${obj} but has not begun.`;
-    st.independent=`The learner starts to ${v} independently.`;
-    st.gestureDone=`The learner starts to ${v} after you point towards the ${obj}.`;
-    st.modelDone=`The learner watches your demonstration and then starts to ${v}.`;
-  }
-  function advanceWizard(){const problems=validate(current());if(problems.length){toast(`Complete these fields first: ${problems.slice(0,3).join(', ')}`,true);return;}
-    wizardStage='review';$('advanced-panel').open=false;renderEditor();
-  }
-  function finishWizard(){const problems=validate(current());if(problems.length){toast(`Complete these fields first: ${problems.slice(0,3).join(', ')}`,true);return;}
-    if(dirty&&!saveDraft())return;patternIndex=0;renderPrepare();setPage('prepare');
-  }
-  function renderEditor(){const s=current();editorPreviewIndex=Math.min(editorPreviewIndex,s.steps.length-1);$('scenario-total').textContent=`${library.length} / 25`; $('scenario-list').innerHTML=library.map(sc=>`<button type="button" class="scenario-item ${sc.id===selectedId?'selected':''}" data-select="${escapeHTML(sc.id)}"><span class="scenario-list-icon" aria-hidden="true">${escapeHTML(sc.steps[0]?.icon||'🧩')}</span><span class="scenario-list-text"><strong>${escapeHTML(sc.title||'Untitled scenario')}</strong><small>${escapeHTML(sc.domain||'Functional learning')} · ${sc.steps.length} steps</small></span></button>`).join('');$('editing-title').textContent=s.title||'Untitled scenario';updateDraftStatus();
-    for(const key of ['title','domain','learnerName','learnerProfile','objective','procedure']){const inp=document.querySelector(`[data-key="${key}"]`);if(inp)inp.value=s[key]||'';}
-    $('steps-editor').innerHTML=s.steps.map((st,i)=>`<div class="step-block"><div class="step-head"><h3>Step ${i+1}: ${escapeHTML(st.name||'Untitled')}</h3><div class="step-controls"><button type="button" class="btn" data-step-move="up" data-i="${i}" ${i===0?'disabled':''} aria-label="Move step ${i+1} up">↑</button><button type="button" class="btn" data-step-move="down" data-i="${i}" ${i===s.steps.length-1?'disabled':''} aria-label="Move step ${i+1} down">↓</button><button type="button" class="btn" data-step-delete="${i}" ${s.steps.length===1?'disabled':''}>Remove</button></div></div><div class="step-fields">
-      ${stepField(i,'name','Step name',st.name)}${stepField(i,'icon','Visual emoji',st.icon)}${stepField(i,'target','Pointing target',st.target)}${stepField(i,'direction','Example task direction (brief only)',st.direction)}
-      ${stepField(i,'context','Context',st.context,true)}${stepField(i,'initial','Before instruction',st.initial,true)}${stepField(i,'waiting','After waiting (no independent action)',st.waiting,true)}${stepField(i,'gestureNoResponse','After gesture (still requires a model)',st.gestureNoResponse,true)}${stepField(i,'independent','Independent response',st.independent,true)}${stepField(i,'gestureDone','Response after pointing',st.gestureDone,true)}${stepField(i,'modelDone','Response after modelling',st.modelDone,true)}
-      </div></div>`).join('');
-    $('patterns-editor').innerHTML=s.patterns.map((p,i)=>`<div class="pattern-block"><div class="step-head"><h3>Variation ${i+1} · ${i===0?'Guided pathway':'Experienced pathway'}</h3><button type="button" class="btn small-btn" data-pattern-delete="${i}" ${s.patterns.length===1?'disabled':''}>Remove</button></div><div class="pattern-row"><label>Variation name<input data-pattern="${i}" data-pattern-key="name" maxlength="80" value="${escapeHTML(p.name)}"></label></div><div class="pattern-grid">${p.needs.map((need,j)=>`<label>${j+1}. ${escapeHTML(s.steps[j].name||'Untitled step')}<select data-pattern="${i}" data-need="${j}"><option value="0" ${need===0?'selected':''}>0 · Independent after wait</option><option value="1" ${need===1?'selected':''}>1 · After gesture</option><option value="2" ${need===2?'selected':''}>2 · After modelling</option></select></label>`).join('')}</div></div>`).join('');
-    refreshWizard();}
-  function stepField(i,key,label,value,multi=false){return `<label class="${multi?'all':''}">${escapeHTML(label)}${multi?`<textarea rows="2" maxlength="650" data-step="${i}" data-step-key="${key}">${escapeHTML(value)}</textarea>`:`<input maxlength="${key==='icon'?16:220}" data-step="${i}" data-step-key="${key}" value="${escapeHTML(value)}">`}</label>`;}
-  function newStep(){return schemaStep({id:slug(),name:'New task step',icon:'🧩',target:'teaching material',context:'Learner is ready for the next step.',direction:'Please complete this step.',initial:'Learner looks at the material.',waiting:'Learner has not responded yet.',gestureNoResponse:'Learner notices the gesture but does not act.',independent:'Learner completes the step independently.',gestureDone:'Learner completes the step after the gesture.',modelDone:'Learner completes the step after the model.'},0);}
-  function addStep(guided=false){const s=current();if(s.steps.length>=16){toast('Maximum 16 steps per scenario.',true);return;}const st=newStep();if(guided){st.name='';st.target='';st.iconMode='auto';st.icon='🧩';refreshStepResponses(st);}s.steps.push(st);s.patterns.forEach(p=>p.needs.push(0));markDirty();renderEditor();}
-  function deleteStep(i){const s=current();if(s.steps.length<=1)return;if(!confirm(`Remove step ${i+1} from all variations?`))return;s.steps.splice(i,1);s.patterns.forEach(p=>p.needs.splice(i,1));markDirty();renderEditor();}
-  function moveStep(i,dir){const s=current(),j=i+(dir==='up'?-1:1);if(j<0||j>=s.steps.length)return;[s.steps[i],s.steps[j]]=[s.steps[j],s.steps[i]];s.patterns.forEach(p=>{[p.needs[i],p.needs[j]]=[p.needs[j],p.needs[i]];});markDirty();renderEditor();}
-  function addPattern(){const s=current();if(s.patterns.length>=6){toast('Maximum 6 variations.',true);return;}s.patterns.push({id:`P${s.patterns.length+1}`,name:`Variation ${s.patterns.length+1}`,needs:s.steps.map(()=>0)});markDirty();renderEditor();}
-  function createScenario(){openTemplatePicker();}
-  function addMissingBuiltIns(){
-    if(!guardUnsaved())return;
-    if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=checkLibrary(SEED);}dirty=false;}
-    const existing=new Set(library.map(s=>s.id));const toAdd=SEED.filter(s=>!existing.has(s.id));
-    if(!toAdd.length){toast('All built-in examples are already in your library.');return;}
-    if(library.length+toAdd.length>25){toast('Not enough space. Export a backup or remove a scenario first (maximum 25).',true);return;}
-    library.push(...toAdd.map(normalise)); selectedId=toAdd[0].id;patternIndex=0;wizardStage='details';dirty=true;
-    if(saveDraft()){renderEditor();renderPrepare();toast(`${toAdd.length} new built-in example${toAdd.length===1?'':'s'} added without removing your existing work.`);}
-  }
-  function duplicateScenario(){if(!guardUnsaved())return;if(library.length>=25){toast('Maximum 25 scenarios.',true);return;}if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=checkLibrary(SEED);}dirty=false;}
-    const s=normalise(clone(current()));s.id=slug();s.title+=' (copy)';library.push(s);selectedId=s.id;patternIndex=0;wizardStage='details';markDirty();renderEditor();}
-  function deleteScenario(){if(library.length<=1){toast('Keep at least one scenario.',true);return;}if(!confirm(`Delete “${current().title}” from your local library?`))return;library=library.filter(x=>x.id!==selectedId);selectedId=library[0].id;patternIndex=0;wizardStage='details';dirty=true;saveDraft();renderEditor();}
-  function download(filename,content,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
-  function exportLibrary(mode){try{validateAll();const data=JSON.stringify({version:2,scenarios:library},null,2);if(mode==='json')download('teachsim-scenarios-backup.json',data,'application/json;charset=utf-8');else download('scenarios.js',`/* Exported from TeachSim V6.4 Content Editor. Fictional training data only. */\nwindow.TEACHLAB_SEED_SCENARIOS = ${JSON.stringify(library,null,2)};\n`,'application/javascript;charset=utf-8');toast(mode==='json'?'JSON backup downloaded.':'scenarios.js downloaded. Commit it to your repository to update your public website.');}catch(e){toast(e.message,true);}}
-  async function importBackup(file){if(!file)return;if(file.size>2000000){toast('Backup exceeds the 2 MB limit.',true);return;}if(!guardUnsaved())return;try{const obj=JSON.parse(await file.text());const candidates=Array.isArray(obj)?obj:(Array.isArray(obj.scenarios)?obj.scenarios:[obj]);const newLibrary=checkLibrary(candidates);if(!confirm(`Replace your browser library with ${newLibrary.length} imported scenario(s)? Export a backup first if needed.`))return;library=newLibrary;selectedId=library[0].id;patternIndex=0;dirty=true;saveDraft();renderEditor();toast('Imported library saved in this browser.');}catch(e){toast(`Import failed: ${e.message}`,true);}finally{$('import-json').value='';}}
-  function restore(){if(!confirm('Discard local drafts and restore the scenarios bundled with this website? Export a backup first if needed.'))return;try{localStorage.removeItem(STORAGE_KEY);}catch{}library=checkLibrary(SEED);selectedId=library[0].id;patternIndex=0;dirty=false;renderEditor();toast('Published library restored.');}
-  /* Navigation and teacher interaction */
-  $('nav-editor').addEventListener('click',goEditor);$('nav-teacher').addEventListener('click',goTeacher);
   function openDialog(el){if(typeof el.showModal==='function')el.showModal();else el.setAttribute('open','');}
   function closeDialog(el){if(typeof el.close==='function')el.close();else el.removeAttribute('open');}
+  function resetHint(){$('hint-content').classList.add('hidden');$('toggle-hint').setAttribute('aria-expanded','false');$('toggle-hint').textContent='Show prompting hint';}
+  $('toggle-hint').addEventListener('click',()=>{const el=$('hint-content');const expanding=el.classList.contains('hidden');el.classList.toggle('hidden',!expanding);$('toggle-hint').setAttribute('aria-expanded',String(expanding));$('toggle-hint').textContent=expanding?'Hide prompting hint':'Show prompting hint';});
   const helpDialog=$('help-dialog'),briefDialog=$('brief-dialog');
   $('open-guide').addEventListener('click',()=>openDialog(helpDialog));
-  $('prepare-how').addEventListener('click',()=>openDialog(helpDialog));
   $('close-help').addEventListener('click',()=>closeDialog(helpDialog));
   $('review-brief').addEventListener('click',()=>{
     const s=current();
@@ -325,65 +311,39 @@
     $('brief-dialog-title-text').textContent=s.title;
     $('brief-dialog-objective').textContent=s.objective;
     $('brief-dialog-procedure').textContent=s.procedure;
-    $('brief-dialog-steps').innerHTML=s.steps.map(st=>`<li>${escapeHTML(st.name)}</li>`).join('');
+    $('brief-dialog-steps').innerHTML=s.steps.map(st=>`<li><strong>${escapeHTML(st.name)}</strong><span class="step-criterion">Correct response: ${escapeHTML(st.correctCriterion)}</span></li>`).join('');
     openDialog(briefDialog);
   });
   $('close-brief').addEventListener('click',()=>closeDialog(briefDialog));
   for(const d of [helpDialog,briefDialog])d.addEventListener('click',e=>{if(e.target===d)closeDialog(d);});
+  $('scenario-select').addEventListener('change',e=>{
+    if(!library.some(sc=>sc.id===e.target.value))return;
+    selectedId=e.target.value;patternIndex=0;renderPrepare();
+  });
+  document.querySelectorAll('input[name="practice-pathway"]').forEach(el=>el.addEventListener('change',e=>setPathway(e.target.value)));
+  $('start').addEventListener('click',start);
   $('give-guided-direction').addEventListener('click',()=>{
     if(page!=='practice'||practiceState.said>0)return;
     action('say',current().steps[stepIndex].direction||'Please complete this step.');
   });
-  $('scenario-cards').addEventListener('click',e=>{const b=e.target.closest('[data-pick-scenario]');if(!b)return;selectedId=b.dataset.pickScenario;patternIndex=0;renderPrepare();});
-  $('toggle-scenarios').addEventListener('click',()=>{allScenariosShown=!allScenariosShown;renderScenarioCards();});
-  $('scenario-picker').addEventListener('change',e=>{selectedId=e.target.value;patternIndex=0;renderPrepare();});document.querySelectorAll('input[name="practice-pathway"]').forEach(el=>el.addEventListener('change',e=>setPathway(e.target.value)));$('start').addEventListener('click',start);
-  $('say-form').addEventListener('submit',e=>{e.preventDefault();const inp=$('teacher-words');if(!inp.value.trim()){toast('Type a short task direction first.',true);return;}action('say',inp.value);inp.value='';});
-  $('point-target').addEventListener('click',()=>action('gesture'));$('do-wait').addEventListener('click',()=>action('wait'));$('do-model').addEventListener('click',()=>action('model'));$('do-ack').addEventListener('click',()=>action('ack'));$('advance').addEventListener('click',advance);
-  $('retry-same').addEventListener('click',()=>returnBrief(false));$('retry-next').addEventListener('click',()=>returnBrief(true));$('back-brief').addEventListener('click',()=>returnBrief(false));
-  $('template-list').addEventListener('click',e=>{const el=e.target.closest('[data-template]');if(el)makeFromTemplate(el.dataset.template);});
-  $('quick-form').addEventListener('submit',e=>e.preventDefault());
-  $('quick-form').addEventListener('input',e=>{const el=e.target;if(el.hasAttribute('data-quick')){const key=el.dataset.quick;if(!Object.prototype.hasOwnProperty.call(current(),key))return;current()[key]=el.value;markDirty();if(key==='title'||key==='learnerName')renderEditorScene();}else if(el.hasAttribute('data-content')){const key=el.dataset.content;if(key in current().content){current().content[key]=el.value;markDirty();}}else if(el.hasAttribute('data-feedback-key')){const key=el.dataset.feedbackKey;if(key in FEEDBACK){current().content.messages[key]=el.value;markDirty();}}});
-  $('quick-add-step').addEventListener('click',()=>addStep(true));$('quick-add-step-bottom').addEventListener('click',()=>addStep(true));
-  $('editor-scene-preview').addEventListener('click',e=>{const b=e.target.closest('[data-preview-step]');if(!b)return;editorPreviewIndex=Number(b.dataset.previewStep);renderEditorScene();});
-  $('quick-steps').addEventListener('click',e=>{
-    const del=e.target.closest('[data-quick-delete]'),move=e.target.closest('[data-quick-move]');
-    if(del)deleteStep(Number(del.dataset.quickDelete));
-    if(move)moveStep(Number(move.dataset.i),move.dataset.quickMove);
+  $('point-target').addEventListener('click',()=>action('gesture'));
+  $('do-wait').addEventListener('click',()=>action('wait'));
+  $('do-model').addEventListener('click',()=>action('model'));
+  $('do-ack').addEventListener('click',()=>action('ack'));
+  $('pause-step').addEventListener('click',()=>action('pause'));
+  $('advance').addEventListener('click',()=>{
+    const oldStep=stepIndex;
+    advance();
+    if(page==='practice'&&stepIndex!==oldStep){$('step-name').focus({preventScroll:true});}
   });
-  $('quick-steps').addEventListener('change',e=>{
-    const el=e.target;if(!el.hasAttribute('data-quick-step'))return;
-    const i=Number(el.dataset.quickStep),key=el.dataset.quickStepKey,st=current().steps[i];if(!st)return;
-    if(key==='iconMode'){
-      if(el.value==='auto'){st.iconMode='auto';st.icon=suggestVisual(st);}
-      else{st.iconMode='manual';st.icon=el.value;}
-    }else if(['name','target'].includes(key)){
-      const needsTarget=key==='name'&&(!st.target.trim()||st.target==='task material');
-      st[key]=el.value;
-      if(needsTarget)st.target=inferPromptTarget(el.value);
-      refreshStepResponses(st);
-      if(st.iconMode!=='manual')st.icon=suggestVisual(st);
-    }else{return;}
-    markDirty();renderEditor();
-  });
-  $('wizard-review').addEventListener('click',advanceWizard);
-  $('wizard-back').addEventListener('click',()=>{wizardStage='details';renderEditor();});
-  $('wizard-commit').addEventListener('click',finishWizard);
-  $('wizard-leave').addEventListener('click',()=>{if(!guardUnsaved())return;if(dirty){try{library=checkLibrary(JSON.parse(localStorage.getItem(STORAGE_KEY)||JSON.stringify(SEED)));}catch{library=checkLibrary(SEED);}dirty=false;selectedId=library[0].id;}wizardStage='details';renderEditor();});
-  $('create-scenario').addEventListener('click',createScenario);$('add-builtins').addEventListener('click',addMissingBuiltIns);$('duplicate-scenario').addEventListener('click',duplicateScenario);$('delete-scenario').addEventListener('click',deleteScenario);$('save-draft').addEventListener('click',()=>{saveDraft();renderEditor();});
-  $('preview-scenario').addEventListener('click',()=>{const errs=validate(current());if(errs.length){toast(`Fix the incomplete scenario fields: ${errs.slice(0,4).join(', ')}`,true);return;}if(dirty)saveDraft();patternIndex=0;renderPrepare();setPage('prepare');});
-  $('add-step').addEventListener('click',()=>addStep(false));$('add-pattern').addEventListener('click',addPattern);
-  $('export-json').addEventListener('click',()=>exportLibrary('json'));$('export-github').addEventListener('click',()=>exportLibrary('github'));$('import-json').addEventListener('change',e=>importBackup(e.target.files[0]));$('restore-published').addEventListener('click',restore);
-  $('scenario-list').addEventListener('click',e=>{const b=e.target.closest('[data-select]');if(b)selectScenario(b.dataset.select);});
-  $('steps-editor').addEventListener('input',e=>{const t=e.target;if(!t.hasAttribute('data-step'))return;const i=Number(t.dataset.step);const key=t.dataset.stepKey;if(!current().steps[i]||!(key in current().steps[i]))return;current().steps[i][key]=t.value;if(key==='icon')current().steps[i].iconMode='manual';markDirty();});
-  $('steps-editor').addEventListener('click',e=>{const del=e.target.closest('[data-step-delete]');const move=e.target.closest('[data-step-move]');if(del)deleteStep(Number(del.dataset.stepDelete));if(move)moveStep(Number(move.dataset.i),move.dataset.stepMove);});
-  $('patterns-editor').addEventListener('change',e=>{const t=e.target;if(t.hasAttribute('data-need')){const p=current().patterns[+t.dataset.pattern];if(p){p.needs[+t.dataset.need]=limit(t.value,0,2);markDirty();}}});
-  $('patterns-editor').addEventListener('input',e=>{const t=e.target;if(t.dataset.patternKey==='name'){const p=current().patterns[+t.dataset.pattern];if(p){p.name=t.value;markDirty();}}});
-  $('patterns-editor').addEventListener('click',e=>{const b=e.target.closest('[data-pattern-delete]');if(b){const i=+b.dataset.patternDelete;if(current().patterns.length<=1)return;if(confirm(`Remove variation ${i+1}?`)){current().patterns.splice(i,1);markDirty();renderEditor();}}});
-  $('editor-form').addEventListener('input',e=>{const t=e.target;if(!t.hasAttribute('data-key'))return;const key=t.dataset.key;if(!Object.prototype.hasOwnProperty.call(current(),key))return;current()[key]=t.value;markDirty();});
-  $('editor-form').addEventListener('submit',e=>e.preventDefault());
-  window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
-  $('template-list').innerHTML=TEMPLATES.map(t=>`<button type="button" class="template-card" data-template="${escapeHTML(t.id)}"><span class="template-icon">${escapeHTML(t.icon)}</span><span class="template-copy"><strong>${escapeHTML(t.scenario.title)}</strong><small>${escapeHTML(t.desc)}</small><small>${escapeHTML(t.scenario.domain)} · ${t.scenario.steps.length} editable steps</small></span><span class="template-arrow">Use →</span></button>`).join('');
-  renderPrepare();renderEditor();setPage('prepare');
-  // Hide the startup help only after scenarios have been successfully rendered.
-  if($('scenario-picker').options.length > 0){$('startup-notice')?.classList.add('hidden');}
+  $('retry-same').addEventListener('click',()=>returnBrief(false));
+  $('retry-next').addEventListener('click',()=>returnBrief(true));
+  $('back-brief').addEventListener('click',()=>returnBrief(false));
+  renderPrepare();setPage('prepare',false);
+  // Enable controls only after scenario data and action handlers are ready.
+  $('scenario-select').disabled=false;
+  $('start').disabled=false;
+  $('open-guide').disabled=false;
+  document.querySelectorAll('input[name="practice-pathway"]').forEach(el=>el.disabled=false);
+  $('startup-notice').classList.add('hidden');
 })();

@@ -1,41 +1,39 @@
-# TeachSim V6.4 — visual-first prototype
+## V6.7.1 UI fix (Prepare)
+- Scenario choice is now a native, keyboard/screen-reader-friendly dropdown with eight options **pre-rendered in HTML**. It becomes interactive when JavaScript loads.
+- The default scenario, its task steps, procedure and trainer's worked example are also **pre-rendered**, so iOS attachment preview no longer displays empty areas.
+- The Prepare teaching plan and trainer's worked example are two separate collapsible disclosures. The worked example now gives a five-action, first-step illustration tailored to the selected scenario.
+- If JavaScript is blocked by the viewer, the page is a **read-only sample**: app buttons stay disabled and the notice directs users to the live GitHub Pages site for practice. This cannot make a sandbox/iPad file preview execute blocked JavaScript.
+- No change to decision rules, scenarios, pathways or feedback.
 
-**TeachSim · Practise. Reflect. Refine.**
+# TeachSim V6.7.1 — Provisional learner-response decision practice
 
-A static HTML/CSS/JavaScript prototype for trainer-supported instructional rehearsal with fictional SPED classroom activities. It runs locally or on GitHub Pages. No account, database, AI API, paid service, or server is required.
+Simple static web app for trainer-supported rehearsal of **Least-to-Most Prompting**. Eight fictional scenarios; Guided and Experienced pathways. No content editor, accounts, analytics or AI.
 
-## What's new in V6.4
+## What changed from V6.6
+- Each task step has an explicit observable success criterion, an authored incorrect-response example, and an unresolved-after-model response.
+- Each scenario variation includes authored response outcomes by opportunity: `correct`, `no_response`, `incorrect`, or `unresolved`.
+- After instruction or a prompt, selecting **Wait** reveals the learner's response. An incorrect response is distinct from no response.
+- Teachers select the next planned prompt only when additional help is needed, acknowledge completed steps, or **Pause & review plan** when the model does not produce completion. A paused step is **not** counted as completed.
+- The final Review shows the responses observed, recorded actions and decision-feedback; no performance feedback appears mid-practice.
+- The app remains simplified: fixed built-in scenarios and no scenario creation.
 
-- **Choose visually:** Scenario cards replace the dropdown as the primary selection method. The first four appear immediately; **See all 8 scenarios** expands the library.
-- **See the activity:** Practice uses a responsive original SVG illustration whose task materials change by scenario/step and whose learner's arm pose changes after a completion response. These are schematic illustrations, not observed student behaviours.
-- **Act simply:** Give instruction, Wait, Point, Demonstrate and Acknowledge are grouped below the learner illustration.
-- **Review briefly:** One summary, a strength and improvement target appear after the episode, with optional step-by-step review.
-- **Edit consistently:** The Content Editor emphasises task, learner and steps, with step-specific illustration preview. Detailed procedures, feedback wording and response variations remain optional or advanced.
-- **Paths:** Guided has suggested instructions and predictable controlled responses; Experienced omits suggested wording and uses more varied response patterns. Both share the same provisional instructional procedure.
+## Educational review required **before** a real teacher trial
+This is an **illustrative, provisional** exercise, not a verified curriculum, assessment tool, or learner-specific prompt hierarchy. The model prompt in this simulation is *not necessarily a controlling prompt*; therefore an unresolved response results in a pause for trainer review, not assumed success. In real instruction the prompt hierarchy, controlling prompt, error correction, time delay and reinforcement should be individualised and validated by a qualified systematic-instruction specialist.
 
-## Try locally
+Please have a specialist check:
+1. The specific success criterion and incorrect response for every task step.
+2. Whether gesture -> model is the appropriate instructional hierarchy for each learner/skill.
+3. Whether the planned correction after an incorrect response differs from escalation after no response.
+4. Whether the final prompt is sufficiently controlling; if not, what the agreed escalation/escalation limit and trainer action should be.
+5. Whether the episode feedback fairly describes teacher decisions rather than implying measured teaching competence.
 
-Keep these six files together in one folder: `index.html`, `styles.css`, `app.js`, `scenarios.js`, `templates.js`, `README.md`.
+Supporting public references (research/instructional context; not claims of review):
+- University of Nevada, Reno, *Using the System of Least to Most Prompts*: https://www.unr.edu/ndsip/services/resources/tips/using-the-system-of-least-to-most-prompts
+- VCU Autism Center for Education, *Prompt Hierarchy*: https://vcuautismcenter.org/resources/factsheets/content.cfm/2494
+- California PBIS/PENT, *Prompting*: https://pent.ca.gov/is/is/prompting.aspx
 
-Open `index.html` in Safari or Chrome. If the preview in the ChatGPT/iPad file viewer shows no scenarios, test on the published GitHub Pages site in Safari instead; embedded file viewers may block JavaScript.
+## Publish
+Upload `index.html`, `styles.css`, `app.js` and `scenarios.js` to the repository root and commit. Open the live GitHub Pages site directly in Safari; local file previews may block JavaScript. Existing unused repo files need not be removed.
 
-## Publish to GitHub Pages
-
-1. In the existing website, **export a backup** of any customised scenarios: Content editor → Publish or back up your scenarios → Download JSON backup.
-2. Unzip this package, open your [GitHub repository](https://github.com/mfaris93/teachsim), then upload **the files inside the folder**, replacing the corresponding files in the repository root. Do not upload the ZIP itself.
-3. Commit the changes to the branch configured for GitHub Pages (typically `main`).
-4. Open `https://mfaris93.github.io/teachsim/` in Safari or Chrome after GitHub finishes publishing. Reload if you see a cached version.
-5. If you previously customised `scenarios.js`, reconcile that file rather than overwriting it with the starter scenarios. Browser drafts are local to the browser, not auto-published.
-
-## Edit scenarios without coding
-
-Open **Content editor** → select a scenario or **Create from template** → edit Task/Learner/Steps → **Save draft** → **Preview as teacher**. Optional advanced settings control feedback wording and learner-response variation.
-
-Browser changes only affect local drafts. To update other people's site, export `scenarios.js` and commit it to GitHub. This public prototype has **no authentication**; the editor is not a secured administrator area.
-
-## Constraints before an educator trial
-
-- All learner profiles are fictional. Don't enter real student identities, IEP information, incidents or confidential MOE data.
-- Instructor directions, waiting duration, real gestures, physical prompts and actual classroom teaching performance are **not measured**; controls record selected actions.
-- Scenarios and feedback rules are illustrative, not validated guidance. An experienced SPED practitioner should review the task analyses and prompting procedures before a supported school trial.
-- This website does not establish government security approval or an effective training outcome.
+## Testing and limitations
+Automated smoke tests check scenario choices, responsive layout and simulation pathways. Physical iPad/Safari, VoiceOver, full accessibility and expert instructional validation remain outstanding. The app records **button selections**, not timing, delivery quality or real learner outcomes.
