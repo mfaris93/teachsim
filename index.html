@@ -1,113 +1,103 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light">
-  <title>TeachSim V6.7.1 · Instructional rehearsal</title>
-  <link rel="stylesheet" href="styles.css?v=6.7.1">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="light" name="color-scheme"/>
+<title>TeachSim V6.8 · Instructional rehearsal</title>
+<link href="styles.css?v=6.8" rel="stylesheet"/>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to main content</a>
 <header class="topbar">
-  <div class="top-inner">
-    <div class="brand">Teach<span>Sim</span><small> / instructional rehearsal</small></div>
-    <div class="top-actions"><button type="button" class="navbtn help-nav" id="open-guide" disabled>How TeachSim works</button></div>
-  </div>
+<div class="top-inner">
+<div class="brand">Teach<span>Sim</span><small> / instructional rehearsal</small></div>
+<div class="top-actions"><button class="navbtn help-nav" disabled="" id="open-guide" type="button">How TeachSim works</button></div>
+</div>
 </header>
 <main id="main" tabindex="-1">
-  <div id="teacher-space">
-    <nav aria-label="Practice progress"><ol id="stepper" class="stepper"><li data-stage="prepare" class="active" aria-current="step"><b aria-hidden="true">1</b>Prepare</li><li data-stage="practice"><b aria-hidden="true">2</b>Practise</li><li data-stage="review"><b aria-hidden="true">3</b>Review</li></ol></nav>
-    <section id="page-prepare" class="v63-prepare">
-      <div class="eyebrow">01 / Prepare</div>
-      <h1 tabindex="-1">Choose your teaching practice</h1>
-      <section class="strategy-card" aria-labelledby="strategy-title"><div class="label">TEACHING STRATEGY</div><h2 id="strategy-title">Least-to-Most Prompting</h2><p>Give a direction and wait for the learner’s response. Increase support only after observing no response or an incorrect response.</p><ol class="prompt-hierarchy"><li><strong>Independent opportunity</strong><span>Instruction → Wait</span></li><li><strong>Gestural prompt</strong><span>Point → Wait</span></li><li><strong>Model prompt</strong><span>Demonstrate → Wait</span></li></ol><p class="small hierarchy-note">Acknowledge a correct response. If the learner remains unable to complete the step after modelling, pause and review the teaching plan.</p></section>
-      <div class="scenario-selector">
-        <label for="scenario-select" id="scenario-heading">Choose a scenario</label>
-        <select id="scenario-select" aria-describedby="scenario-help" disabled>
-          <option value="handwashing" selected>Handwashing routine · Daily Living Skills</option>
-          <option value="template-school-bag">Packing a school bag · Daily Living Skills</option>
-          <option value="template-work-packing">Packing an order · Vocational Education</option>
-          <option value="clear-meal-area">Clear a meal area · Daily Living Skills</option>
-          <option value="wipe-table">Wipe a shared table · Daily Living Skills</option>
-          <option value="fold-towels">Fold and sort towels · Vocational Education</option>
-          <option value="restock-shelf">Restock a retail shelf · Vocational Education</option>
-          <option value="prepare-snack-tray">Prepare a simple snack tray · Daily Living Skills</option>
-        </select>
-        <p id="scenario-help" class="small subdued">Eight ready-made activities. Choose one to update the practice brief.</p>
-      </div>
-      <p id="startup-notice" class="startup-notice" role="status">This file preview shows an example teaching plan, but it cannot run the interactive simulation when scripts are blocked. Open the <a href="https://mfaris93.github.io/teachsim/">published TeachSim website in Safari</a> to select scenarios and practise.</p>
-      <fieldset class="pathway-choice" aria-describedby="pathway-note">
-        <legend>Choose a practice pathway</legend>
-        <label class="pathway-option"><input type="radio" name="practice-pathway" value="new" checked disabled><span><strong>Guided</strong><small>Suggested instructions, prompt examples and optional hints</small></span></label>
-        <label class="pathway-option"><input type="radio" name="practice-pathway" value="experienced" disabled><span><strong>Experienced</strong><small>Choose your own instruction; no prompt examples or hints</small></span></label>
-      </fieldset>
-      <p class="small subdued pathway-caption" id="pathway-note">Choose the support you need, not your years of experience.</p>
-      
-      <article class="card pad brief-snapshot">
-        <div class="brief-snapshot-icon" id="brief-task-icon" aria-hidden="true">🧼</div>
-        <div class="brief-snapshot-body"><div class="label">Practice goal</div><h2 id="brief-title">Handwashing routine</h2><p id="brief-objective">Practise giving a task direction, allowing a response opportunity, using the specified least-to-most prompts, and acknowledging completion.</p>
-          <div class="profile-inline"><span class="avatar" id="learner-initial">S</span><strong id="brief-learner">Sam</strong><span id="brief-profile">Sam can follow short directions and is learning to complete a handwashing routine with less support.</span></div>
-        </div>
-      </article>
-      <details class="essentials-details" id="prepare-details"><summary>Prepare: teaching plan <span>task steps &amp; procedure</span></summary>
-        <div class="brief-detail-content"><div class="label">Task steps</div><div id="brief-steps" class="tag-list"><span>1 · Apply soap</span><span>2 · Rub hands</span><span>3 · Rinse hands</span><span>4 · Dry hands</span></div>
-        <div class="label">Procedure for this demonstration</div><p id="brief-procedure">Least-to-most prompting (illustrative): Give the task direction and wait for an independent response. If the learner does not respond or responds incorrectly, use the planned gestural prompt, then wait/observe. If still needed, model the action, then wait/observe. Acknowledge a correct response. If the step remains incomplete after modelling, pause and consult the teaching plan or trainer before proceeding. Confirm prompt hierarchy and error-correction procedures for the learner and task.</p>
-        </div>
-      </details>
-      <details class="essentials-details trainer-example" id="trainer-model-panel">
-        <summary>Trainer's worked example <span>optional example</span></summary>
-        <div class="brief-detail-content"><ol id="brief-model-notes" class="worked-example-list"><li><strong>Give instruction:</strong> “Sam, put soap on your hands.”</li><li><strong>Wait and observe:</strong> Look for the correct response: The learner pumps soap independently.</li><li><strong>Gestural prompt (if needed):</strong> Point towards the soap dispenser, then wait again.</li><li><strong>Model prompt (if needed):</strong> Demonstrate “Apply soap”, then wait again.</li><li><strong>Respond to the outcome:</strong> If the learner completes the step, acknowledge it. Otherwise, pause and review the plan after modelling.</li></ol></div>
-      </details>
-      <div id="prepare-error" class="error hidden" role="alert"></div>
-      <div class="actions right"><button type="button" id="start" class="btn primary" disabled>Start practice →</button></div>
-    </section>
-    <section id="page-practice" class="hidden">
-      <div class="eyebrow">02 / Practise</div>
-      <h1 tabindex="-1">Practise instruction</h1>
-      <p class="lead compact" id="practice-lead">Observe the learner. Choose your next action.</p>
-      <div class="practice-strategy" role="note"><strong>Least-to-Most Prompting</strong><span>Instruction + Wait → Gestural + Wait → Model + Wait</span></div>
-      <div class="practice-tools"><span class="pathway-tag" id="practice-pathway-tag">Guided</span><button type="button" class="btn review-brief" id="review-brief">View teaching plan</button></div>
-      <article class="card scene-card">
-        <div class="scene-heading"><div><span class="eyebrow" id="step-count"></span><h2 id="step-name" tabindex="-1"></h2><p class="small subdued" id="step-context"></p></div><span class="counter" id="count-badge"></span></div>
-        <div id="progressbar" class="progressbar" aria-label="Step progress"></div>
-        <div class="scene-art" id="scene-art" role="group" aria-label="Task illustration"><div id="scene-visual" class="scene-visual"></div><div class="scene-caption"><strong id="scene-student">Sam</strong><span class="scene-icon" id="scene-icon" aria-hidden="true">🧼</span><span id="scene-object-label">Task materials</span></div></div>
-        <div class="student-observation"><div class="observation-header"><div class="label">What the learner does</div><span id="response-type" class="observation-type" aria-live="polite">Ready</span></div><p id="student-response" role="status" aria-live="polite" aria-atomic="true"></p></div>
-        <div class="interaction">
-          <div id="guided-instruction" class="guided-instruction hidden">
-            <div class="label" id="direction-label">Give instruction</div>
-            <p class="guided-copy" id="guided-words"></p>
-          </div>
-          <div class="label actions-label" id="actions-label">Choose your next action</div><div class="action-grid" role="group" aria-labelledby="actions-label"><button type="button" class="btn action-btn" id="give-guided-direction">Give instruction</button><button type="button" class="btn action-btn" id="do-wait">Wait</button><button type="button" class="btn action-btn prompt-action" id="point-target"><strong>Gestural prompt</strong><small class="prompt-example" id="gesture-example"></small></button><button type="button" class="btn action-btn prompt-action" id="do-model"><strong>Model prompt</strong><small class="prompt-example" id="model-example"></small></button><button type="button" class="btn action-btn" id="do-ack">Acknowledge</button></div><div class="guided-hint" id="guided-hint"><button type="button" class="btn hint-toggle" id="toggle-hint" aria-expanded="false" aria-controls="hint-content">Show prompting hint</button><div id="hint-content" class="hint-content hidden" role="note">Observe the learner after each response opportunity. After no response or an incorrect response, consider the next planned prompt. If the response is correct, acknowledge it. If modelling does not help, pause and review the plan.</div></div><div class="advance-row"><div class="step-close-note"><p class="small subdued">Acknowledge a completed step, or pause an unresolved step before continuing.</p><button type="button" id="pause-step" class="btn subtle hidden">Pause &amp; review plan</button></div><button type="button" id="advance" class="btn primary">Next task step →</button></div></div>
-      </article>
-      
-    </section>
-    <section id="page-review" class="hidden"><div class="eyebrow">03 / Debrief</div><h1 tabindex="-1">Review your teaching episode</h1><p class="lead">Review how you responded to correct, incorrect, and absent learner responses, then retry.</p><div class="review-intro card pad" id="overall"></div><div id="review-stats" class="stats"></div><div id="review-focus" class="review-focus"></div><div class="decision-summary" id="decision-summary" aria-label="Prompting decision review"></div><div id="review-reflection" class="reflection-prompt" aria-label="Reflection question"></div><details class="essentials-details feedback-details"><summary>See my full action-by-action review <span>optional</span></summary><div id="step-feedback" class="feedback-list"></div></details><p class="small subdued">Discuss these practice notes with your trainer.</p><div class="actions wrap"><button type="button" id="retry-same" class="btn primary">↻ Retry same pattern</button><button type="button" id="retry-next" class="btn">Try next variation →</button><button type="button" id="back-brief" class="btn subtle">Return to brief</button></div></section>
-  </div>
-<dialog id="help-dialog" class="teachsim-dialog" aria-labelledby="help-title">
-    <div class="dialog-top"><h2 id="help-title">How TeachSim works</h2><button type="button" class="btn small-btn" id="close-help" aria-label="Close guide">✕ Close</button></div>
-    <p>Practise <strong>Least-to-Most Prompting</strong> in fictional teaching tasks, then discuss your decisions with a trainer.</p>
-    <ol class="guide-steps">
-      <li><strong>Prepare</strong> — Choose a fictional scenario and a pathway. Review the learner profile, task steps, and prescribed procedure.</li>
-      <li><strong>Practise</strong> — Give an instruction and wait. Observe the learner’s response. After no response or an incorrect response, use the next planned prompt and observe again. Acknowledge success or pause an unresolved step.</li>
-      <li><strong>Review</strong> — After completing the episode, reflect on response opportunities, prompt escalation and acknowledgement.</li>
-    </ol>
-    <div class="guide-pathways"><div><strong>Guided</strong><p>Suggested directions, prompt examples and optional hints. You still choose each action.</p></div><div><strong>Experienced</strong><p>Use the same prompt types, without examples or hints.</p></div></div>
-    
-  </dialog>
-  <dialog id="brief-dialog" class="teachsim-dialog" aria-labelledby="brief-dialog-title">
-    <div class="dialog-top"><h2 id="brief-dialog-title">Review teaching brief</h2><button type="button" class="btn small-btn" id="close-brief" aria-label="Close teaching brief">✕ Close</button></div>
-    <p><strong id="brief-dialog-learner"></strong> · <span id="brief-dialog-title-text"></span></p>
-    <div class="label">Learning objective</div><p id="brief-dialog-objective"></p>
-    <div class="label">Least-to-Most Prompting procedure</div><p id="brief-dialog-procedure"></p>
-    <div class="label">Task steps</div><ol id="brief-dialog-steps" class="brief-step-list"></ol>
-    <p class="small subdued">This brief is available for reference during practice. Feedback remains hidden until the episode ends.</p>
-  </dialog>
-  
+<div id="teacher-space">
+<nav aria-label="Practice progress"><ol class="stepper" id="stepper"><li aria-current="step" class="active" data-stage="prepare"><b aria-hidden="true">1</b>Prepare</li><li data-stage="practice"><b aria-hidden="true">2</b>Practise</li><li data-stage="review"><b aria-hidden="true">3</b>Review</li></ol></nav>
+<section class="v63-prepare" id="page-prepare">
+<div class="eyebrow">01 / PREPARE</div>
+<h1 tabindex="-1">Set up your practice</h1>
+<section aria-labelledby="strategy-title" class="strategy-card"><div class="strategy-identity"><span aria-hidden="true" class="strategy-dot">↗</span><div><span class="label">TEACHING STRATEGY</span><h2 id="strategy-title">Least-to-Most Prompting</h2><p>Observe first. Increase support only when needed.</p></div></div></section>
+<div class="scenario-selector">
+<label for="scenario-select" id="scenario-heading">Scenario</label>
+<select aria-describedby="scenario-heading" disabled="" id="scenario-select">
+<option selected="" value="handwashing">Handwashing routine · Daily Living Skills</option>
+<option value="template-school-bag">Packing a school bag · Daily Living Skills</option>
+<option value="template-work-packing">Packing an order · Vocational Education</option>
+<option value="clear-meal-area">Clear a meal area · Daily Living Skills</option>
+<option value="wipe-table">Wipe a shared table · Daily Living Skills</option>
+<option value="fold-towels">Fold and sort towels · Vocational Education</option>
+<option value="restock-shelf">Restock a retail shelf · Vocational Education</option>
+<option value="prepare-snack-tray">Prepare a simple snack tray · Daily Living Skills</option>
+</select>
+
+</div>
+<p class="startup-notice" id="startup-notice" role="status">This is a read-only file preview. For interactive practice, open the published TeachSim website directly in Safari.</p>
+<fieldset class="pathway-choice">
+<legend>Practice pathway</legend>
+<label class="pathway-option"><input checked="" disabled="" name="practice-pathway" type="radio" value="new"/><span><strong>Guided</strong><small>Suggested instruction · optional support</small></span></label>
+<label class="pathway-option"><input disabled="" name="practice-pathway" type="radio" value="experienced"/><span><strong>Experienced</strong><small>Decide independently · no hints</small></span></label>
+</fieldset>
+
+<article class="card pad brief-snapshot"><div aria-hidden="true" class="compact-profile-icon" id="brief-task-icon">🧼</div><div class="brief-snapshot-body"><div class="label">LEARNER CONTEXT</div><div class="mini-learner-heading"><strong id="brief-learner">Sam</strong><span aria-hidden="true" class="avatar" id="learner-initial">S</span></div><p id="brief-profile">Sam can follow short directions and is learning to complete a handwashing routine with less support.</p><h2 class="sr-only" id="brief-title">Handwashing routine</h2></div></article>
+<details class="essentials-details" id="prepare-details"><summary>View teaching plan <span>Optional</span></summary>
+<div class="brief-detail-content"><div class="label">Practice goal</div><p id="brief-objective">Practise choosing when and how to prompt.</p><div class="label">Task steps</div><div class="tag-list" id="brief-steps"><span>1 · Apply soap</span><span>2 · Rub hands</span><span>3 · Rinse hands</span><span>4 · Dry hands</span></div><div class="label">Teaching procedure</div><p id="brief-procedure">Give a direction and wait for a response. If the learner does not respond or responds incorrectly, use the prescribed gestural prompt and wait. If needed, model and wait. Acknowledge completion or pause for review when the step is incomplete.</p><details class="essentials-details trainer-example" id="trainer-model-panel">
+<summary>Trainer's worked example <span>Reveals a sample sequence</span></summary>
+<div class="brief-detail-content"><ol class="worked-example-list" id="brief-model-notes"><li><strong>Give instruction:</strong> “Sam, put soap on your hands.”</li><li><strong>Wait and observe:</strong> Observe whether Sam applies soap.</li><li><strong>Gestural prompt (if needed):</strong> Point towards the soap dispenser, then wait again.</li><li><strong>Model prompt (if needed):</strong> Demonstrate “Apply soap”, then wait again.</li><li><strong>Respond to the outcome:</strong> If the learner completes the step, acknowledge it. Otherwise, pause and review the plan after modelling.</li></ol></div>
+</details></div>
+</details>
+
+<div class="error hidden" id="prepare-error" role="alert"></div>
+<div class="actions right"><button class="btn primary" disabled="" id="start" type="button">Start practice →</button></div>
+</section>
+<section class="hidden" id="page-practice">
+<div class="eyebrow">02 / Practise</div>
+<h1 tabindex="-1">Practise instruction</h1>
+<p class="lead compact" id="practice-lead">Watch what the learner does. Then decide.</p>
+<div class="practice-strategy" role="note"><strong>Least-to-Most Prompting</strong><span>Observe → Choose → Wait → Observe</span></div>
+<div class="practice-tools"><span class="pathway-tag" id="practice-pathway-tag">Guided</span><button class="btn review-brief" id="review-brief" type="button">View teaching plan</button></div>
+<article class="card scene-card">
+<div class="scene-heading"><div><span class="eyebrow" id="step-count"></span><h2 id="step-name" tabindex="-1"></h2><p class="small subdued" id="step-context"></p></div><span class="counter" id="count-badge"></span></div>
+<div aria-label="Step progress" class="progressbar" id="progressbar"></div>
+<div aria-label="Task illustration" class="scene-art" id="scene-art" role="group"><div class="scene-visual" id="scene-visual"></div><div class="scene-caption"><strong id="scene-student">Sam</strong><span aria-hidden="true" class="scene-icon" id="scene-icon">🧼</span><span id="scene-object-label">Task materials</span></div></div>
+<div aria-label="Learner observation" class="student-observation"><div class="observation-header"><div class="label">LEARNER OBSERVATION</div><span aria-live="polite" class="observation-type" id="response-type">Ready</span></div><div aria-hidden="true" class="observed-status" id="observed-status"><span class="observed-glyph" id="observed-glyph">👀</span><span class="observed-summary" id="observed-summary">Ready to begin</span></div><p aria-atomic="true" aria-live="polite" id="student-response" role="status"></p></div>
+<div class="interaction">
+<div class="guided-instruction hidden" id="guided-instruction">
+<div class="label" id="direction-label">Give instruction</div>
+<p class="guided-copy" id="guided-words"></p>
+</div>
+<div class="label actions-label" id="actions-label">Choose your next action</div><div aria-labelledby="actions-label" class="action-grid" role="group"><button class="btn action-btn" id="give-guided-direction" type="button">Give instruction</button><button class="btn action-btn" id="do-wait" type="button">Wait</button><button class="btn action-btn prompt-action" id="point-target" type="button"><strong>Gestural prompt</strong><small class="prompt-example hidden" id="gesture-example"></small></button><button class="btn action-btn prompt-action" id="do-model" type="button"><strong>Model prompt</strong><small class="prompt-example hidden" id="model-example"></small></button><button class="btn action-btn" id="do-ack" type="button">Acknowledge</button></div><div class="guided-hint" id="guided-hint"><button aria-controls="hint-content" aria-expanded="false" class="btn hint-toggle" id="toggle-hint" type="button">Show guiding questions</button><div class="hint-content hidden" id="hint-content" role="note">Ask yourself: What did the learner actually do? Was the step completed? Have you observed a response since the last action? Choose based on what you observed.</div></div><details class="prompt-examples-details" id="prompt-example-details"><summary>What do the prompt types mean? <span>Optional</span></summary><div class="prompt-examples-body"><p><strong>Gestural:</strong> <span id="gesture-example-detail">Point towards the soap dispenser.</span></p><p><strong>Model:</strong> <span id="model-example-detail">Demonstrate the action.</span></p></div></details><div class="advance-row"><div class="step-close-note"><p class="small subdued">Acknowledge a completed step, or pause an unresolved step before continuing.</p><button class="btn subtle hidden" id="pause-step" type="button">Pause &amp; review plan</button></div><button class="btn primary" id="advance" type="button">Next task step →</button></div></div>
+</article>
+</section>
+<section class="hidden" id="page-review"><div class="eyebrow">03 / Debrief</div><h1 tabindex="-1">Review your teaching episode</h1><p class="lead">Review how you responded to correct, incorrect, and absent learner responses, then retry.</p><div class="review-intro card pad" id="overall"></div><div class="stats" id="review-stats"></div><div class="review-focus" id="review-focus"></div><div aria-label="Prompting decision review" class="decision-summary" id="decision-summary"></div><div aria-label="Reflection question" class="reflection-prompt" id="review-reflection"></div><details class="essentials-details feedback-details"><summary>See my full action-by-action review <span>optional</span></summary><div class="feedback-list" id="step-feedback"></div></details><p class="small subdued">Discuss these practice notes with your trainer.</p><div class="actions wrap"><button class="btn primary" id="retry-same" type="button">↻ Retry same pattern</button><button class="btn" id="retry-next" type="button">Try next variation →</button><button class="btn subtle" id="back-brief" type="button">Return to brief</button></div></section>
+</div>
+<dialog aria-labelledby="help-title" class="teachsim-dialog" id="help-dialog">
+<div class="dialog-top"><h2 id="help-title">How TeachSim works</h2><button aria-label="Close guide" class="btn small-btn" id="close-help" type="button">✕ Close</button></div>
+<p>Practise <strong>Least-to-Most Prompting</strong> in fictional teaching tasks, then discuss your decisions with a trainer.</p>
+<ol class="guide-steps">
+<li><strong>Prepare</strong> — Choose a fictional scenario and a pathway. Review the learner profile, task steps, and prescribed procedure.</li>
+<li><strong>Practise</strong> — Give an instruction and wait. Observe the learner’s response. After no response or an incorrect response, use the next planned prompt and observe again. Acknowledge success or pause an unresolved step.</li>
+<li><strong>Review</strong> — After completing the episode, reflect on response opportunities, prompt escalation and acknowledgement.</li>
+</ol>
+<div class="guide-pathways"><div><strong>Guided</strong><p>Suggested directions, prompt examples and optional hints. You still choose each action.</p></div><div><strong>Experienced</strong><p>Use the same prompt types, without examples or hints.</p></div></div>
+</dialog>
+<dialog aria-labelledby="brief-dialog-title" class="teachsim-dialog" id="brief-dialog">
+<div class="dialog-top"><h2 id="brief-dialog-title">Review teaching brief</h2><button aria-label="Close teaching brief" class="btn small-btn" id="close-brief" type="button">✕ Close</button></div>
+<p><strong id="brief-dialog-learner"></strong> · <span id="brief-dialog-title-text"></span></p>
+<div class="label">Learning objective</div><p id="brief-dialog-objective"></p>
+<div class="label">Least-to-Most Prompting procedure</div><p id="brief-dialog-procedure"></p>
+<div class="label">Task steps</div><ol class="brief-step-list" id="brief-dialog-steps"></ol>
+<p class="small subdued">This brief is available for reference during practice. Feedback remains hidden until the episode ends.</p>
+</dialog>
 </main>
-<footer class="footer">TeachSim V6.7.1 · Instructional rehearsal</footer>
-<script src="scenarios.js?v=6.7.1"></script>
-<script src="app.js?v=6.7.1"></script>
+<footer class="footer">TeachSim V6.8 · Instructional rehearsal</footer>
+<script src="scenarios.js?v=6.8"></script>
+<script src="app.js?v=6.8"></script>
 <script>
   // Keep the static, readable fallback whenever app initialisation fails.
   window.addEventListener('load', function () {

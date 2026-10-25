@@ -1,5 +1,5 @@
 'use strict';
-/* TeachSim V6.7.1: local-only, deterministic educational demonstration.
+/* TeachSim V6.8: local-only, deterministic educational demonstration.
    NO network calls, AI model, PII processing, or assessment of real teaching fidelity. */
 (() => {
   // V6.7: fixed, fictional built-in scenarios. No accounts, storage, or content editor.
@@ -74,6 +74,7 @@
   let selectedId=library[0].id,patternIndex=0,pathway='new',page='prepare';
   let stepIndex=0,records=[],practiceState=null;
   const current=()=>library.find(s=>s.id===selectedId)||library[0];
+  const observedText=(raw,name)=>String(raw||'').replace(/^The learner\b/i,name).replace(/^Learner\b/i,name);
   function indicesForPath(s=current()){
     if(!s?.patterns?.length)return [];
     if(pathway==='new'||s.patterns.length===1)return [0];
@@ -110,7 +111,7 @@
     const item=(label,body)=>`<li><strong>${escapeHTML(label)}:</strong> ${escapeHTML(body)}</li>`;
     $('brief-model-notes').innerHTML=[
       item('Give instruction',`“${step.direction||'Please complete this step.'}”`),
-      item('Wait and observe',`Look for the correct response: ${step.correctCriterion}`),
+      item('Wait and observe',`Observe whether the learner completes: ${step.name.toLowerCase()}.`),
       item('Gestural prompt (if needed)',`Point towards the ${step.target}, then wait again.`),
       item('Model prompt (if needed)',`Demonstrate “${step.name}”, then wait again.`),
       item('Respond to the outcome','If the learner completes the step, acknowledge it. Otherwise, pause and review the plan after modelling.')
@@ -120,7 +121,7 @@
     document.querySelectorAll('input[name="practice-pathway"]').forEach(el=>{el.checked=el.value===pathway;});
     const choices=indicesForPath(),idx=choices.indexOf(patternIndex);
     
-    $('pathway-note').textContent='Choose based on the practice support you want, not years of experience. Both pathways follow the same instructional procedure.';
+    
     
     $('brief-task-icon').textContent=s.steps[0]?.icon||'🧩';$('learner-initial').textContent=(s.learnerName[0]||'?').toUpperCase();$('brief-learner').textContent=s.learnerName;$('brief-profile').textContent=s.learnerProfile;$('brief-title').textContent=s.title;$('brief-objective').textContent=s.objective;$('brief-procedure').textContent=s.procedure;$('brief-steps').innerHTML=s.steps.map((st,i)=>`<span>${i+1} · ${escapeHTML(st.name)}</span>`).join('');renderWorkedExample(s);$('prepare-error').classList.add('hidden');}
   function freshState(){const s=current().steps[stepIndex];return {
@@ -141,7 +142,7 @@
       const message=text.trim();if(!message)return;
       if(st.waits)flag('lateDirection');
       st.said++;st.awaiting='instruction';st.outcome='pending';
-      st.response=`${name} attends to your instruction. Select Wait to observe a response.`;
+      st.response=`No new learner response observed yet. Select Wait to observe ${name}.`;
       log('say',message,flags);
     }else if(type==='wait'){
       if(st.completed||st.paused){flag('extraPrompt');}
@@ -183,19 +184,19 @@
       }else{
         if(type==='gesture')st.gestures++;else st.models++;
         st.awaiting=type;st.outcome='pending';st.waitsSincePrompt=0;
-        st.response=type==='gesture'?`${name} notices your gesture. Select Wait to observe what happens.`:`${name} watches your model. Select Wait to observe what happens.`;
+        st.response=`No new learner response observed yet. Select Wait to observe ${name}.`;
       }
       log(type,type==='gesture'?`Pointed to ${s.target}`:`Modelled ${s.name}`,flags);
     }else if(type==='ack'){
       if(!st.completed)flag('earlyAck');
       else if(st.acknowledged)flag('repeatedAck');
-      else {st.acknowledged=true;st.response=`${name} completed this step. You acknowledged the response.`;}
+      else {st.acknowledged=true;}
       log('ack','Acknowledged learner response',flags);
     }else if(type==='pause'){
       if(st.paused)return;
       if(st.outcome!=='unresolved'||st.awaiting||!st.models)flag('prematurePause');
       st.paused=true;
-      st.response=`${name} has not completed the step. Pause to consult the teaching plan or trainer.`;
+      // Keep the last learner action visible; the pause is shown separately.
       log('pause','Paused unresolved step for plan review',flags);
     }
     renderPractice();
@@ -216,6 +217,9 @@
   function sceneSVG(s,st,outcome='ready'){
     const working=outcome==='correct',mistaken=outcome==='incorrect';
     const kind=sceneKind(s,st), icon=escapeHTML(st.icon||'🧩');
+    const wrongText=(st.incorrectResponse||'').toLowerCase();
+    const wrongIcons=[['towel','🧻'],['tap','🚰'],['book','📚'],['bag','🎒'],['soap','🧼'],['plate','🍽️'],['cup','🥛'],['box','📦'],['cloth','🧽'],['shelf','🗂️'],['tray','🍱'],['basket','🧺']];
+    const wrongIcon=escapeHTML((wrongIcons.find(([word])=>wrongText.includes(word))||['','↗'])[1]);
     const stroke='#315262',dark='#204654',light='#e8f2ef',accent='#58ae9d',skin='#dfae8e';
     const rect=(x,y,w,h,fill,rx=10)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}"/>`;
     const line=(x1,y1,x2,y2,sw=6,col=stroke)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${sw}" stroke-linecap="round"/>`;
@@ -231,8 +235,10 @@
     };
     // Arms change pose after a learner response, without implying precise motor behaviour.
     const arm=working?`<path d="M231 165Q296 180 343 169" fill="none" stroke="${skin}" stroke-width="18" stroke-linecap="round"/>`:mistaken?`<path d="M231 165Q280 139 309 120" fill="none" stroke="${skin}" stroke-width="18" stroke-linecap="round"/>`:`<path d="M231 165Q251 216 276 235" fill="none" stroke="${skin}" stroke-width="18" stroke-linecap="round"/>`;
+    const actionObject=working?`<text x="330" y="149" text-anchor="middle" font-size="37">${icon}</text>`:mistaken?`<text x="306" y="99" text-anchor="middle" font-size="36">${wrongIcon}</text>`:'';
     const cue=working?`<circle cx="341" cy="170" r="9" fill="${skin}"/>`:mistaken?`<circle cx="309" cy="120" r="9" fill="${skin}"/>`:`<path d="M274 228Q284 233 289 245" fill="none" stroke="${skin}" stroke-width="12" stroke-linecap="round"/>`;
-    return `<svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><rect width="640" height="300" rx="16" fill="#edf6f4"/>${rect(22,255,596,12,'#d7e7e2',6)}<ellipse cx="205" cy="275" rx="83" ry="12" fill="#d4e3e0"/>${rect(163,139,83,124,'#6daaa8',29)}${line(181,253,174,281,13,dark)}${line(226,253,239,281,13,dark)}${line(170,164,144,233,17,skin)}${arm}${cue}<circle cx="207" cy="101" r="49" fill="${skin}"/><path d="M156 95Q151 47 204 48Q258 45 256 104Q244 75 210 80Q178 81 156 95" fill="${dark}"/><circle cx="190" cy="109" r="4" fill="${dark}"/><circle cx="226" cy="109" r="4" fill="${dark}"/><path d="M195 127Q209 135 220 126" stroke="#915b4a" stroke-width="3" fill="none" stroke-linecap="round"/>${props[kind]}</svg>`;
+    const responseSymbol=working?'✓':mistaken?'↗':outcome==='no_response'?'—':outcome==='unresolved'?'!':'';const responseCue=responseSymbol?`<circle cx="602" cy="39" r="23" fill="${working?'#d7efe2':mistaken?'#fff2d9':'#e0ecf3'}"/><text x="602" y="48" font-size="26" font-weight="700" text-anchor="middle" fill="${working?'#15533b':mistaken?'#845312':'#345770'}">${responseSymbol}</text>`:'';
+    return `<svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><rect width="640" height="300" rx="16" fill="#edf6f4"/>${rect(22,255,596,12,'#d7e7e2',6)}<ellipse cx="205" cy="275" rx="83" ry="12" fill="#d4e3e0"/>${rect(163,139,83,124,'#6daaa8',29)}${line(181,253,174,281,13,dark)}${line(226,253,239,281,13,dark)}${line(170,164,144,233,17,skin)}${arm}${cue}<circle cx="207" cy="101" r="49" fill="${skin}"/><path d="M156 95Q151 47 204 48Q258 45 256 104Q244 75 210 80Q178 81 156 95" fill="${dark}"/><circle cx="190" cy="109" r="4" fill="${dark}"/><circle cx="226" cy="109" r="4" fill="${dark}"/><path d="M195 127Q209 135 220 126" stroke="#915b4a" stroke-width="3" fill="none" stroke-linecap="round"/>${props[kind]}${actionObject}${responseCue}</svg>`;
   }
   function renderPractice(){const s=current(),st=s.steps[stepIndex];
     const guided=pathway==='new';
@@ -243,12 +249,13 @@
     $('give-guided-direction').disabled=practiceState.said>0;
     $('give-guided-direction').textContent=practiceState.said>0?'✓ Instruction given':(guided?'▸ Give suggested instruction':'▸ I gave an instruction');
     $('practice-pathway-tag').textContent=guided?'Guided':'Experienced';
-    $('practice-lead').textContent='Observe the learner, then choose an action below.';$('step-count').textContent=`Task step ${stepIndex+1}`;$('step-name').textContent=st.name;$('step-context').textContent=st.context;$('count-badge').textContent=`${stepIndex+1} / ${s.steps.length}`;
-    $('progressbar').innerHTML=s.steps.map((_,i)=>`<i class="${i<stepIndex?'done':i===stepIndex?'now':''}"></i>`).join('');$('progressbar').setAttribute('aria-label',`Step ${stepIndex+1} of ${s.steps.length}`);$('scene-student').textContent=s.learnerName;$('scene-icon').textContent=st.icon||'🧩';$('scene-object-label').textContent=st.target||'Task material';$('scene-visual').innerHTML=sceneSVG(s,st,practiceState.outcome);$('point-target').setAttribute('aria-label',`Gestural prompt: point to ${st.target||'the object'}`);$('do-model').setAttribute('aria-label',`Model prompt: demonstrate ${st.name.toLowerCase()}`);$('gesture-example').textContent=`Point to ${st.target||'the object'}`;$('model-example').textContent=`Demonstrate ${st.name.toLowerCase()}`;$('guided-hint').classList.toggle('hidden',!guided);document.querySelectorAll('.prompt-example').forEach(el=>el.classList.toggle('hidden',!guided));$('student-response').textContent=practiceState.response;
+    $('practice-lead').textContent='Watch what the learner does. Then decide.';$('step-count').textContent=`Task step ${stepIndex+1}`;$('step-name').textContent=st.name;$('step-context').textContent=st.context;$('count-badge').textContent=`${stepIndex+1} / ${s.steps.length}`;
+    $('progressbar').innerHTML=s.steps.map((_,i)=>`<i class="${i<stepIndex?'done':i===stepIndex?'now':''}"></i>`).join('');$('progressbar').setAttribute('aria-label',`Step ${stepIndex+1} of ${s.steps.length}`);$('scene-student').textContent=s.learnerName;$('scene-icon').textContent=st.icon||'🧩';$('scene-object-label').textContent=st.target||'Task material';$('scene-visual').innerHTML=sceneSVG(s,st,practiceState.outcome);$('point-target').setAttribute('aria-label',`Gestural prompt: point to ${st.target||'the object'}`);$('do-model').setAttribute('aria-label',`Model prompt: demonstrate ${st.name.toLowerCase()}`);$('gesture-example').textContent=`Point to ${st.target||'the object'}`;$('model-example').textContent=`Demonstrate ${st.name.toLowerCase()}`;$('gesture-example-detail').textContent=`Point to ${st.target||'the material'}.`;$('model-example-detail').textContent=`Demonstrate ${st.name.toLowerCase()}.`;$('guided-hint').classList.toggle('hidden',!guided);$('prompt-example-details').classList.toggle('hidden',!guided);document.querySelectorAll('.prompt-example').forEach(el=>el.classList.add('hidden'));$('student-response').textContent=observedText(practiceState.response,s.learnerName);
     const kind=practiceState.outcome;
-    const kindText={ready:'Before instruction',pending:'Await response',correct:'Correct response',incorrect:'Incorrect response',no_response:'No response',unresolved:'Still incomplete'};
+    const kindText={ready:'Ready',pending:'Not yet observed',correct:'Completed',incorrect:'Different action',no_response:'No action',unresolved:'Still incomplete'};
     $('response-type').textContent=practiceState.paused?'Paused':(kindText[kind]||'Observe response');
     $('response-type').className='observation-type '+(kind||'ready');
+    const outcomeDisplay={ready:['👀','Before instruction'],pending:['⏳','Waiting for observation'],correct:['✓','Completed the step'],incorrect:['↗','Did something else'],no_response:['—','Did not begin'],unresolved:['!','Still needs support']};const [glyph,summary]=practiceState.paused?['‖','Paused for plan review']:(outcomeDisplay[kind]||outcomeDisplay.ready);$('observed-glyph').textContent=glyph;$('observed-summary').textContent=summary;$('observed-status').className='observed-status '+(kind||'ready');
     $('pause-step').classList.toggle('hidden', !(practiceState.outcome==='unresolved'&&!practiceState.paused));
     $('advance').textContent=stepIndex===s.steps.length-1?'Finish and review →':'Next task step →';}
   function advance(){
@@ -300,8 +307,8 @@
   function returnBrief(next=false){const eligible=indicesForPath();if(next&&eligible.length>1)patternIndex=eligible[(eligible.indexOf(patternIndex)+1)%eligible.length];renderPrepare();setPage('prepare');}
   function openDialog(el){if(typeof el.showModal==='function')el.showModal();else el.setAttribute('open','');}
   function closeDialog(el){if(typeof el.close==='function')el.close();else el.removeAttribute('open');}
-  function resetHint(){$('hint-content').classList.add('hidden');$('toggle-hint').setAttribute('aria-expanded','false');$('toggle-hint').textContent='Show prompting hint';}
-  $('toggle-hint').addEventListener('click',()=>{const el=$('hint-content');const expanding=el.classList.contains('hidden');el.classList.toggle('hidden',!expanding);$('toggle-hint').setAttribute('aria-expanded',String(expanding));$('toggle-hint').textContent=expanding?'Hide prompting hint':'Show prompting hint';});
+  function resetHint(){$('hint-content').classList.add('hidden');$('toggle-hint').setAttribute('aria-expanded','false');$('toggle-hint').textContent='Show guiding questions';$('prompt-example-details').open=false;}
+  $('toggle-hint').addEventListener('click',()=>{const el=$('hint-content');const expanding=el.classList.contains('hidden');el.classList.toggle('hidden',!expanding);$('toggle-hint').setAttribute('aria-expanded',String(expanding));$('toggle-hint').textContent=expanding?'Hide guiding questions':'Show guiding questions';});
   const helpDialog=$('help-dialog'),briefDialog=$('brief-dialog');
   $('open-guide').addEventListener('click',()=>openDialog(helpDialog));
   $('close-help').addEventListener('click',()=>closeDialog(helpDialog));

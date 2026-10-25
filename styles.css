@@ -305,3 +305,50 @@ button:disabled{opacity:.7}
 .worked-example-list{padding-left:1.5rem;margin:14px 0 12px;font-size:15px;line-height:1.65}
 .worked-example-list li{margin:0 0 9px;padding-left:3px}
 .worked-example-list li strong{color:var(--ink)}
+
+/* V6.8: deliberate reduction of text and observation-led, accessible practice */
+.v63-prepare{max-width:760px}
+.v63-prepare h1{font-size:clamp(1.6rem,3vw,2.15rem);margin:3px 0 12px}
+.strategy-card{margin:0 0 19px;padding:14px 17px;background:#f1f8f6}
+.strategy-identity{display:flex;align-items:center;gap:14px}
+.strategy-dot{flex:none;width:46px;height:46px;display:grid;place-items:center;background:#d3eae1;border-radius:14px;color:#08675b;font-size:24px;font-weight:800}
+.strategy-card .label{font-size:11px;letter-spacing:.06em}
+.strategy-card h2{font-size:19px;margin:2px 0}
+.strategy-card p{font-size:14px;margin:2px 0 0;color:#315761}
+.scenario-selector{margin:0 0 15px}
+.scenario-selector label,.pathway-choice legend{font-size:15px;font-weight:750;margin-bottom:7px}
+.scenario-selector select{min-height:50px;border-width:1px}
+.v63-prepare .pathway-choice{margin:0 0 15px;gap:10px}
+.v63-prepare .pathway-option{min-height:72px}
+.pathway-option small{font-size:13px}
+.brief-snapshot{display:flex;align-items:flex-start;gap:13px;margin:0 0 13px;padding:15px 17px;background:#fff;border:1px solid #d6e2e0;border-radius:13px}
+.compact-profile-icon{width:45px;height:45px;min-width:45px;display:grid;place-items:center;font-size:26px;background:#f0f7f5;border-radius:12px}
+.brief-snapshot .label{font-size:11px}
+.brief-snapshot-body .mini-learner-heading{display:flex;gap:8px;align-items:center;margin:1px 0 3px;font-size:17px}
+.brief-snapshot-body .avatar{display:none}
+.brief-snapshot p{font-size:14px!important;line-height:1.45;margin:0;color:#435a62}
+.v63-prepare .essentials-details{margin:0 0 10px}
+.v63-prepare .essentials-details summary{padding:12px 14px;font-size:15px}
+.v63-prepare .essentials-details summary span{font-size:12px}
+.v63-prepare .brief-detail-content{padding:16px}
+.v63-prepare .trainer-example{margin:15px 0 0}
+.v63-prepare .actions.right{margin-top:10px}
+.v63-prepare .actions.right .btn{min-height:52px}
+#page-practice .practice-strategy{margin:5px auto 11px;padding:8px 12px}
+#page-practice .practice-strategy span{font-size:13px}
+.student-observation{background:#fff;padding:16px 22px 18px}
+.observed-status{display:flex;align-items:center;gap:10px;margin:8px 0 6px}
+.observed-glyph{font-weight:900;font-size:20px;border-radius:12px;min-width:44px;height:44px;display:grid;place-items:center;background:#eff4f5;color:#395764;border:1px solid #cbdfe0}
+.observed-summary{font-weight:790;color:#244653;font-size:17px}
+.observed-status.correct .observed-glyph{background:#e2f4e9;color:#17593b;border-color:#aad9b9}
+.observed-status.incorrect .observed-glyph{background:#fff1d6;color:#85520f;border-color:#e2c798}
+.observed-status.no_response .observed-glyph,.observed-status.unresolved .observed-glyph{background:#e8eff7;color:#294f6b;border-color:#b2cadd}
+#student-response{font-size:17px;font-weight:500!important;line-height:1.5;color:#234252;margin:0 0 2px}
+.action-grid .prompt-example{display:none!important}
+.prompt-examples-details{margin:10px 0 0;border:1px solid #d7e5e1;border-radius:10px;background:#fff}
+.prompt-examples-details summary{cursor:pointer;padding:10px 13px;font-weight:700;color:#185a52;font-size:14px;min-height:46px}
+.prompt-examples-details summary span{font-weight:500;color:#48636d;font-size:13px}
+.prompt-examples-body{padding:0 14px 12px;font-size:14px;color:#385762}
+.prompt-examples-body p{margin:8px 0 0}
+#hint-content{font-size:14px}
+@media(max-width:520px){.v63-prepare h1{margin-bottom:12px}.brief-snapshot{gap:10px;padding:12px}.compact-profile-icon{width:38px;height:38px;min-width:38px;font-size:21px}.strategy-card{padding:12px}.strategy-dot{width:40px;height:40px}.strategy-card h2{font-size:17px}.student-observation{padding:14px}.observed-summary{font-size:16px}}
