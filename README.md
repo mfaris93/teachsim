@@ -1,18 +1,31 @@
-# TeachSim V6.9 — Distinct prompt levels and task-workspace visuals
+# TeachSim — SI Practice (main website)
 
-TeachSim is a static, no-login practice prototype for least-to-most prompting. Eight fictional SPED functional-learning scenarios, Guided and Experienced pathways, and Prepare → Practise → Review are retained.
+This **three-step school-bag scenario** replaces the previous eight-scenario TeachSim home page. It is a simple, static teaching-decision rehearsal for least-to-most prompting with two pathways: Guided and Experienced.
 
-## What changed
-- **Prompt types and actions appear together:** Gestural prompt has the relevant action below its name; Model prompt has the relevant demonstration below its name. Guided shows scenario-specific actions. Experienced shows general descriptions so the teacher still selects the action independently.
-- **Instruction and Wait / Observe** are grouped separately from prompt levels.
-- **Acknowledge success** appears under *Respond to learner*, explicitly marked **Not a prompt level**. It is the teaching response after a completed step.
-- Replaced the generic cartoon learner with simple, task-specific **vector workspaces** depicting materials used in all eight scenarios. After a learner response, the diagram marks the item involved; the written observation specifies what the learner actually did. This is not a video or literal depiction of exact movement.
-- No new scenarios, authoring, AI, accounts, or voice input.
+## Deployment to GitHub Pages
 
-## Deployment
-Upload `index.html`, `styles.css`, `scenarios.js`, `scene_renderer.js`, and `app.js` to the GitHub Pages repository root; commit all five together. `scene_renderer.js` **is required** and must not be omitted. `README.md` and `SPECIALIST_REVIEW.md` are project documentation, not runtime files.
+1. Open repository `mfaris93/teachsim` on branch `main`.
+2. **Replace the root `index.html`** with the `index.html` in this package, and commit. Do not put it inside the `multi-step` or `pilot` folder.
+3. Visit https://mfaris93.github.io/teachsim/ in Safari, refresh, and test the scenario in both pathways.
 
-Open the published GitHub Pages URL in Safari for interactive testing. Downloaded HTML previews inside iPad file viewers may block JavaScript.
+This version is one self-contained HTML file; it **does not require** the previous `app.js`, `styles.css`, `scenarios.js`, `templates.js`, or `scene_renderer.js` to load. Those legacy files can stay in the repository for now as a rollback safeguard, but are not used by the new home page.
 
-## Boundaries
-These visuals identify task materials and the focus of a simulated response, not full animations. Written learner observations remain the exact scenario description. The gestural → model hierarchy and error-correction assumptions are provisional pending specialist validation. The action log only checks button choices, not teaching skill in a real classroom. Physical-device keyboard, screen-reader, and iPad tests remain outstanding.
+The Git commit history also preserves earlier versions if rollback is needed.
+
+## What is included
+
+- Prepare → Practise → Review
+- Three observable targets: book fully inside bag; pencil case fully inside bag; zipper fully closed
+- Guided (examples and optional hints) and Experienced (no examples or hints)
+- Three scripted response variations across retries
+- Action-based post-practice review, not a numerical teacher-competence score
+- No external files, logins, personal-data storage, or AI dependency
+
+## Important instructional limitations
+
+- The gestural → model prompt sequence and its effectiveness for each target are **provisional** and await SI specialist review.
+- The learner simulation does not yet include incorrect responses; it models no response and successful response at planned prompt levels.
+- The simulation records button choices rather than assessing actual teaching, timing, quality of reinforcement or student performance.
+- Before rolling it out as formal professional learning, review the procedural fidelity, test on actual iPad Safari, and run a small teacher usability trial.
+
+Research foundation: Dr Bree Jimenez and colleagues' systematic instruction and task-analysis teacher training work. This particular six-point practice checklist and the scenario response scripts are TeachSim adaptations, not validated instruments published by the authors.

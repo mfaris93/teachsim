@@ -1,117 +1,249 @@
-<!DOCTYPE html>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#193646"><title>TeachSim · Systematic Instruction Practice</title>
+<style>
+:root{color-scheme:light;--navy:#193646;--text:#223e4d;--muted:#546d79;--teal:#087a72;--teal-deep:#08665f;--bg:#f6f9fa;--line:#cadbe0;--pale:#e9f5f2;--focus:#c77a12;--warning:#fff4e6}
+*{box-sizing:border-box}html{font-size:17px}body{margin:0;background:var(--bg);color:var(--text);font:1rem/1.5 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}button{font:inherit;cursor:pointer}button:focus-visible,summary:focus-visible,input:focus-visible{outline:4px solid var(--focus);outline-offset:3px}button:disabled{cursor:default;opacity:.5}p{margin:.35rem 0 .9rem}h1,h2,h3{line-height:1.2;letter-spacing:-.025em}h1{font-size:clamp(1.35rem,4vw,1.8rem);margin:0}h2{font-size:clamp(1.3rem,3.5vw,1.75rem);margin:.2rem 0 .85rem}h3{font-size:1rem;margin:0 0 .6rem}.muted{color:var(--muted)}.tiny{font-size:.81rem}.eyebrow{font-weight:800;text-transform:uppercase;color:var(--teal-deep);font-size:.76rem;letter-spacing:.09em}.site-head{background:var(--navy);color:#fff;padding:1rem max(1rem,calc((100% - 900px)/2));display:flex;gap:1rem;align-items:center;justify-content:space-between}.brand{font-weight:800;font-size:1.15rem}.brand span{color:#85d8cd}.pilot-mark{border:1px solid #85a4b0;border-radius:999px;padding:.25rem .65rem;font-size:.72rem;font-weight:750}.wrap{max-width:900px;margin:0 auto;padding:1.15rem clamp(1rem,3vw,2rem) 3rem}.steps{display:flex;gap:.65rem;align-items:center;margin:.45rem 0 1.4rem;flex-wrap:wrap}.step-label{font-size:.82rem;color:var(--muted);font-weight:650}.step-label.active{color:var(--teal-deep);font-weight:850}.dot{display:inline-grid;place-items:center;width:1.55rem;height:1.55rem;border:1px solid #a4b6bf;border-radius:100%;margin-right:.3rem}.active .dot{background:var(--teal);border-color:var(--teal);color:#fff}.bar{width:2rem;height:1px;background:#adc1c9}[hidden]{display:none!important}.card{border:1px solid var(--line);background:#fff;border-radius:18px;padding:clamp(1rem,3vw,1.5rem);box-shadow:0 3px 16px #12344305}.stack{display:grid;gap:1rem}.target{font-size:1.15rem;font-weight:800;margin:0}.info-strip{background:var(--pale);border-radius:12px;padding:.8rem 1rem}.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}.choice{border:2px solid var(--line);border-radius:12px;background:#fff;text-align:left;padding:.9rem;display:flex;gap:.6rem;align-items:flex-start;min-height:93px}.choice.active{border-color:var(--teal);background:#f1faf8}.choice strong{display:block}.choice small{display:block;color:var(--muted);line-height:1.35;margin-top:.15rem}.radio{width:1.2rem;height:1.2rem;flex:0 0 auto;border:2px solid #879aa4;border-radius:50%;margin-top:.22rem}.choice.active .radio{border:5px solid var(--teal)}.row{display:flex;justify-content:space-between;align-items:center;gap:.8rem;flex-wrap:wrap}.button{background:var(--teal);color:#fff;border:2px solid var(--teal);border-radius:12px;padding:.78rem 1.15rem;font-weight:780;min-height:50px}.button:hover{background:var(--teal-deep)}.button-secondary{background:#fff;color:var(--navy);border-color:#b8cbd1}.button-secondary:hover{background:#f0f5f7}.button-quiet{background:transparent;color:var(--navy);border-color:transparent}.button:disabled{opacity:.55}.actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}.action{background:#fff;color:var(--navy);border:1.5px solid #aac4c9;border-radius:12px;padding:.75rem .8rem;text-align:left;min-height:71px;font-weight:800}.action:hover{border-color:var(--teal);background:#eff9f7}.action small{display:block;color:var(--muted);font-weight:520;margin-top:.1rem;line-height:1.28}.action.wide{grid-column:1/-1}.action-group{margin-top:1rem}.action-group+.action-group{border-top:1px solid var(--line);padding-top:1rem}.label{font-weight:750;font-size:.89rem;margin:0 0 .5rem}.scene-card{border:1px solid var(--line);border-radius:16px;padding:.7rem;background:#f6fbfc}.scene-svg{display:block;width:100%;height:auto;max-height:260px}.scene-copy{padding:.7rem .25rem .1rem;min-height:62px}.observe{font-size:1.08rem;font-weight:750;margin:0}.status-tag{display:inline-block;background:#e6f1f5;color:#23516b;border-radius:999px;padding:.22rem .6rem;font-size:.76rem;font-weight:800}.prompt-tag{background:var(--pale);color:var(--teal-deep)}.workspace{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(260px,1fr);gap:1rem;align-items:start}.practice-left,.practice-right{min-width:0}.livehead{margin:.1rem 0 .8rem}.practice-right{border:1px solid var(--line);border-radius:16px;background:#fff;padding:1rem}.help{border:1px solid var(--line);border-radius:13px;padding:.7rem .9rem;background:#fff;margin-top:.8rem}.help summary,.teaching-plan summary{font-weight:750;cursor:pointer;color:var(--navy)}.help p,.teaching-plan p{margin:.6rem 0 .2rem}.teaching-plan{border:1px solid var(--line);border-radius:12px;padding:.8rem 1rem;background:#fff}.teaching-plan ul{margin:.6rem 0 .2rem;padding-left:1.2rem}.foot{color:var(--muted);font-size:.77rem;margin-top:1.5rem}.review-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.review-point{border:1px solid var(--line);border-radius:12px;padding:1rem}.outcome{font-size:1.2rem;font-weight:800;padding:.75rem 1rem;background:var(--pale);border-radius:12px;margin:.6rem 0 1rem}.checklist{margin:0;padding:0;list-style:none}.checklist li{border-bottom:1px solid #e1e9ec;padding:.6rem 0}.checklist li:last-child{border-bottom:0}.check-mark{display:inline-block;min-width:1.5rem;font-weight:900}.good{color:#11745e}.consider{color:#a35b0b}.log{font-size:.85rem;margin:.5rem 0 0;padding-left:1.2rem}.review-note{background:#fff6e9;padding:.7rem 1rem;border-radius:10px;color:#684612}.pill{font-size:.75rem;color:var(--muted)}.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.noscript{padding:1rem;border:2px solid #c57d23;background:#fff0d8;margin:1rem}
+@media(max-width:650px){html{font-size:16px}.workspace{grid-template-columns:1fr}.review-grid{grid-template-columns:1fr}.bar{width:.8rem}.choice-grid{grid-template-columns:1fr 1fr}.site-head{padding:1rem}.wrap{padding:1rem .9rem 2rem}.practice-right{padding:.85rem}}
+@media(max-width:390px){.choice-grid{grid-template-columns:1fr}.actions{grid-template-columns:1fr}.action.wide{grid-column:auto}.step-label{font-size:.75rem}.dot{width:1.4rem;height:1.4rem}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
 
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1" name="viewport"/>
-<meta content="light" name="color-scheme"/>
-<title>TeachSim V6.9 · Instructional rehearsal</title>
-<link href="styles.css?v=6.9" rel="stylesheet"/>
-</head>
-<body>
-<a class="skip-link" href="#main">Skip to main content</a>
-<header class="topbar">
-<div class="top-inner">
-<div class="brand">Teach<span>Sim</span><small> / instructional rehearsal</small></div>
-<div class="top-actions"><button class="navbtn help-nav" disabled="" id="open-guide" type="button">How TeachSim works</button></div>
-</div>
-</header>
-<main id="main" tabindex="-1">
-<div id="teacher-space">
-<nav aria-label="Practice progress"><ol class="stepper" id="stepper"><li aria-current="step" class="active" data-stage="prepare"><b aria-hidden="true">1</b>Prepare</li><li data-stage="practice"><b aria-hidden="true">2</b>Practise</li><li data-stage="review"><b aria-hidden="true">3</b>Review</li></ol></nav>
-<section class="v63-prepare" id="page-prepare">
-<div class="eyebrow">01 / PREPARE</div>
-<h1 tabindex="-1">Set up your practice</h1>
-<section aria-labelledby="strategy-title" class="strategy-card"><div class="strategy-identity"><span aria-hidden="true" class="strategy-dot">↗</span><div><span class="label">TEACHING STRATEGY</span><h2 id="strategy-title">Least-to-Most Prompting</h2><p>Observe first. Increase support only when needed.</p></div></div></section>
-<div class="scenario-selector">
-<label for="scenario-select" id="scenario-heading">Scenario</label>
-<select aria-describedby="scenario-heading" disabled="" id="scenario-select">
-<option selected="" value="handwashing">Handwashing routine · Daily Living Skills</option>
-<option value="template-school-bag">Packing a school bag · Daily Living Skills</option>
-<option value="template-work-packing">Packing an order · Vocational Education</option>
-<option value="clear-meal-area">Clear a meal area · Daily Living Skills</option>
-<option value="wipe-table">Wipe a shared table · Daily Living Skills</option>
-<option value="fold-towels">Fold and sort towels · Vocational Education</option>
-<option value="restock-shelf">Restock a retail shelf · Vocational Education</option>
-<option value="prepare-snack-tray">Prepare a simple snack tray · Daily Living Skills</option>
-</select>
-
-</div>
-<p class="startup-notice" id="startup-notice" role="status">This is a read-only file preview. For interactive practice, open the published TeachSim website directly in Safari.</p>
-<fieldset class="pathway-choice">
-<legend>Practice pathway</legend>
-<label class="pathway-option"><input checked="" disabled="" name="practice-pathway" type="radio" value="new"/><span><strong>Guided</strong><small>Suggested instruction · optional support</small></span></label>
-<label class="pathway-option"><input disabled="" name="practice-pathway" type="radio" value="experienced"/><span><strong>Experienced</strong><small>Decide independently · no hints</small></span></label>
-</fieldset>
-
-<article class="card pad brief-snapshot"><div aria-hidden="true" class="compact-profile-icon" id="brief-task-icon">🧼</div><div class="brief-snapshot-body"><div class="label">LEARNER CONTEXT</div><div class="mini-learner-heading"><strong id="brief-learner">Sam</strong><span aria-hidden="true" class="avatar" id="learner-initial">S</span></div><p id="brief-profile">Sam can follow short directions and is learning to complete a handwashing routine with less support.</p><h2 class="sr-only" id="brief-title">Handwashing routine</h2></div></article>
-<details class="essentials-details" id="prepare-details"><summary>View teaching plan <span>Optional</span></summary>
-<div class="brief-detail-content"><div class="label">Practice goal</div><p id="brief-objective">Practise choosing when and how to prompt.</p><div class="label">Task steps</div><div class="tag-list" id="brief-steps"><span>1 · Apply soap</span><span>2 · Rub hands</span><span>3 · Rinse hands</span><span>4 · Dry hands</span></div><div class="label">Teaching procedure</div><p id="brief-procedure">Give a direction and wait for a response. If the learner does not respond or responds incorrectly, use the prescribed gestural prompt and wait. If needed, model and wait. Acknowledge completion or pause for review when the step is incomplete.</p><details class="essentials-details trainer-example" id="trainer-model-panel">
-<summary>Trainer's worked example <span>Reveals a sample sequence</span></summary>
-<div class="brief-detail-content"><ol class="worked-example-list" id="brief-model-notes"><li><strong>Give instruction:</strong> “Sam, put soap on your hands.”</li><li><strong>Wait and observe:</strong> Observe whether Sam applies soap.</li><li><strong>Gestural prompt (if needed):</strong> Point towards the soap dispenser, then wait again.</li><li><strong>Model prompt (if needed):</strong> Demonstrate “Apply soap”, then wait again.</li><li><strong>Respond to the outcome:</strong> If the learner completes the step, acknowledge it. Otherwise, pause and review the plan after modelling.</li></ol></div>
-</details></div>
-</details>
-
-<div class="error hidden" id="prepare-error" role="alert"></div>
-<div class="actions right"><button class="btn primary" disabled="" id="start" type="button">Start practice →</button></div>
+/* Multi-step extension */
+.progress-panel{display:flex;gap:.5rem;align-items:stretch;margin:0 0 1rem}
+.progress-item{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:.55rem .7rem;background:#fff;font-size:.77rem;color:var(--muted)}
+.progress-item strong{display:block;color:var(--text);font-size:.82rem}
+.progress-item.current{border:2px solid var(--teal);background:var(--pale)}
+.progress-item.done{background:#f2faf7;border-color:#85bab0}
+.progress-item.done strong:before{content:'✓ ';color:var(--teal)}
+.stage-target{font-size:1.07rem;margin:.4rem 0 .75rem}
+.target-copy{color:var(--muted);font-size:.88rem}
+.step-records{width:100%;border-collapse:collapse;font-size:.9rem}
+.step-records th,.step-records td{padding:.7rem .55rem;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.step-records th{font-size:.77rem;color:var(--muted)}
+.step-records td:first-child{font-weight:750}
+.small-line{font-size:.82rem;color:var(--muted);display:block}
+.scene-svg{max-height:285px}
+.ready-next{padding:.55rem .8rem;background:#edf7f4;color:#075c55;border-radius:10px;margin:.5rem 0}
+@media(max-width:560px){.progress-panel{gap:.3rem}.progress-item{padding:.4rem .42rem;font-size:.7rem}.progress-item strong{font-size:.72rem}.step-records th,.step-records td{padding:.6rem .3rem}.scene-svg{max-height:235px}}
+</style></head><body>
+<header class="site-head"><div class="brand">Teach<span>Sim</span></div><div class="pilot-mark">SI PRACTICE</div></header>
+<main class="wrap">
+<nav class="steps" aria-label="Practice stages"><span id="nav-prepare" class="step-label active"><span class="dot">1</span>Prepare</span><span class="bar"></span><span id="nav-practise" class="step-label"><span class="dot">2</span>Practise</span><span class="bar"></span><span id="nav-review" class="step-label"><span class="dot">3</span>Review</span></nav>
+<section id="prepare" class="stack" aria-labelledby="prepare-title">
+ <div><div class="eyebrow">Least-to-most prompting · School bag</div><h1 id="prepare-title">Practise systematic instruction.</h1></div>
+ <div class="card stack">
+  <div><h2 style="margin:0">Packing a school bag</h2><p class="muted">Ari is learning to pack an exercise book and pencil case, then close the bag.</p></div>
+  <div class="info-strip"><div class="label">Three observable targets</div><ol style="margin:.3rem 0;padding-left:1.35rem"><li>Book fully inside the bag</li><li>Pencil case fully inside the bag</li><li>Zipper closed across the top</li></ol></div>
+  <div><h3>Choose a pathway</h3><div class="choice-grid" role="group" aria-label="Practice pathway">
+   <button class="choice active" id="guided-select" type="button" aria-pressed="true"><span class="radio" aria-hidden="true"></span><span><strong>Guided</strong><small>Suggested directions and optional hints</small></span></button>
+   <button class="choice" id="experienced-select" type="button" aria-pressed="false"><span class="radio" aria-hidden="true"></span><span><strong>Experienced</strong><small>Decide without teaching hints</small></span></button>
+  </div></div>
+  <details class="teaching-plan" id="prepare-plan"><summary>View teaching plan (optional)</summary>
+   <p><strong>Target:</strong> complete three connected packing steps. The required response for each step is a fully completed action, not simply starting it.</p>
+   <p><strong>Provisional plan:</strong> give the instruction, allow an independent response, then use a gestural prompt followed by a model prompt only if needed. Observe after each prompt. Acknowledge a completed response.</p>
+   <p class="tiny muted">The fictional learner, response patterns and prompt effectiveness require SI specialist review. Do not treat this as a universal hierarchy.</p>
+  </details>
+  <div class="row"><span class="tiny muted">Three steps · One routine · No score</span><button class="button" id="start" type="button">Start practice →</button></div>
+ </div>
 </section>
-<section class="hidden" id="page-practice">
-<div class="eyebrow">02 / Practise</div>
-<h1 tabindex="-1">Practise instruction</h1>
-<p class="lead compact" id="practice-lead">Watch what the learner does. Then decide.</p>
-<div class="practice-strategy" role="note"><strong>Least-to-Most Prompting</strong><span>Observe → Choose → Wait → Observe</span></div>
-<div class="practice-tools"><span class="pathway-tag" id="practice-pathway-tag">Guided</span><button class="btn review-brief" id="review-brief" type="button">View teaching plan</button></div>
-<article class="card scene-card">
-<div class="scene-heading"><div><span class="eyebrow" id="step-count"></span><h2 id="step-name" tabindex="-1"></h2><p class="small subdued" id="step-context"></p></div><span class="counter" id="count-badge"></span></div>
-<div aria-label="Step progress" class="progressbar" id="progressbar"></div>
-<div aria-label="Task illustration" class="scene-art" id="scene-art" role="group"><div class="scene-visual" id="scene-visual"></div><div class="scene-caption"><strong id="scene-student">Sam</strong><span>· Task workspace</span><span class="sr-only" id="scene-object-label">Task materials</span></div></div>
-<div aria-label="Learner observation" class="student-observation"><div class="observation-header"><div class="label">LEARNER OBSERVATION</div><span aria-live="polite" class="observation-type" id="response-type">Ready</span></div><div aria-hidden="true" class="observed-status" id="observed-status"><span class="observed-glyph" id="observed-glyph">👀</span><span class="observed-summary" id="observed-summary">Ready to begin</span></div><p aria-atomic="true" aria-live="polite" id="student-response" role="status"></p></div>
-<div class="interaction">
-<div class="guided-instruction hidden" id="guided-instruction">
-<div class="label" id="direction-label">Give instruction</div>
-<p class="guided-copy" id="guided-words"></p>
-</div>
-<div class="teaching-actions" aria-label="Teaching actions">
-<div class="action-section"><h3 class="action-section-title">Instruction and observation</h3><div class="action-pair" role="group" aria-label="Instruction and response opportunity"><button class="btn action-btn" id="give-guided-direction" type="button">Give instruction</button><button class="btn action-btn" id="do-wait" type="button">Wait / Observe</button></div></div>
-<div class="action-section"><h3 class="action-section-title">Least-to-most prompts <span>Use if needed</span></h3><div class="prompt-pair" role="group" aria-label="Prompt levels in this practice"><button class="btn action-btn prompt-action" id="point-target" type="button"><strong>Gestural prompt</strong><small class="prompt-example" id="gesture-example">Point towards the material</small></button><button class="btn action-btn prompt-action" id="do-model" type="button"><strong>Model prompt</strong><small class="prompt-example" id="model-example">Demonstrate the action</small></button></div></div>
-<div class="action-section feedback-action-section"><h3 class="action-section-title">Respond to learner <span>Not a prompt level</span></h3><button class="btn action-btn ack-action" id="do-ack" type="button">Acknowledge success</button></div>
-</div>
-<div class="guided-hint" id="guided-hint"><button aria-controls="hint-content" aria-expanded="false" class="btn hint-toggle" id="toggle-hint" type="button">Show guiding questions</button><div class="hint-content hidden" id="hint-content" role="note">Ask yourself: What did the learner actually do? Was the step completed? Have you observed a response since the last action? Choose based on what you observed.</div></div>
-<div class="advance-row"><div class="step-close-note"><p class="small subdued">Acknowledge a completed step, or pause an unresolved step before continuing.</p><button class="btn subtle hidden" id="pause-step" type="button">Pause &amp; review plan</button></div><button class="btn primary" id="advance" type="button">Next task step →</button></div></div>
-</article>
+<section id="practise" hidden aria-labelledby="practise-title">
+ <div class="eyebrow" id="practice-mode">Guided · Least-to-most prompting</div>
+ <h2 id="practise-title">Observe Ari. Choose your response.</h2>
+ <div id="step-progress" class="progress-panel" role="group" aria-label="Task-step progress"></div>
+ <div class="workspace">
+  <div class="practice-left">
+   <div class="scene-card">
+    <div class="row"><strong id="step-name">Step 1 · Exercise book</strong><span class="status-tag" id="observation-state">Ready</span></div>
+    <svg id="task-scene" class="scene-svg" viewBox="0 0 620 310" role="img" aria-label="Open school bag and packing materials on the table">
+      <rect width="620" height="310" fill="#f7fbfc" rx="18"/>
+      <rect x="40" y="253" width="540" height="22" rx="11" fill="#d9e8eb"/>
+      <!-- Bag opening and body -->
+      <path d="M115 142 C115 80 168 68 206 68 C244 68 284 95 284 142" fill="none" stroke="#427a90" stroke-width="14" stroke-linecap="round"/>
+      <path d="M94 138 L304 138 L316 244 Q316 258 300 258 L98 258 Q84 258 86 244 Z" fill="#2e819a" stroke="#164a60" stroke-width="4"/>
+      <g id="bag-open"><ellipse cx="201" cy="140" rx="103" ry="27" fill="#123849" stroke="#91c5cf" stroke-width="6"/></g>
+      <g id="bag-closed" style="display:none"><path d="M96 140 Q205 114 306 140" fill="none" stroke="#b1d8dd" stroke-width="9"/><path d="M104 140 Q205 118 292 140" fill="none" stroke="#1b4b61" stroke-width="4"/><rect x="290" y="135" width="18" height="10" rx="3" fill="#e8b364"/></g>
+      <g id="book-in" style="display:none"><path d="M160 143 L226 137 L230 157 L162 164 Z" fill="#eaa04c" stroke="#a45a22" stroke-width="3"/><path d="M167 144 L168 163" stroke="#ffe8c5" stroke-width="4"/></g>
+      <g id="pencil-in" style="display:none"><rect x="220" y="143" width="68" height="19" rx="13" fill="#e4c85b" stroke="#8d741e" stroke-width="3"/><path d="M243 151 H274" stroke="#fff4c0" stroke-width="4"/></g>
+      <path d="M99 164 Q201 182 302 164 L311 244 Q311 253 298 253 L102 253 Q92 252 94 243 Z" fill="#2f8299" stroke="#164a60" stroke-width="3"/>
+      <path d="M126 192 Q202 188 276 192 L274 232 Q202 240 128 231 Z" fill="#4b9cad" stroke="#a0cbd3" stroke-width="2"/>
+      <path d="M160 209 L242 209" stroke="#d0edf0" stroke-width="4" stroke-linecap="round"/>
+      <!-- Outside materials -->
+      <g id="book-out"><path d="M387 165 L491 154 L503 233 L399 243 Z" fill="#eaa04c" stroke="#a45a22" stroke-width="4"/><path d="M396 166 L403 241" stroke="#ffe6c3" stroke-width="7"/><path d="M418 188 L476 183" stroke="#fff4df" stroke-width="6" stroke-linecap="round"/></g>
+      <g id="pencil-out"><rect x="385" y="207" width="145" height="43" rx="20" fill="#e4c85b" stroke="#8d741e" stroke-width="4"/><path d="M430 227 H494" stroke="#fff0b0" stroke-width="7" stroke-linecap="round"/></g>
+      <g id="attention-ring" style="display:none"><rect x="362" y="145" width="188" height="114" rx="24" fill="none" stroke="#ac7018" stroke-width="5" stroke-dasharray="9 8"/></g>
+      <text x="201" y="292" text-anchor="middle" font-size="16" font-weight="700" fill="#466573">SCHOOL BAG</text>
+      <text id="material-name" x="458" y="292" text-anchor="middle" font-size="16" font-weight="700" fill="#466573">BOOK</text>
+    </svg>
+    <div class="scene-copy" role="status" aria-live="polite" aria-atomic="true"><p class="observe" id="observation">The book is beside the bag.</p><span class="pill" id="observation-extra">Ari is ready for the first step.</span></div>
+   </div>
+  </div>
+  <div class="practice-right">
+   <div class="row"><h3 style="margin:0">Your teaching actions</h3><span class="tiny muted" id="support-label">Guided</span></div>
+   <div class="stage-target"><strong id="current-target">Book fully inside the open bag</strong></div>
+   <div id="suggested-direction" class="info-strip"><span class="tiny muted">Suggested instruction</span><p style="margin:.15rem 0 0"><strong id="suggested-text">“Put the book in your bag.”</strong></p></div>
+   <div class="action-group"><p class="label">Cue and observe</p><div class="actions">
+    <button class="action" type="button" data-act="cue">Give instruction<small class="guided-only">Deliver the direction</small></button>
+    <button class="action" type="button" data-act="wait">Wait / observe<small class="guided-only">Allow a learner response</small></button>
+   </div></div>
+   <div class="action-group"><p class="label">Prompts</p><div class="actions">
+    <button class="action" type="button" data-act="gesture">Gestural prompt<small class="guided-only" id="gesture-example">Point to the open bag</small></button>
+    <button class="action" type="button" data-act="model">Model prompt<small class="guided-only" id="model-example">Demonstrate with another book</small></button>
+   </div></div>
+   <div class="action-group"><p class="label">Respond to learner</p><div class="actions"><button class="action wide" type="button" data-act="ack">Acknowledge success<small class="guided-only">Give feedback after completed response</small></button></div></div>
+   <details class="help" id="guided-hint"><summary>Show thinking hint</summary><p class="tiny">Consider the observed response. Has the step been completed? If not, what level of support is appropriate?</p></details>
+   <div class="row" style="margin-top:.8rem"><button class="button button-secondary" type="button" id="quit">End &amp; review</button><span class="tiny muted" id="action-count">0 actions this step</span></div>
+  </div>
+ </div>
+ <p class="tiny muted">Only learner observations appear during practice. Feedback is shown in Review.</p>
 </section>
-<section class="hidden" id="page-review"><div class="eyebrow">03 / Debrief</div><h1 tabindex="-1">Review your teaching episode</h1><p class="lead">Review how you responded to correct, incorrect, and absent learner responses, then retry.</p><div class="review-intro card pad" id="overall"></div><div class="stats" id="review-stats"></div><div class="review-focus" id="review-focus"></div><div aria-label="Prompting decision review" class="decision-summary" id="decision-summary"></div><div aria-label="Reflection question" class="reflection-prompt" id="review-reflection"></div><details class="essentials-details feedback-details"><summary>See my full action-by-action review <span>optional</span></summary><div class="feedback-list" id="step-feedback"></div></details><p class="small subdued">Discuss these practice notes with your trainer.</p><div class="actions wrap"><button class="btn primary" id="retry-same" type="button">↻ Retry same pattern</button><button class="btn" id="retry-next" type="button">Try next variation →</button><button class="btn subtle" id="back-brief" type="button">Return to brief</button></div></section>
-</div>
-<dialog aria-labelledby="help-title" class="teachsim-dialog" id="help-dialog">
-<div class="dialog-top"><h2 id="help-title">How TeachSim works</h2><button aria-label="Close guide" class="btn small-btn" id="close-help" type="button">✕ Close</button></div>
-<p>Practise <strong>Least-to-Most Prompting</strong> in fictional teaching tasks, then discuss your decisions with a trainer.</p>
-<ol class="guide-steps">
-<li><strong>Prepare</strong> — Choose a fictional scenario and a pathway. Review the learner profile, task steps, and prescribed procedure.</li>
-<li><strong>Practise</strong> — Give an instruction and wait. Observe the learner’s response. After no response or an incorrect response, use the next planned prompt and observe again. Acknowledge success or pause an unresolved step.</li>
-<li><strong>Review</strong> — After completing the episode, reflect on response opportunities, prompt escalation and acknowledgement. Acknowledgement follows successful learner performance; it is not part of the prompt hierarchy.</li>
-</ol>
-<div class="guide-pathways"><div><strong>Guided</strong><p>Suggested directions, prompt examples and optional hints. You still choose each action.</p></div><div><strong>Experienced</strong><p>Use the same prompt types, without examples or hints.</p></div></div>
-</dialog>
-<dialog aria-labelledby="brief-dialog-title" class="teachsim-dialog" id="brief-dialog">
-<div class="dialog-top"><h2 id="brief-dialog-title">Review teaching brief</h2><button aria-label="Close teaching brief" class="btn small-btn" id="close-brief" type="button">✕ Close</button></div>
-<p><strong id="brief-dialog-learner"></strong> · <span id="brief-dialog-title-text"></span></p>
-<div class="label">Learning objective</div><p id="brief-dialog-objective"></p>
-<div class="label">Least-to-Most Prompting procedure</div><p id="brief-dialog-procedure"></p>
-<div class="label">Task steps</div><ol class="brief-step-list" id="brief-dialog-steps"></ol>
-<p class="small subdued">This brief is available for reference during practice. Feedback remains hidden until the episode ends.</p>
-</dialog>
+<section id="review" hidden aria-labelledby="review-title">
+ <div class="eyebrow">Practice review</div><h2 id="review-title">Review your decisions</h2>
+ <div class="card stack">
+  <div class="outcome" id="outcome">Episode reviewed</div><p id="review-intro" class="muted"></p>
+  <div class="review-grid"><div class="review-point"><h3>What worked</h3><p id="worked">—</p></div><div class="review-point"><h3>Consider next time</h3><p id="improve">—</p></div></div>
+  <div><h3>Task-step outcomes</h3><table class="step-records"><thead><tr><th scope="col">Step</th><th scope="col">Recorded response</th></tr></thead><tbody id="step-results"></tbody></table></div>
+  <details class="teaching-plan"><summary>Six SI practice checks</summary><ul class="checklist" id="checks"></ul></details>
+  <details class="teaching-plan"><summary>View action log</summary><ol class="log" id="event-log"></ol></details>
+  <p class="tiny muted">This evaluates simulated button decisions, not actual instructional delivery. The prompting plan and scripted learner responses are provisional.</p>
+  <div class="row"><button class="button button-secondary" type="button" id="back-prepare">Back to Prepare</button><button class="button" type="button" id="retry">Retry with another variation →</button></div>
+ </div>
+</section>
+<noscript><div class="noscript"><strong>Interactive practice is unavailable in this file viewer.</strong> Open the published site in Safari.</div></noscript>
+<footer class="wrap foot">TeachSim · SI practice prototype · Fictional learner; instructional review pending.</footer>
 </main>
-<footer class="footer">TeachSim V6.9 · Instructional rehearsal</footer>
-<script src="scenarios.js?v=6.9"></script>
-<script src="scene_renderer.js?v=6.9"></script>
-<script src="app.js?v=6.9"></script>
-<script>
-  // Keep the static, readable fallback whenever app initialisation fails.
-  window.addEventListener('load', function () {
-    var picker = document.getElementById('scenario-select');
-    var notice = document.getElementById('startup-notice');
-    if (picker && notice && picker.disabled) notice.textContent = 'TeachSim did not start. Refresh the published website in Safari. This preview can still display the sample teaching plan.';
-  });
-</script>
-</body>
-</html>
+<script>(() => {
+'use strict';
+const $=id=>document.getElementById(id);
+const STEPS=[
+ {id:'book',name:'Exercise book',target:'Book fully inside the open bag',cue:'Put the book in your bag.',gesture:'Point towards the open bag.',model:'Demonstrate with a spare book.',ready:'The book is beside the open bag.',no:'Ari has not moved the book.',correct:'Ari puts the entire book inside the bag.',detail:'The exercise book remains on the table.'},
+ {id:'pencil',name:'Pencil case',target:'Pencil case fully inside the open bag',cue:'Put the pencil case in your bag.',gesture:'Point towards the open bag.',model:'Demonstrate with a spare pencil case.',ready:'The pencil case is beside the open bag.',no:'Ari has not moved the pencil case.',correct:'Ari puts the entire pencil case inside the bag.',detail:'The pencil case remains on the table.'},
+ {id:'zip',name:'Close zipper',target:'Zipper fully closed across the top of the bag',cue:'Close your bag.',gesture:'Point towards the zipper.',model:'Demonstrate closing a similar zipper.',ready:'The zipper is open.',no:'Ari has not closed the zipper.',correct:'Ari closes the zipper fully across the top.',detail:'The bag remains open.'}
+];
+// Deterministic variations. Every final model succeeds based on an UNVERIFIED fictional learner assumption.
+const PATTERNS=[
+ ['gesture','independent','model'],
+ ['independent','gesture','independent'],
+ ['model','independent','gesture']
+];
+const labels={cue:'Gave instruction',wait:'Waited / observed',gesture:'Used gestural prompt',model:'Used model prompt',ack:'Acknowledged success'};
+let guided=true, pattern=0, index=0, current, records=[],log=[];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function show(stage){['prepare','practise','review'].forEach(k=>{$(k).hidden=k!==stage;$('nav-'+k).classList.toggle('active',k===stage)});window.scrollTo?.(0,0);}
+function selectMode(g){guided=g;$('guided-select').classList.toggle('active',g);$('experienced-select').classList.toggle('active',!g);$('guided-select').setAttribute('aria-pressed',String(g));$('experienced-select').setAttribute('aria-pressed',String(!g));$('prepare-plan').hidden=!g;}
+function blank(){return {actions:[],cue:false,firstWait:false,awaiting:null,lastPrompt:null,observed:'ready',success:false,level:null,ack:false,flags:{premature:false,skipGesture:false,noWaitAfterPrompt:false,extraAfterSuccess:false,earlyAck:false,extraWait:false,repeatCue:false}};}
+function variantFor(i){return PATTERNS[pattern][i]}
+function writeProgress(){
+ $('step-progress').innerHTML=STEPS.map((s,i)=>`<div class="progress-item ${i<index?'done':i===index?'current':''}" ${i===index?'aria-current="step"':''}><strong>${i+1}. ${esc(s.name)}</strong><span>${i<index?'Complete':i===index?'Now practising':'Next'}</span></div>`).join('');
+}
+function updateScene(){
+ const step=STEPS[index],completed=records.map(r=>r.complete);
+ const book=!!completed[0]||(index===0&&current.observed==='correct');
+ const pencil=!!completed[1]||(index===1&&current.observed==='correct');
+ const zip=!!completed[2]||(index===2&&current.observed==='correct');
+ $('book-out').style.display=book?'none':''; $('book-in').style.display=book&&!zip?'':'none';
+ $('pencil-out').style.display=pencil?'none':'';$('pencil-in').style.display=pencil&&!zip?'':'none';
+ $('bag-open').style.display=zip?'none':'';$('bag-closed').style.display=zip?'':'none';
+ // Highlight only the material for the current incomplete step, without giving a teaching hint.
+ $('attention-ring').style.display=current.observed==='no'?'':'none';
+ $('material-name').textContent=index===0?'BOOK / PENCIL CASE':index===1?'PENCIL CASE':'ZIPPER';
+ const obs=current.observed;
+ $('observation-state').textContent=obs==='correct'?'Completed':obs==='no'?'No response':obs==='pending'?'Observe':'Ready';
+ $('observation-state').classList.toggle('prompt-tag',obs==='correct');
+ $('observation').textContent=obs==='correct'?step.correct:obs==='no'?step.no:obs==='pending'?'Ari has received a teaching action.':step.ready;
+ $('observation-extra').textContent=obs==='correct'?'Target response completed.':obs==='no'?step.detail:obs==='pending'?'No response observed yet.':'The step has not started.';
+ $('task-scene').setAttribute('aria-label',`School-bag task. ${$('observation').textContent} ${book?'Book in bag.':'Book beside bag.'} ${pencil?'Pencil case in bag.':'Pencil case beside bag.'} ${zip?'Bag zipped.':'Bag open.'}`);
+ $('action-count').textContent=current.actions.length+' action'+(current.actions.length===1?'':'s')+' this step';
+}
+function setStep(){
+ current=blank();const s=STEPS[index];
+ $('step-name').textContent=`Step ${index+1} of 3 · ${s.name}`;
+ $('current-target').textContent=s.target;
+ $('suggested-text').textContent='“'+s.cue+'”';
+ $('gesture-example').textContent=s.gesture; $('model-example').textContent=s.model;
+ $('guided-hint').open=false; writeProgress(); updateScene();
+}
+function start(){index=0;records=[];log=[];$('practice-mode').textContent=(guided?'Guided':'Experienced')+' · Least-to-most prompting';$('support-label').textContent=guided?'Guided':'Experienced';$('suggested-direction').hidden=!guided;$('guided-hint').hidden=!guided;document.querySelectorAll('.guided-only').forEach(e=>e.hidden=!guided);setStep();show('practise');}
+function record(complete){
+ records.push({step:index,complete,level:complete?current.level:'Not completed',flags:{...current.flags},firstWait:current.firstWait,ack:current.ack,actions:[...current.actions],cue:current.cue});
+}
+function act(a){
+ if(!current)return;
+ current.actions.push(labels[a]);log.push({step:index,text:labels[a]});
+ if(current.success&&current.observed==='correct'&&a!=='ack'){
+  current.flags.extraAfterSuccess=true;updateScene();return;
+ }
+ if(a==='cue'){
+  if(current.cue)current.flags.repeatCue=true;
+  if(current.awaiting==='gesture'||current.awaiting==='model')current.flags.noWaitAfterPrompt=true;
+  current.cue=true;current.awaiting='initial';current.observed='pending';
+ }else if(a==='gesture'||a==='model'){
+  if(!current.firstWait)current.flags.premature=true;
+  if(current.awaiting==='gesture'||current.awaiting==='model')current.flags.noWaitAfterPrompt=true;
+  if(a==='model'&&current.observed==='no'&&current.lastPrompt!=='gesture')current.flags.skipGesture=true;
+  current.lastPrompt=a;current.awaiting=a;current.observed='pending';
+ }else if(a==='wait'){
+  if(!current.awaiting){current.flags.extraWait=true;}
+  else{
+   const phase=current.awaiting;if(phase==='initial'&&current.cue)current.firstWait=true;
+   const desired=variantFor(index);
+   let answer='no';
+   if(phase==='initial'&&desired==='independent')answer='correct';
+   if(phase==='gesture'&&(desired==='independent'||desired==='gesture'))answer='correct';
+   if(phase==='model')answer='correct';
+   current.observed=answer;current.awaiting=null;
+   if(answer==='correct'){
+    current.success=true;current.level=phase==='initial'?'Independent':phase==='gesture'?'Gestural prompt':'Model prompt';
+   }
+  }
+ }else if(a==='ack'){
+  if(current.success&&current.observed==='correct'){
+   current.ack=true;record(true);
+   if(index===STEPS.length-1){finish();return;}
+   index+=1;setStep();return;
+  }
+  current.flags.earlyAck=true;
+ }
+ updateScene();
+}
+function item(label,good,detail){return `<li><span class="check-mark ${good?'good':'consider'}" aria-hidden="true">${good?'✓':'○'}</span><strong>${esc(label)}</strong><div class="tiny muted" style="margin-left:1.5rem">${esc(detail)}</div></li>`;}
+function issues(r){const f=r.flags,arr=[];if(!r.cue)arr.push('No initial instruction recorded');if(!r.firstWait||f.premature)arr.push('Independent response opportunity was missed');if(f.skipGesture)arr.push('Model used before planned gesture');if(f.noWaitAfterPrompt)arr.push('Missing observation after a prompt');if(f.extraAfterSuccess)arr.push('Extra action after success');if(f.earlyAck)arr.push('Acknowledged before completion');if(f.repeatCue)arr.push('Instruction repeated');if(!r.complete)arr.push('Step incomplete');return arr;}
+function finish(){
+ // End & Review can be selected mid-step; preserve unfinished step and show remaining steps as unattempted.
+ if(records.length<STEPS.length && records.every(r=>r.step!==index))record(false);
+ const completed=records.filter(r=>r.complete).length;
+ $('outcome').textContent=completed+' of 3 steps completed';
+ $('review-intro').textContent=completed===3?'All three observable targets were completed in sequence.':'The routine ended before all three target responses were completed.';
+ const good=[];const improve=[];
+ for(const r of records){
+  if(r.complete&&r.firstWait&&!r.flags.premature)good.push('You allowed an independent response opportunity.');
+  if(r.complete&&r.ack)good.push('You acknowledged a completed response.');
+  for(const i of issues(r))if(!improve.includes(i))improve.push(i);
+ }
+ if(!good.length)good.push('Your decisions and observed responses were recorded for review.');
+ if(!improve.length)improve.push('Consider how to fade assistance when learner performance supports it.');
+ $('worked').textContent=[...new Set(good)].slice(0,2).join(' ');
+ $('improve').textContent=improve.slice(0,2).join(' ');
+ $('step-results').innerHTML=STEPS.map((s,i)=>{const r=records.find(a=>a.step===i);return `<tr><td>${i+1}. ${esc(s.name)}</td><td>${r?(r.complete?esc(r.level):'Not completed'):'Not attempted'}${r&&issues(r).length?`<span class="small-line">${esc(issues(r)[0])}</span>`:''}</td></tr>`}).join('');
+ const attempted=records.length;
+ const checks=[
+  ['Observable targets',true,'Three task-step completion criteria were provided in Prepare.'],
+  ['Instructions',records.every(r=>r.cue),'The app records the action, not the spoken instruction quality.'],
+  ['Independent opportunities',records.every(r=>r.firstWait&&!r.flags.premature),'Cue and allow an opportunity before assistance at each step.'],
+  ['Prompting decisions',records.every(r=>!r.flags.skipGesture&&!r.flags.noWaitAfterPrompt&&!r.flags.extraAfterSuccess&&!r.flags.premature),'Follow the planned hierarchy based on learner responses.'],
+  ['Acknowledgement',records.every(r=>r.complete&&r.ack&&!r.flags.earlyAck),'Acknowledge completed target responses; this is separate from prompting.'],
+  ['Record and review',true,'Responses recorded automatically for '+attempted+' attempted step'+(attempted===1?'':'s')+'.']
+ ];
+ $('checks').innerHTML=checks.map(row=>item(...row)).join('');
+ $('event-log').innerHTML=log.map(l=>`<li><strong>${esc(STEPS[l.step].name)}:</strong> ${esc(l.text)}</li>`).join('');
+ show('review');
+}
+$('guided-select').addEventListener('click',()=>selectMode(true));
+$('experienced-select').addEventListener('click',()=>selectMode(false));
+$('start').addEventListener('click',start);
+document.querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',()=>act(b.dataset.act)));
+$('quit').addEventListener('click',finish);
+$('retry').addEventListener('click',()=>{pattern=(pattern+1)%PATTERNS.length;start();});
+$('back-prepare').addEventListener('click',()=>{pattern=0;show('prepare');});
+selectMode(true);show('prepare');
+})();</script>
+</body></html>
