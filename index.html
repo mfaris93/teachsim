@@ -5,8 +5,8 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <meta content="light" name="color-scheme"/>
-<title>TeachSim V6.8 · Instructional rehearsal</title>
-<link href="styles.css?v=6.8" rel="stylesheet"/>
+<title>TeachSim V6.9 · Instructional rehearsal</title>
+<link href="styles.css?v=6.9" rel="stylesheet"/>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to main content</a>
@@ -64,14 +64,20 @@
 <article class="card scene-card">
 <div class="scene-heading"><div><span class="eyebrow" id="step-count"></span><h2 id="step-name" tabindex="-1"></h2><p class="small subdued" id="step-context"></p></div><span class="counter" id="count-badge"></span></div>
 <div aria-label="Step progress" class="progressbar" id="progressbar"></div>
-<div aria-label="Task illustration" class="scene-art" id="scene-art" role="group"><div class="scene-visual" id="scene-visual"></div><div class="scene-caption"><strong id="scene-student">Sam</strong><span aria-hidden="true" class="scene-icon" id="scene-icon">🧼</span><span id="scene-object-label">Task materials</span></div></div>
+<div aria-label="Task illustration" class="scene-art" id="scene-art" role="group"><div class="scene-visual" id="scene-visual"></div><div class="scene-caption"><strong id="scene-student">Sam</strong><span>· Task workspace</span><span class="sr-only" id="scene-object-label">Task materials</span></div></div>
 <div aria-label="Learner observation" class="student-observation"><div class="observation-header"><div class="label">LEARNER OBSERVATION</div><span aria-live="polite" class="observation-type" id="response-type">Ready</span></div><div aria-hidden="true" class="observed-status" id="observed-status"><span class="observed-glyph" id="observed-glyph">👀</span><span class="observed-summary" id="observed-summary">Ready to begin</span></div><p aria-atomic="true" aria-live="polite" id="student-response" role="status"></p></div>
 <div class="interaction">
 <div class="guided-instruction hidden" id="guided-instruction">
 <div class="label" id="direction-label">Give instruction</div>
 <p class="guided-copy" id="guided-words"></p>
 </div>
-<div class="label actions-label" id="actions-label">Choose your next action</div><div aria-labelledby="actions-label" class="action-grid" role="group"><button class="btn action-btn" id="give-guided-direction" type="button">Give instruction</button><button class="btn action-btn" id="do-wait" type="button">Wait</button><button class="btn action-btn prompt-action" id="point-target" type="button"><strong>Gestural prompt</strong><small class="prompt-example hidden" id="gesture-example"></small></button><button class="btn action-btn prompt-action" id="do-model" type="button"><strong>Model prompt</strong><small class="prompt-example hidden" id="model-example"></small></button><button class="btn action-btn" id="do-ack" type="button">Acknowledge</button></div><div class="guided-hint" id="guided-hint"><button aria-controls="hint-content" aria-expanded="false" class="btn hint-toggle" id="toggle-hint" type="button">Show guiding questions</button><div class="hint-content hidden" id="hint-content" role="note">Ask yourself: What did the learner actually do? Was the step completed? Have you observed a response since the last action? Choose based on what you observed.</div></div><details class="prompt-examples-details" id="prompt-example-details"><summary>What do the prompt types mean? <span>Optional</span></summary><div class="prompt-examples-body"><p><strong>Gestural:</strong> <span id="gesture-example-detail">Point towards the soap dispenser.</span></p><p><strong>Model:</strong> <span id="model-example-detail">Demonstrate the action.</span></p></div></details><div class="advance-row"><div class="step-close-note"><p class="small subdued">Acknowledge a completed step, or pause an unresolved step before continuing.</p><button class="btn subtle hidden" id="pause-step" type="button">Pause &amp; review plan</button></div><button class="btn primary" id="advance" type="button">Next task step →</button></div></div>
+<div class="teaching-actions" aria-label="Teaching actions">
+<div class="action-section"><h3 class="action-section-title">Instruction and observation</h3><div class="action-pair" role="group" aria-label="Instruction and response opportunity"><button class="btn action-btn" id="give-guided-direction" type="button">Give instruction</button><button class="btn action-btn" id="do-wait" type="button">Wait / Observe</button></div></div>
+<div class="action-section"><h3 class="action-section-title">Least-to-most prompts <span>Use if needed</span></h3><div class="prompt-pair" role="group" aria-label="Prompt levels in this practice"><button class="btn action-btn prompt-action" id="point-target" type="button"><strong>Gestural prompt</strong><small class="prompt-example" id="gesture-example">Point towards the material</small></button><button class="btn action-btn prompt-action" id="do-model" type="button"><strong>Model prompt</strong><small class="prompt-example" id="model-example">Demonstrate the action</small></button></div></div>
+<div class="action-section feedback-action-section"><h3 class="action-section-title">Respond to learner <span>Not a prompt level</span></h3><button class="btn action-btn ack-action" id="do-ack" type="button">Acknowledge success</button></div>
+</div>
+<div class="guided-hint" id="guided-hint"><button aria-controls="hint-content" aria-expanded="false" class="btn hint-toggle" id="toggle-hint" type="button">Show guiding questions</button><div class="hint-content hidden" id="hint-content" role="note">Ask yourself: What did the learner actually do? Was the step completed? Have you observed a response since the last action? Choose based on what you observed.</div></div>
+<div class="advance-row"><div class="step-close-note"><p class="small subdued">Acknowledge a completed step, or pause an unresolved step before continuing.</p><button class="btn subtle hidden" id="pause-step" type="button">Pause &amp; review plan</button></div><button class="btn primary" id="advance" type="button">Next task step →</button></div></div>
 </article>
 </section>
 <section class="hidden" id="page-review"><div class="eyebrow">03 / Debrief</div><h1 tabindex="-1">Review your teaching episode</h1><p class="lead">Review how you responded to correct, incorrect, and absent learner responses, then retry.</p><div class="review-intro card pad" id="overall"></div><div class="stats" id="review-stats"></div><div class="review-focus" id="review-focus"></div><div aria-label="Prompting decision review" class="decision-summary" id="decision-summary"></div><div aria-label="Reflection question" class="reflection-prompt" id="review-reflection"></div><details class="essentials-details feedback-details"><summary>See my full action-by-action review <span>optional</span></summary><div class="feedback-list" id="step-feedback"></div></details><p class="small subdued">Discuss these practice notes with your trainer.</p><div class="actions wrap"><button class="btn primary" id="retry-same" type="button">↻ Retry same pattern</button><button class="btn" id="retry-next" type="button">Try next variation →</button><button class="btn subtle" id="back-brief" type="button">Return to brief</button></div></section>
@@ -82,7 +88,7 @@
 <ol class="guide-steps">
 <li><strong>Prepare</strong> — Choose a fictional scenario and a pathway. Review the learner profile, task steps, and prescribed procedure.</li>
 <li><strong>Practise</strong> — Give an instruction and wait. Observe the learner’s response. After no response or an incorrect response, use the next planned prompt and observe again. Acknowledge success or pause an unresolved step.</li>
-<li><strong>Review</strong> — After completing the episode, reflect on response opportunities, prompt escalation and acknowledgement.</li>
+<li><strong>Review</strong> — After completing the episode, reflect on response opportunities, prompt escalation and acknowledgement. Acknowledgement follows successful learner performance; it is not part of the prompt hierarchy.</li>
 </ol>
 <div class="guide-pathways"><div><strong>Guided</strong><p>Suggested directions, prompt examples and optional hints. You still choose each action.</p></div><div><strong>Experienced</strong><p>Use the same prompt types, without examples or hints.</p></div></div>
 </dialog>
@@ -95,9 +101,10 @@
 <p class="small subdued">This brief is available for reference during practice. Feedback remains hidden until the episode ends.</p>
 </dialog>
 </main>
-<footer class="footer">TeachSim V6.8 · Instructional rehearsal</footer>
-<script src="scenarios.js?v=6.8"></script>
-<script src="app.js?v=6.8"></script>
+<footer class="footer">TeachSim V6.9 · Instructional rehearsal</footer>
+<script src="scenarios.js?v=6.9"></script>
+<script src="scene_renderer.js?v=6.9"></script>
+<script src="app.js?v=6.9"></script>
 <script>
   // Keep the static, readable fallback whenever app initialisation fails.
   window.addEventListener('load', function () {

@@ -123,3 +123,6 @@ Fictional learner: Noor. Learner is practising a supervised, no-heat food-servin
 - [California PENT: Prompting](https://pent.ca.gov/is/is/prompting.aspx) — learner-specific prompt order and fading.
 
 **Status after review:** To be completed by a qualified educator or systematic-instruction specialist; do not treat this pack as specialist sign-off.
+
+## V6.9 interface clarification
+The Gestural and Model buttons now show the underlying action immediately below the prompt type (task-specific in Guided, generic in Experienced). Initial direction and response opportunity are visibly outside the prompt hierarchy. **Acknowledge success is not a prompting level**; it is presented separately as a post-response teaching action. The new task-workspace vector graphics are simplified representations of materials rather than literal demonstrations of the exact learner response; validate teacher interpretation of each visual in a small specialist usability review.

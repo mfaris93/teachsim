@@ -1,5 +1,5 @@
 'use strict';
-/* TeachSim V6.8: local-only, deterministic educational demonstration.
+/* TeachSim V6.9: local-only, deterministic educational demonstration.
    NO network calls, AI model, PII processing, or assessment of real teaching fidelity. */
 (() => {
   // V6.7: fixed, fictional built-in scenarios. No accounts, storage, or content editor.
@@ -191,7 +191,7 @@
       if(!st.completed)flag('earlyAck');
       else if(st.acknowledged)flag('repeatedAck');
       else {st.acknowledged=true;}
-      log('ack','Acknowledged learner response',flags);
+      log('ack','Acknowledged learner success',flags);
     }else if(type==='pause'){
       if(st.paused)return;
       if(st.outcome!=='unresolved'||st.awaiting||!st.models)flag('prematurePause');
@@ -201,45 +201,8 @@
     }
     renderPractice();
   }
-  // Lightweight SVG teaching scenes. Illustrations are connected to scenario content
-  // and reflect whether the fictional learner is waiting or completing the step.
-  function sceneKind(s,st){
-    const name=(s.title+' '+st.name+' '+st.target).toLowerCase();
-    if(/wash|soap|rinse|hand|tap/.test(name) && /wash|soap|rinse/.test(name))return 'sink';
-    if(/bag|school|book|pencil/.test(name))return 'bag';
-    if(/wipe|table|clear|meal/.test(name))return 'table';
-    if(/fold|towel|linen|laundry/.test(name))return 'linen';
-    if(/shelf|restock|retail/.test(name))return 'shelf';
-    if(/order|box|parcel|pack/.test(name))return 'box';
-    if(/snack|tray|plate|food/.test(name))return 'tray';
-    return 'task';
-  }
-  function sceneSVG(s,st,outcome='ready'){
-    const working=outcome==='correct',mistaken=outcome==='incorrect';
-    const kind=sceneKind(s,st), icon=escapeHTML(st.icon||'🧩');
-    const wrongText=(st.incorrectResponse||'').toLowerCase();
-    const wrongIcons=[['towel','🧻'],['tap','🚰'],['book','📚'],['bag','🎒'],['soap','🧼'],['plate','🍽️'],['cup','🥛'],['box','📦'],['cloth','🧽'],['shelf','🗂️'],['tray','🍱'],['basket','🧺']];
-    const wrongIcon=escapeHTML((wrongIcons.find(([word])=>wrongText.includes(word))||['','↗'])[1]);
-    const stroke='#315262',dark='#204654',light='#e8f2ef',accent='#58ae9d',skin='#dfae8e';
-    const rect=(x,y,w,h,fill,rx=10)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}"/>`;
-    const line=(x1,y1,x2,y2,sw=6,col=stroke)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${sw}" stroke-linecap="round"/>`;
-    const props={
-      sink:`${rect(332,185,242,58,'#a9d7d0',24)}${rect(349,205,202,17,'#e2f4f1',9)}${rect(431,87,15,102,stroke,7)}${rect(442,88,68,15,stroke,6)}${rect(501,92,13,23,stroke,5)}${rect(355,151,44,42,'#f4bf6d',7)}${rect(363,141,29,13,'#f4bf6d',3)}${line(383,141,405,141,4)}`,
-      bag:`${rect(352,124,150,143,'#77aea8',26)}${rect(375,106,104,39,'none',16)}<path d="M375 133V120Q375 104 394 104H462Q481 104 481 120V133" fill="none" stroke="${stroke}" stroke-width="10"/>${rect(382,179,90,58,'#bfe4dd',14)}${rect(495,137,44,87,'#f2bd72',4)}${rect(499,142,36,15,'#fcf8ec',2)}`,
-      table:`${rect(321,174,257,22,'#c79b76',5)}${rect(337,193,16,83,'#a47a5c',4)}${rect(546,193,16,83,'#a47a5c',4)}${rect(439,145,69,22,'#75c5b5',10)}${rect(477,131,40,11,'#e9c77c',5)}${line(409,174,468,174,6,accent)}`,
-      linen:`${rect(350,207,190,27,'#90bbb2',6)}${rect(363,180,169,25,'#f1c0a9',7)}${rect(377,157,140,23,'#bdd9e9',7)}${rect(396,134,102,22,'#e5d2a3',6)}${line(384,154,384,228,3,'#d8ece7')}`,
-      shelf:`${rect(350,96,17,180,stroke,3)}${rect(541,96,17,180,stroke,3)}${rect(362,145,184,12,'#a8c9c0',3)}${rect(362,220,184,12,'#a8c9c0',3)}${rect(387,109,34,37,'#dabb8d',5)}${rect(431,110,27,35,'#7fc7b3',5)}${rect(470,102,45,43,'#e7b9a4',5)}${rect(393,176,34,43,'#a3c5df',4)}${rect(449,166,37,54,'#eacb96',5)}${rect(496,180,32,39,'#e3b2b2',5)}`,
-      box:`${rect(363,158,166,98,'#e6ba80',3)}<path d="M363 157L398 122H564L529 158Z" fill="#f2d5ac"/><path d="M529 158L564 122V218L529 257Z" fill="#c89b67"/>${rect(415,193,71,31,'#fff7e8',3)}${line(451,193,451,225,2,'#b28a5c')}`,
-      tray:`${rect(346,186,204,40,'#8fbbb4',16)}<ellipse cx="450" cy="183" rx="77" ry="26" fill="#eef8f5" stroke="#679f96" stroke-width="4"/>${rect(401,147,53,23,'#e4b76c',7)}${rect(416,135,56,24,'#e9c784',7)}${rect(485,124,31,57,'#add8df',5)}${rect(491,123,20,8,'#f5faf6',4)}`,
-      task:`${rect(349,141,195,110,'#dcebe9',15)}${rect(361,151,174,87,'#f5faf8',9)}<text x="447" y="215" text-anchor="middle" font-size="64">${icon}</text>`
-    };
-    // Arms change pose after a learner response, without implying precise motor behaviour.
-    const arm=working?`<path d="M231 165Q296 180 343 169" fill="none" stroke="${skin}" stroke-width="18" stroke-linecap="round"/>`:mistaken?`<path d="M231 165Q280 139 309 120" fill="none" stroke="${skin}" stroke-width="18" stroke-linecap="round"/>`:`<path d="M231 165Q251 216 276 235" fill="none" stroke="${skin}" stroke-width="18" stroke-linecap="round"/>`;
-    const actionObject=working?`<text x="330" y="149" text-anchor="middle" font-size="37">${icon}</text>`:mistaken?`<text x="306" y="99" text-anchor="middle" font-size="36">${wrongIcon}</text>`:'';
-    const cue=working?`<circle cx="341" cy="170" r="9" fill="${skin}"/>`:mistaken?`<circle cx="309" cy="120" r="9" fill="${skin}"/>`:`<path d="M274 228Q284 233 289 245" fill="none" stroke="${skin}" stroke-width="12" stroke-linecap="round"/>`;
-    const responseSymbol=working?'✓':mistaken?'↗':outcome==='no_response'?'—':outcome==='unresolved'?'!':'';const responseCue=responseSymbol?`<circle cx="602" cy="39" r="23" fill="${working?'#d7efe2':mistaken?'#fff2d9':'#e0ecf3'}"/><text x="602" y="48" font-size="26" font-weight="700" text-anchor="middle" fill="${working?'#15533b':mistaken?'#845312':'#345770'}">${responseSymbol}</text>`:'';
-    return `<svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><rect width="640" height="300" rx="16" fill="#edf6f4"/>${rect(22,255,596,12,'#d7e7e2',6)}<ellipse cx="205" cy="275" rx="83" ry="12" fill="#d4e3e0"/>${rect(163,139,83,124,'#6daaa8',29)}${line(181,253,174,281,13,dark)}${line(226,253,239,281,13,dark)}${line(170,164,144,233,17,skin)}${arm}${cue}<circle cx="207" cy="101" r="49" fill="${skin}"/><path d="M156 95Q151 47 204 48Q258 45 256 104Q244 75 210 80Q178 81 156 95" fill="${dark}"/><circle cx="190" cy="109" r="4" fill="${dark}"/><circle cx="226" cy="109" r="4" fill="${dark}"/><path d="M195 127Q209 135 220 126" stroke="#915b4a" stroke-width="3" fill="none" stroke-linecap="round"/>${props[kind]}${actionObject}${responseCue}</svg>`;
-  }
+  // Dedicated, task-specific materials; learner observations remain the source of exact action detail.
+  const sceneSVG=(s,st,outcome)=>window.TEACHSIM_SCENE_RENDER(s,stepIndex,outcome);
   function renderPractice(){const s=current(),st=s.steps[stepIndex];
     const guided=pathway==='new';
     $('guided-instruction').classList.remove('hidden');
@@ -250,7 +213,7 @@
     $('give-guided-direction').textContent=practiceState.said>0?'✓ Instruction given':(guided?'▸ Give suggested instruction':'▸ I gave an instruction');
     $('practice-pathway-tag').textContent=guided?'Guided':'Experienced';
     $('practice-lead').textContent='Watch what the learner does. Then decide.';$('step-count').textContent=`Task step ${stepIndex+1}`;$('step-name').textContent=st.name;$('step-context').textContent=st.context;$('count-badge').textContent=`${stepIndex+1} / ${s.steps.length}`;
-    $('progressbar').innerHTML=s.steps.map((_,i)=>`<i class="${i<stepIndex?'done':i===stepIndex?'now':''}"></i>`).join('');$('progressbar').setAttribute('aria-label',`Step ${stepIndex+1} of ${s.steps.length}`);$('scene-student').textContent=s.learnerName;$('scene-icon').textContent=st.icon||'🧩';$('scene-object-label').textContent=st.target||'Task material';$('scene-visual').innerHTML=sceneSVG(s,st,practiceState.outcome);$('point-target').setAttribute('aria-label',`Gestural prompt: point to ${st.target||'the object'}`);$('do-model').setAttribute('aria-label',`Model prompt: demonstrate ${st.name.toLowerCase()}`);$('gesture-example').textContent=`Point to ${st.target||'the object'}`;$('model-example').textContent=`Demonstrate ${st.name.toLowerCase()}`;$('gesture-example-detail').textContent=`Point to ${st.target||'the material'}.`;$('model-example-detail').textContent=`Demonstrate ${st.name.toLowerCase()}.`;$('guided-hint').classList.toggle('hidden',!guided);$('prompt-example-details').classList.toggle('hidden',!guided);document.querySelectorAll('.prompt-example').forEach(el=>el.classList.add('hidden'));$('student-response').textContent=observedText(practiceState.response,s.learnerName);
+    $('progressbar').innerHTML=s.steps.map((_,i)=>`<i class="${i<stepIndex?'done':i===stepIndex?'now':''}"></i>`).join('');$('progressbar').setAttribute('aria-label',`Step ${stepIndex+1} of ${s.steps.length}`);$('scene-student').textContent=s.learnerName;$('scene-object-label').textContent=st.target||'Task material';$('scene-visual').innerHTML=sceneSVG(s,st,practiceState.outcome);$('gesture-example').textContent=guided?`Point towards ${st.target||'the material'}`:'Use a gesture to cue the step';$('model-example').textContent=guided?`Show how to ${st.name.toLowerCase()}`:'Demonstrate the step';$('guided-hint').classList.toggle('hidden',!guided);$('student-response').textContent=observedText(practiceState.response,s.learnerName);
     const kind=practiceState.outcome;
     const kindText={ready:'Ready',pending:'Not yet observed',correct:'Completed',incorrect:'Different action',no_response:'No action',unresolved:'Still incomplete'};
     $('response-type').textContent=practiceState.paused?'Paused':(kindText[kind]||'Observe response');
@@ -273,7 +236,7 @@
     const result=['Give instruction','Wait'];
     if(plan.length>1)result.push('Gestural prompt','Wait');
     if(plan.length>2)result.push('Model prompt','Wait');
-    result.push(plan[plan.length-1]==='unresolved'?'Pause & review plan':'Acknowledge');
+    result.push(plan[plan.length-1]==='unresolved'?'Pause & review plan':'Acknowledge success');
     result.push('Next task step');
     return result;
   }
@@ -307,7 +270,7 @@
   function returnBrief(next=false){const eligible=indicesForPath();if(next&&eligible.length>1)patternIndex=eligible[(eligible.indexOf(patternIndex)+1)%eligible.length];renderPrepare();setPage('prepare');}
   function openDialog(el){if(typeof el.showModal==='function')el.showModal();else el.setAttribute('open','');}
   function closeDialog(el){if(typeof el.close==='function')el.close();else el.removeAttribute('open');}
-  function resetHint(){$('hint-content').classList.add('hidden');$('toggle-hint').setAttribute('aria-expanded','false');$('toggle-hint').textContent='Show guiding questions';$('prompt-example-details').open=false;}
+  function resetHint(){$('hint-content').classList.add('hidden');$('toggle-hint').setAttribute('aria-expanded','false');$('toggle-hint').textContent='Show guiding questions';}
   $('toggle-hint').addEventListener('click',()=>{const el=$('hint-content');const expanding=el.classList.contains('hidden');el.classList.toggle('hidden',!expanding);$('toggle-hint').setAttribute('aria-expanded',String(expanding));$('toggle-hint').textContent=expanding?'Hide guiding questions':'Show guiding questions';});
   const helpDialog=$('help-dialog'),briefDialog=$('brief-dialog');
   $('open-guide').addEventListener('click',()=>openDialog(helpDialog));
